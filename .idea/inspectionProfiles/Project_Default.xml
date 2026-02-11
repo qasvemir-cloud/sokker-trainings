@@ -1,0 +1,82 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="AutoCloseableResource" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="METHOD_MATCHER_CONFIG" value="java.util.Formatter,format,java.io.Writer,append,com.google.common.base.Preconditions,checkNotNull,org.hibernate.Session,close,java.io.PrintWriter,printf,java.io.PrintStream,printf,java.lang.foreign.Arena,ofAuto,java.lang.foreign.Arena,global,java.net.http.HttpClient,newHttpClient,java.net.http.HttpClient.Builder,build" />
+    </inspection_tool>
+    <inspection_tool class="ExtractMethodRecommender" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="minLength" value="1231" />
+    </inspection_tool>
+    <inspection_tool class="MisspelledHeader" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="CUSTOM_HEADERS">
+        <header value="SplashScreen-Image" />
+      </option>
+    </inspection_tool>
+    <inspection_tool class="VulnerableLibrariesLocal" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="isIgnoringEnabled" value="true" />
+      <option name="ignoredModules">
+        <list>
+          <option value="Sokker" />
+          <option value="uiApplications" />
+          <option value="uiApplications" />
+          <option value="uiApplications" />
+          <option value="uiApplications" />
+          <option value="uiApplications" />
+          <option value="uiApplications" />
+          <option value="uiApplications" />
+          <option value="uiApplications" />
+          <option value="uiApplications" />
+          <option value="uiApplications" />
+          <option value="uiApplications" />
+          <option value="uiApplications" />
+          <option value="uiApplications" />
+          <option value="uiApplications" />
+          <option value="uiApplications" />
+          <option value="uiApplications" />
+        </list>
+      </option>
+      <option name="ignoredPackages">
+        <list>
+          <option value="commons-codec:commons-codec:1.11" />
+          <option value="io.netty:netty-common:4.1.109.Final" />
+          <option value="org.bouncycastle:bcprov-jdk15on:1.69" />
+          <option value="com.google.guava:guava:31.0.1-jre" />
+          <option value="io.netty:netty-codec-http:4.1.77.Final" />
+          <option value="io.netty:netty-common:4.1.77.Final" />
+          <option value="io.netty:netty-handler:4.1.77.Final" />
+          <option value="org.codehaus.plexus:plexus-utils:2.0.4" />
+          <option value="org.apache.maven:maven-core:3.0" />
+          <option value="org.apache.maven.shared:maven-shared-utils:3.2.1" />
+          <option value="commons-io:commons-io:2.5" />
+          <option value="io.netty:netty-common:4.1.112.Final" />
+          <option value="org.springframework:spring-webmvc:6.1.12" />
+          <option value="org.springframework:spring-context:6.1.12" />
+          <option value="ch.qos.logback:logback-classic:1.5.7" />
+          <option value="org.apache.tomcat.embed:tomcat-embed-core:10.1.28" />
+          <option value="ch.qos.logback:logback-core:1.5.7" />
+        </list>
+      </option>
+      <option name="ignoredReasons">
+        <list>
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

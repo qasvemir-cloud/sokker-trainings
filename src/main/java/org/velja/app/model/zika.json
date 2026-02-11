@@ -1,0 +1,4213 @@
+{
+  "reports": [
+    {
+      "week": 1126,
+      "day": {
+        "season": 72,
+        "week": 1126,
+        "seasonWeek": 8,
+        "day": 5,
+        "date": {
+          "value": "2025-02-06",
+          "timestamp": 1738828800
+        }
+      },
+      "skills": {
+        "form": 15,
+        "tacticalDiscipline": 16,
+        "teamwork": 18,
+        "experience": 15,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 14,
+        "passing": 12,
+        "technique": 14,
+        "defending": 9,
+        "striker": 5,
+        "pace": 16
+      },
+      "skillsChange": {
+        "form": -3,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 1,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 4,
+        "name": "passing"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 97700000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 99,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1125,
+      "day": {
+        "season": 72,
+        "week": 1125,
+        "seasonWeek": 7,
+        "day": 5,
+        "date": {
+          "value": "2025-01-30",
+          "timestamp": 1738224000
+        }
+      },
+      "skills": {
+        "form": 18,
+        "tacticalDiscipline": 16,
+        "teamwork": 18,
+        "experience": 15,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 14,
+        "passing": 12,
+        "technique": 13,
+        "defending": 9,
+        "striker": 5,
+        "pace": 16
+      },
+      "skillsChange": {
+        "form": 0,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 1,
+        "striker": 0,
+        "pace": 1,
+        "down": 0,
+        "up": 2
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 102240000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 3,
+        "name": "ATT"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1124,
+      "day": {
+        "season": 72,
+        "week": 1124,
+        "seasonWeek": 6,
+        "day": 5,
+        "date": {
+          "value": "2025-01-23",
+          "timestamp": 1737619200
+        }
+      },
+      "skills": {
+        "form": 18,
+        "tacticalDiscipline": 16,
+        "teamwork": 18,
+        "experience": 15,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 14,
+        "passing": 12,
+        "technique": 13,
+        "defending": 8,
+        "striker": 5,
+        "pace": 15
+      },
+      "skillsChange": {
+        "form": 2,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 100080000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 3,
+        "name": "ATT"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1123,
+      "day": {
+        "season": 72,
+        "week": 1123,
+        "seasonWeek": 5,
+        "day": 5,
+        "date": {
+          "value": "2025-01-16",
+          "timestamp": 1737014400
+        }
+      },
+      "skills": {
+        "form": 16,
+        "tacticalDiscipline": 16,
+        "teamwork": 18,
+        "experience": 15,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 14,
+        "passing": 12,
+        "technique": 13,
+        "defending": 8,
+        "striker": 5,
+        "pace": 15
+      },
+      "skillsChange": {
+        "form": 0,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 93780000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 1,
+        "name": "DEF"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1122,
+      "day": {
+        "season": 72,
+        "week": 1122,
+        "seasonWeek": 4,
+        "day": 5,
+        "date": {
+          "value": "2025-01-09",
+          "timestamp": 1736409600
+        }
+      },
+      "skills": {
+        "form": 16,
+        "tacticalDiscipline": 16,
+        "teamwork": 18,
+        "experience": 15,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 14,
+        "passing": 12,
+        "technique": 13,
+        "defending": 8,
+        "striker": 5,
+        "pace": 15
+      },
+      "skillsChange": {
+        "form": -2,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 93200000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 270,
+        "minutesFriendly": 0,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 1,
+        "name": "DEF"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1121,
+      "day": {
+        "season": 72,
+        "week": 1121,
+        "seasonWeek": 3,
+        "day": 5,
+        "date": {
+          "value": "2025-01-02",
+          "timestamp": 1735804800
+        }
+      },
+      "skills": {
+        "form": 18,
+        "tacticalDiscipline": 16,
+        "teamwork": 18,
+        "experience": 15,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 14,
+        "passing": 12,
+        "technique": 13,
+        "defending": 8,
+        "striker": 5,
+        "pace": 15
+      },
+      "skillsChange": {
+        "form": 0,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 1,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 93900000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 131,
+        "minutesFriendly": 0,
+        "minutesNational": 0
+      },
+      "intensity": 98,
+      "formation": {
+        "code": 1,
+        "name": "DEF"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1120,
+      "day": {
+        "season": 72,
+        "week": 1120,
+        "seasonWeek": 2,
+        "day": 5,
+        "date": {
+          "value": "2024-12-26",
+          "timestamp": 1735200000
+        }
+      },
+      "skills": {
+        "form": 18,
+        "tacticalDiscipline": 16,
+        "teamwork": 18,
+        "experience": 14,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 14,
+        "passing": 12,
+        "technique": 13,
+        "defending": 8,
+        "striker": 5,
+        "pace": 15
+      },
+      "skillsChange": {
+        "form": 1,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 92000000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 270,
+        "minutesFriendly": 0,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1119,
+      "day": {
+        "season": 72,
+        "week": 1119,
+        "seasonWeek": 1,
+        "day": 5,
+        "date": {
+          "value": "2024-12-19",
+          "timestamp": 1734595200
+        }
+      },
+      "skills": {
+        "form": 17,
+        "tacticalDiscipline": 16,
+        "teamwork": 18,
+        "experience": 14,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 14,
+        "passing": 12,
+        "technique": 13,
+        "defending": 8,
+        "striker": 5,
+        "pace": 15
+      },
+      "skillsChange": {
+        "form": 4,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 4,
+        "name": "passing"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 89160000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 0,
+        "minutesFriendly": 270,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1118,
+      "day": {
+        "season": 71,
+        "week": 1118,
+        "seasonWeek": 13,
+        "day": 5,
+        "date": {
+          "value": "2024-12-12",
+          "timestamp": 1733990400
+        }
+      },
+      "skills": {
+        "form": 13,
+        "tacticalDiscipline": 16,
+        "teamwork": 18,
+        "experience": 14,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 14,
+        "passing": 12,
+        "technique": 13,
+        "defending": 8,
+        "striker": 5,
+        "pace": 15
+      },
+      "skillsChange": {
+        "form": -2,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 77560000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 0,
+        "minutesFriendly": 270,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1117,
+      "day": {
+        "season": 71,
+        "week": 1117,
+        "seasonWeek": 12,
+        "day": 5,
+        "date": {
+          "value": "2024-12-05",
+          "timestamp": 1733385600
+        }
+      },
+      "skills": {
+        "form": 15,
+        "tacticalDiscipline": 16,
+        "teamwork": 18,
+        "experience": 14,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 14,
+        "passing": 12,
+        "technique": 13,
+        "defending": 8,
+        "striker": 5,
+        "pace": 15
+      },
+      "skillsChange": {
+        "form": -3,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 80520000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1116,
+      "day": {
+        "season": 71,
+        "week": 1116,
+        "seasonWeek": 11,
+        "day": 5,
+        "date": {
+          "value": "2024-11-28",
+          "timestamp": 1732780800
+        }
+      },
+      "skills": {
+        "form": 18,
+        "tacticalDiscipline": 16,
+        "teamwork": 18,
+        "experience": 14,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 14,
+        "passing": 12,
+        "technique": 13,
+        "defending": 8,
+        "striker": 5,
+        "pace": 15
+      },
+      "skillsChange": {
+        "form": 0,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 1,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 84720000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 3,
+        "name": "ATT"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1115,
+      "day": {
+        "season": 71,
+        "week": 1115,
+        "seasonWeek": 10,
+        "day": 5,
+        "date": {
+          "value": "2024-11-21",
+          "timestamp": 1732176000
+        }
+      },
+      "skills": {
+        "form": 18,
+        "tacticalDiscipline": 16,
+        "teamwork": 18,
+        "experience": 14,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 14,
+        "passing": 12,
+        "technique": 13,
+        "defending": 8,
+        "striker": 5,
+        "pace": 14
+      },
+      "skillsChange": {
+        "form": 3,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 82760000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 3,
+        "name": "ATT"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1114,
+      "day": {
+        "season": 71,
+        "week": 1114,
+        "seasonWeek": 9,
+        "day": 5,
+        "date": {
+          "value": "2024-11-14",
+          "timestamp": 1731571200
+        }
+      },
+      "skills": {
+        "form": 15,
+        "tacticalDiscipline": 16,
+        "teamwork": 18,
+        "experience": 14,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 14,
+        "passing": 12,
+        "technique": 13,
+        "defending": 8,
+        "striker": 5,
+        "pace": 14
+      },
+      "skillsChange": {
+        "form": -1,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 1,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 1,
+        "pace": 0,
+        "down": 0,
+        "up": 2
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 76700000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 3,
+        "name": "ATT"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1113,
+      "day": {
+        "season": 71,
+        "week": 1113,
+        "seasonWeek": 8,
+        "day": 5,
+        "date": {
+          "value": "2024-11-07",
+          "timestamp": 1730966400
+        }
+      },
+      "skills": {
+        "form": 16,
+        "tacticalDiscipline": 16,
+        "teamwork": 18,
+        "experience": 14,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 12,
+        "technique": 13,
+        "defending": 8,
+        "striker": 4,
+        "pace": 14
+      },
+      "skillsChange": {
+        "form": 0,
+        "tacticalDiscipline": 1,
+        "teamwork": 0,
+        "experience": 1,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 76060000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 0,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 3,
+        "name": "ATT"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1112,
+      "day": {
+        "season": 71,
+        "week": 1112,
+        "seasonWeek": 7,
+        "day": 5,
+        "date": {
+          "value": "2024-10-31",
+          "timestamp": 1730361600
+        }
+      },
+      "skills": {
+        "form": 16,
+        "tacticalDiscipline": 15,
+        "teamwork": 18,
+        "experience": 13,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 12,
+        "technique": 13,
+        "defending": 8,
+        "striker": 4,
+        "pace": 14
+      },
+      "skillsChange": {
+        "form": 3,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 75120000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 0,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 3,
+        "name": "ATT"
+      },
+      "injury": {
+        "daysRemaining": 1,
+        "severe": false
+      }
+    },
+    {
+      "week": 1111,
+      "day": {
+        "season": 71,
+        "week": 1111,
+        "seasonWeek": 6,
+        "day": 5,
+        "date": {
+          "value": "2024-10-24",
+          "timestamp": 1729753200
+        }
+      },
+      "skills": {
+        "form": 13,
+        "tacticalDiscipline": 15,
+        "teamwork": 18,
+        "experience": 13,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 12,
+        "technique": 13,
+        "defending": 8,
+        "striker": 4,
+        "pace": 14
+      },
+      "skillsChange": {
+        "form": 4,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 3,
+        "name": "missing"
+      },
+      "playerValue": {
+        "value": 66440000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 148,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 0,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 9,
+        "severe": true
+      }
+    },
+    {
+      "week": 1110,
+      "day": {
+        "season": 71,
+        "week": 1110,
+        "seasonWeek": 5,
+        "day": 5,
+        "date": {
+          "value": "2024-10-17",
+          "timestamp": 1729148400
+        }
+      },
+      "skills": {
+        "form": 9,
+        "tacticalDiscipline": 15,
+        "teamwork": 18,
+        "experience": 13,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 12,
+        "technique": 13,
+        "defending": 8,
+        "striker": 4,
+        "pace": 14
+      },
+      "skillsChange": {
+        "form": 2,
+        "tacticalDiscipline": 0,
+        "teamwork": 1,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 1,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 4,
+        "name": "passing"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 59680000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1109,
+      "day": {
+        "season": 71,
+        "week": 1109,
+        "seasonWeek": 4,
+        "day": 5,
+        "date": {
+          "value": "2024-10-10",
+          "timestamp": 1728543600
+        }
+      },
+      "skills": {
+        "form": 7,
+        "tacticalDiscipline": 15,
+        "teamwork": 17,
+        "experience": 13,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 11,
+        "technique": 13,
+        "defending": 8,
+        "striker": 4,
+        "pace": 14
+      },
+      "skillsChange": {
+        "form": -2,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 53380000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1108,
+      "day": {
+        "season": 71,
+        "week": 1108,
+        "seasonWeek": 3,
+        "day": 5,
+        "date": {
+          "value": "2024-10-03",
+          "timestamp": 1727938800
+        }
+      },
+      "skills": {
+        "form": 9,
+        "tacticalDiscipline": 15,
+        "teamwork": 17,
+        "experience": 13,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 11,
+        "technique": 13,
+        "defending": 8,
+        "striker": 4,
+        "pace": 14
+      },
+      "skillsChange": {
+        "form": -3,
+        "tacticalDiscipline": 1,
+        "teamwork": 1,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 3,
+        "name": "playmaking"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 56560000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 270,
+        "minutesFriendly": 0,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1107,
+      "day": {
+        "season": 71,
+        "week": 1107,
+        "seasonWeek": 2,
+        "day": 5,
+        "date": {
+          "value": "2024-09-26",
+          "timestamp": 1727334000
+        }
+      },
+      "skills": {
+        "form": 12,
+        "tacticalDiscipline": 14,
+        "teamwork": 16,
+        "experience": 13,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 11,
+        "technique": 13,
+        "defending": 8,
+        "striker": 4,
+        "pace": 14
+      },
+      "skillsChange": {
+        "form": -3,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 1,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 59720000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 270,
+        "minutesFriendly": 0,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1106,
+      "day": {
+        "season": 71,
+        "week": 1106,
+        "seasonWeek": 1,
+        "day": 5,
+        "date": {
+          "value": "2024-09-19",
+          "timestamp": 1726729200
+        }
+      },
+      "skills": {
+        "form": 15,
+        "tacticalDiscipline": 14,
+        "teamwork": 16,
+        "experience": 12,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 11,
+        "technique": 13,
+        "defending": 8,
+        "striker": 4,
+        "pace": 14
+      },
+      "skillsChange": {
+        "form": 3,
+        "tacticalDiscipline": 1,
+        "teamwork": 1,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 1,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 63760000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 0,
+        "minutesFriendly": 270,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1105,
+      "day": {
+        "season": 70,
+        "week": 1105,
+        "seasonWeek": 13,
+        "day": 5,
+        "date": {
+          "value": "2024-09-12",
+          "timestamp": 1726124400
+        }
+      },
+      "skills": {
+        "form": 12,
+        "tacticalDiscipline": 13,
+        "teamwork": 15,
+        "experience": 12,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 11,
+        "technique": 13,
+        "defending": 8,
+        "striker": 4,
+        "pace": 13
+      },
+      "skillsChange": {
+        "form": 0,
+        "tacticalDiscipline": -2,
+        "teamwork": -3,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 3,
+        "name": "missing"
+      },
+      "playerValue": {
+        "value": 57300000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 0,
+        "minutesFriendly": 10,
+        "minutesNational": 0
+      },
+      "intensity": 0,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 8,
+        "severe": true
+      }
+    },
+    {
+      "week": 1104,
+      "day": {
+        "season": 70,
+        "week": 1104,
+        "seasonWeek": 12,
+        "day": 5,
+        "date": {
+          "value": "2024-09-05",
+          "timestamp": 1725519600
+        }
+      },
+      "skills": {
+        "form": 12,
+        "tacticalDiscipline": 15,
+        "teamwork": 18,
+        "experience": 12,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 11,
+        "technique": 13,
+        "defending": 8,
+        "striker": 4,
+        "pace": 13
+      },
+      "skillsChange": {
+        "form": 4,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 1,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 56560000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 136,
+        "minutesFriendly": 0,
+        "minutesNational": 0
+      },
+      "intensity": 98,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1103,
+      "day": {
+        "season": 70,
+        "week": 1103,
+        "seasonWeek": 11,
+        "day": 5,
+        "date": {
+          "value": "2024-08-29",
+          "timestamp": 1724914800
+        }
+      },
+      "skills": {
+        "form": 8,
+        "tacticalDiscipline": 15,
+        "teamwork": 18,
+        "experience": 12,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 11,
+        "technique": 12,
+        "defending": 8,
+        "striker": 4,
+        "pace": 13
+      },
+      "skillsChange": {
+        "form": -3,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 49320000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 0,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1102,
+      "day": {
+        "season": 70,
+        "week": 1102,
+        "seasonWeek": 10,
+        "day": 5,
+        "date": {
+          "value": "2024-08-22",
+          "timestamp": 1724310000
+        }
+      },
+      "skills": {
+        "form": 11,
+        "tacticalDiscipline": 15,
+        "teamwork": 18,
+        "experience": 12,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 11,
+        "technique": 12,
+        "defending": 8,
+        "striker": 4,
+        "pace": 13
+      },
+      "skillsChange": {
+        "form": -1,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 51900000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 88,
+        "minutesNational": 90
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1101,
+      "day": {
+        "season": 70,
+        "week": 1101,
+        "seasonWeek": 9,
+        "day": 5,
+        "date": {
+          "value": "2024-08-15",
+          "timestamp": 1723705200
+        }
+      },
+      "skills": {
+        "form": 12,
+        "tacticalDiscipline": 15,
+        "teamwork": 18,
+        "experience": 12,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 11,
+        "technique": 12,
+        "defending": 8,
+        "striker": 4,
+        "pace": 13
+      },
+      "skillsChange": {
+        "form": 0,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 52440000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1100,
+      "day": {
+        "season": 70,
+        "week": 1100,
+        "seasonWeek": 8,
+        "day": 5,
+        "date": {
+          "value": "2024-08-08",
+          "timestamp": 1723100400
+        }
+      },
+      "skills": {
+        "form": 12,
+        "tacticalDiscipline": 15,
+        "teamwork": 18,
+        "experience": 12,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 11,
+        "technique": 12,
+        "defending": 8,
+        "striker": 4,
+        "pace": 13
+      },
+      "skillsChange": {
+        "form": -1,
+        "tacticalDiscipline": 1,
+        "teamwork": 0,
+        "experience": 1,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 1,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 50260000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 19
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1099,
+      "day": {
+        "season": 70,
+        "week": 1099,
+        "seasonWeek": 7,
+        "day": 5,
+        "date": {
+          "value": "2024-08-01",
+          "timestamp": 1722495600
+        }
+      },
+      "skills": {
+        "form": 13,
+        "tacticalDiscipline": 14,
+        "teamwork": 18,
+        "experience": 11,
+        "stamina": 11,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 11,
+        "technique": 12,
+        "defending": 7,
+        "striker": 4,
+        "pace": 13
+      },
+      "skillsChange": {
+        "form": 2,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 1,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 49660000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1098,
+      "day": {
+        "season": 70,
+        "week": 1098,
+        "seasonWeek": 6,
+        "day": 5,
+        "date": {
+          "value": "2024-07-25",
+          "timestamp": 1721890800
+        }
+      },
+      "skills": {
+        "form": 11,
+        "tacticalDiscipline": 14,
+        "teamwork": 18,
+        "experience": 11,
+        "stamina": 10,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 11,
+        "technique": 12,
+        "defending": 7,
+        "striker": 4,
+        "pace": 13
+      },
+      "skillsChange": {
+        "form": 0,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 3,
+        "name": "playmaking"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 46300000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 60
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1097,
+      "day": {
+        "season": 70,
+        "week": 1097,
+        "seasonWeek": 5,
+        "day": 5,
+        "date": {
+          "value": "2024-07-18",
+          "timestamp": 1721286000
+        }
+      },
+      "skills": {
+        "form": 11,
+        "tacticalDiscipline": 14,
+        "teamwork": 18,
+        "experience": 11,
+        "stamina": 10,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 11,
+        "technique": 12,
+        "defending": 7,
+        "striker": 4,
+        "pace": 13
+      },
+      "skillsChange": {
+        "form": -1,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 1,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 44400000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 90
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1096,
+      "day": {
+        "season": 70,
+        "week": 1096,
+        "seasonWeek": 4,
+        "day": 5,
+        "date": {
+          "value": "2024-07-11",
+          "timestamp": 1720681200
+        }
+      },
+      "skills": {
+        "form": 12,
+        "tacticalDiscipline": 14,
+        "teamwork": 18,
+        "experience": 11,
+        "stamina": 10,
+        "keeper": 1,
+        "playmaking": 13,
+        "passing": 11,
+        "technique": 12,
+        "defending": 7,
+        "striker": 4,
+        "pace": 12
+      },
+      "skillsChange": {
+        "form": 0,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 1,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 1,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 1,
+        "pace": 0,
+        "down": 0,
+        "up": 2
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 43740000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 90
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1095,
+      "day": {
+        "season": 70,
+        "week": 1095,
+        "seasonWeek": 3,
+        "day": 5,
+        "date": {
+          "value": "2024-07-04",
+          "timestamp": 1720076400
+        }
+      },
+      "skills": {
+        "form": 12,
+        "tacticalDiscipline": 14,
+        "teamwork": 18,
+        "experience": 10,
+        "stamina": 10,
+        "keeper": 1,
+        "playmaking": 12,
+        "passing": 11,
+        "technique": 12,
+        "defending": 7,
+        "striker": 3,
+        "pace": 12
+      },
+      "skillsChange": {
+        "form": 1,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 42840000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 204,
+        "minutesFriendly": 0,
+        "minutesNational": 61
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1094,
+      "day": {
+        "season": 70,
+        "week": 1094,
+        "seasonWeek": 2,
+        "day": 5,
+        "date": {
+          "value": "2024-06-27",
+          "timestamp": 1719471600
+        }
+      },
+      "skills": {
+        "form": 11,
+        "tacticalDiscipline": 14,
+        "teamwork": 18,
+        "experience": 10,
+        "stamina": 10,
+        "keeper": 1,
+        "playmaking": 12,
+        "passing": 11,
+        "technique": 12,
+        "defending": 7,
+        "striker": 3,
+        "pace": 12
+      },
+      "skillsChange": {
+        "form": 0,
+        "tacticalDiscipline": 1,
+        "teamwork": 0,
+        "experience": 1,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 1,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 4,
+        "name": "passing"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 39620000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 270,
+        "minutesFriendly": 0,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1093,
+      "day": {
+        "season": 70,
+        "week": 1093,
+        "seasonWeek": 1,
+        "day": 5,
+        "date": {
+          "value": "2024-06-20",
+          "timestamp": 1718866800
+        }
+      },
+      "skills": {
+        "form": 11,
+        "tacticalDiscipline": 13,
+        "teamwork": 18,
+        "experience": 9,
+        "stamina": 10,
+        "keeper": 1,
+        "playmaking": 12,
+        "passing": 10,
+        "technique": 12,
+        "defending": 7,
+        "striker": 3,
+        "pace": 12
+      },
+      "skillsChange": {
+        "form": 2,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 1,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 38320000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 0,
+        "minutesFriendly": 270,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1092,
+      "day": {
+        "season": 69,
+        "week": 1092,
+        "seasonWeek": 13,
+        "day": 5,
+        "date": {
+          "value": "2024-06-13",
+          "timestamp": 1718262000
+        }
+      },
+      "skills": {
+        "form": 9,
+        "tacticalDiscipline": 13,
+        "teamwork": 18,
+        "experience": 9,
+        "stamina": 10,
+        "keeper": 1,
+        "playmaking": 12,
+        "passing": 10,
+        "technique": 11,
+        "defending": 7,
+        "striker": 3,
+        "pace": 12
+      },
+      "skillsChange": {
+        "form": -1,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 1,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 35040000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 90,
+        "minutesFriendly": 180,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1091,
+      "day": {
+        "season": 69,
+        "week": 1091,
+        "seasonWeek": 12,
+        "day": 5,
+        "date": {
+          "value": "2024-06-06",
+          "timestamp": 1717657200
+        }
+      },
+      "skills": {
+        "form": 10,
+        "tacticalDiscipline": 13,
+        "teamwork": 18,
+        "experience": 9,
+        "stamina": 9,
+        "keeper": 1,
+        "playmaking": 12,
+        "passing": 10,
+        "technique": 11,
+        "defending": 7,
+        "striker": 3,
+        "pace": 12
+      },
+      "skillsChange": {
+        "form": -3,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 34700000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 60
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1090,
+      "day": {
+        "season": 69,
+        "week": 1090,
+        "seasonWeek": 11,
+        "day": 5,
+        "date": {
+          "value": "2024-05-30",
+          "timestamp": 1717052400
+        }
+      },
+      "skills": {
+        "form": 13,
+        "tacticalDiscipline": 13,
+        "teamwork": 18,
+        "experience": 9,
+        "stamina": 9,
+        "keeper": 1,
+        "playmaking": 12,
+        "passing": 10,
+        "technique": 11,
+        "defending": 7,
+        "striker": 3,
+        "pace": 12
+      },
+      "skillsChange": {
+        "form": -3,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 1,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 4,
+        "name": "passing"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 36740000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 90,
+        "minutesFriendly": 90,
+        "minutesNational": 90
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1089,
+      "day": {
+        "season": 69,
+        "week": 1089,
+        "seasonWeek": 10,
+        "day": 5,
+        "date": {
+          "value": "2024-05-23",
+          "timestamp": 1716447600
+        }
+      },
+      "skills": {
+        "form": 16,
+        "tacticalDiscipline": 13,
+        "teamwork": 18,
+        "experience": 8,
+        "stamina": 9,
+        "keeper": 1,
+        "playmaking": 12,
+        "passing": 10,
+        "technique": 11,
+        "defending": 7,
+        "striker": 3,
+        "pace": 12
+      },
+      "skillsChange": {
+        "form": -1,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 38540000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 90,
+        "minutesFriendly": 90,
+        "minutesNational": 90
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1088,
+      "day": {
+        "season": 69,
+        "week": 1088,
+        "seasonWeek": 9,
+        "day": 5,
+        "date": {
+          "value": "2024-05-16",
+          "timestamp": 1715842800
+        }
+      },
+      "skills": {
+        "form": 17,
+        "tacticalDiscipline": 13,
+        "teamwork": 18,
+        "experience": 8,
+        "stamina": 9,
+        "keeper": 1,
+        "playmaking": 12,
+        "passing": 10,
+        "technique": 11,
+        "defending": 7,
+        "striker": 3,
+        "pace": 12
+      },
+      "skillsChange": {
+        "form": 1,
+        "tacticalDiscipline": 1,
+        "teamwork": 0,
+        "experience": 1,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 1,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 38500000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 90
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1087,
+      "day": {
+        "season": 69,
+        "week": 1087,
+        "seasonWeek": 8,
+        "day": 5,
+        "date": {
+          "value": "2024-05-09",
+          "timestamp": 1715238000
+        }
+      },
+      "skills": {
+        "form": 16,
+        "tacticalDiscipline": 12,
+        "teamwork": 18,
+        "experience": 7,
+        "stamina": 9,
+        "keeper": 1,
+        "playmaking": 12,
+        "passing": 10,
+        "technique": 10,
+        "defending": 7,
+        "striker": 3,
+        "pace": 12
+      },
+      "skillsChange": {
+        "form": -1,
+        "tacticalDiscipline": 0,
+        "teamwork": 1,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 1,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 4,
+        "name": "passing"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 36520000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 90
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1086,
+      "day": {
+        "season": 69,
+        "week": 1086,
+        "seasonWeek": 7,
+        "day": 5,
+        "date": {
+          "value": "2024-05-02",
+          "timestamp": 1714633200
+        }
+      },
+      "skills": {
+        "form": 17,
+        "tacticalDiscipline": 12,
+        "teamwork": 17,
+        "experience": 7,
+        "stamina": 9,
+        "keeper": 1,
+        "playmaking": 12,
+        "passing": 9,
+        "technique": 10,
+        "defending": 7,
+        "striker": 3,
+        "pace": 12
+      },
+      "skillsChange": {
+        "form": 0,
+        "tacticalDiscipline": 0,
+        "teamwork": -1,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 35480000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 90
+      },
+      "intensity": 85,
+      "formation": {
+        "code": 1,
+        "name": "DEF"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1085,
+      "day": {
+        "season": 69,
+        "week": 1085,
+        "seasonWeek": 6,
+        "day": 5,
+        "date": {
+          "value": "2024-04-25",
+          "timestamp": 1714028400
+        }
+      },
+      "skills": {
+        "form": 17,
+        "tacticalDiscipline": 12,
+        "teamwork": 18,
+        "experience": 7,
+        "stamina": 9,
+        "keeper": 1,
+        "playmaking": 12,
+        "passing": 9,
+        "technique": 10,
+        "defending": 7,
+        "striker": 3,
+        "pace": 12
+      },
+      "skillsChange": {
+        "form": -1,
+        "tacticalDiscipline": 0,
+        "teamwork": 1,
+        "experience": 1,
+        "stamina": 1,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 1,
+        "down": 0,
+        "up": 2
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 34460000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 90
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 1,
+        "name": "DEF"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1084,
+      "day": {
+        "season": 69,
+        "week": 1084,
+        "seasonWeek": 5,
+        "day": 5,
+        "date": {
+          "value": "2024-04-18",
+          "timestamp": 1713423600
+        }
+      },
+      "skills": {
+        "form": 18,
+        "tacticalDiscipline": 12,
+        "teamwork": 17,
+        "experience": 6,
+        "stamina": 8,
+        "keeper": 1,
+        "playmaking": 12,
+        "passing": 9,
+        "technique": 10,
+        "defending": 7,
+        "striker": 3,
+        "pace": 11
+      },
+      "skillsChange": {
+        "form": 0,
+        "tacticalDiscipline": 1,
+        "teamwork": 0,
+        "experience": 1,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 33800000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 90
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 1,
+        "name": "DEF"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1083,
+      "day": {
+        "season": 69,
+        "week": 1083,
+        "seasonWeek": 4,
+        "day": 5,
+        "date": {
+          "value": "2024-04-11",
+          "timestamp": 1712818800
+        }
+      },
+      "skills": {
+        "form": 18,
+        "tacticalDiscipline": 11,
+        "teamwork": 17,
+        "experience": 5,
+        "stamina": 8,
+        "keeper": 1,
+        "playmaking": 12,
+        "passing": 9,
+        "technique": 10,
+        "defending": 7,
+        "striker": 3,
+        "pace": 11
+      },
+      "skillsChange": {
+        "form": 1,
+        "tacticalDiscipline": 0,
+        "teamwork": 1,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 32580000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 90,
+        "minutesFriendly": 0,
+        "minutesNational": 64
+      },
+      "intensity": 96,
+      "formation": {
+        "code": 1,
+        "name": "DEF"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1082,
+      "day": {
+        "season": 69,
+        "week": 1082,
+        "seasonWeek": 3,
+        "day": 5,
+        "date": {
+          "value": "2024-04-04",
+          "timestamp": 1712214000
+        }
+      },
+      "skills": {
+        "form": 17,
+        "tacticalDiscipline": 11,
+        "teamwork": 16,
+        "experience": 5,
+        "stamina": 8,
+        "keeper": 1,
+        "playmaking": 12,
+        "passing": 9,
+        "technique": 10,
+        "defending": 7,
+        "striker": 3,
+        "pace": 11
+      },
+      "skillsChange": {
+        "form": 2,
+        "tacticalDiscipline": 1,
+        "teamwork": 0,
+        "experience": 1,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 1,
+        "striker": 1,
+        "pace": 0,
+        "down": 0,
+        "up": 2
+      },
+      "type": {
+        "code": 3,
+        "name": "playmaking"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 31000000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 0,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1081,
+      "day": {
+        "season": 69,
+        "week": 1081,
+        "seasonWeek": 2,
+        "day": 5,
+        "date": {
+          "value": "2024-03-28",
+          "timestamp": 1711612800
+        }
+      },
+      "skills": {
+        "form": 15,
+        "tacticalDiscipline": 10,
+        "teamwork": 16,
+        "experience": 4,
+        "stamina": 8,
+        "keeper": 1,
+        "playmaking": 12,
+        "passing": 9,
+        "technique": 10,
+        "defending": 6,
+        "striker": 2,
+        "pace": 11
+      },
+      "skillsChange": {
+        "form": 1,
+        "tacticalDiscipline": 1,
+        "teamwork": 1,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 1,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 3,
+        "name": "playmaking"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 27940000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 90,
+        "minutesFriendly": 0,
+        "minutesNational": 16
+      },
+      "intensity": 96,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1080,
+      "day": {
+        "season": 69,
+        "week": 1080,
+        "seasonWeek": 1,
+        "day": 5,
+        "date": {
+          "value": "2024-03-21",
+          "timestamp": 1711008000
+        }
+      },
+      "skills": {
+        "form": 14,
+        "tacticalDiscipline": 9,
+        "teamwork": 15,
+        "experience": 4,
+        "stamina": 8,
+        "keeper": 1,
+        "playmaking": 11,
+        "passing": 9,
+        "technique": 10,
+        "defending": 6,
+        "striker": 2,
+        "pace": 11
+      },
+      "skillsChange": {
+        "form": 1,
+        "tacticalDiscipline": 0,
+        "teamwork": 1,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 4,
+        "name": "passing"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 25660000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 0,
+        "minutesFriendly": 270,
+        "minutesNational": 31
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1079,
+      "day": {
+        "season": 68,
+        "week": 1079,
+        "seasonWeek": 13,
+        "day": 5,
+        "date": {
+          "value": "2024-03-14",
+          "timestamp": 1710403200
+        }
+      },
+      "skills": {
+        "form": 13,
+        "tacticalDiscipline": 9,
+        "teamwork": 14,
+        "experience": 4,
+        "stamina": 8,
+        "keeper": 1,
+        "playmaking": 11,
+        "passing": 9,
+        "technique": 10,
+        "defending": 6,
+        "striker": 2,
+        "pace": 11
+      },
+      "skillsChange": {
+        "form": -1,
+        "tacticalDiscipline": 0,
+        "teamwork": -1,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 24640000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 0,
+        "minutesFriendly": 270,
+        "minutesNational": 0
+      },
+      "intensity": 50,
+      "formation": {
+        "code": 1,
+        "name": "DEF"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1078,
+      "day": {
+        "season": 68,
+        "week": 1078,
+        "seasonWeek": 12,
+        "day": 5,
+        "date": {
+          "value": "2024-03-07",
+          "timestamp": 1709798400
+        }
+      },
+      "skills": {
+        "form": 14,
+        "tacticalDiscipline": 9,
+        "teamwork": 15,
+        "experience": 4,
+        "stamina": 8,
+        "keeper": 1,
+        "playmaking": 11,
+        "passing": 9,
+        "technique": 10,
+        "defending": 6,
+        "striker": 2,
+        "pace": 11
+      },
+      "skillsChange": {
+        "form": -4,
+        "tacticalDiscipline": -1,
+        "teamwork": -1,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 1,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 24620000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 50,
+      "formation": {
+        "code": 1,
+        "name": "DEF"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1077,
+      "day": {
+        "season": 68,
+        "week": 1077,
+        "seasonWeek": 11,
+        "day": 5,
+        "date": {
+          "value": "2024-02-29",
+          "timestamp": 1709193600
+        }
+      },
+      "skills": {
+        "form": 18,
+        "tacticalDiscipline": 10,
+        "teamwork": 16,
+        "experience": 4,
+        "stamina": 8,
+        "keeper": 1,
+        "playmaking": 11,
+        "passing": 9,
+        "technique": 10,
+        "defending": 6,
+        "striker": 2,
+        "pace": 10
+      },
+      "skillsChange": {
+        "form": 3,
+        "tacticalDiscipline": 0,
+        "teamwork": -1,
+        "experience": 1,
+        "stamina": 1,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 1,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 2
+      },
+      "type": {
+        "code": 4,
+        "name": "passing"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 26320000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 0,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 85,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1076,
+      "day": {
+        "season": 68,
+        "week": 1076,
+        "seasonWeek": 10,
+        "day": 5,
+        "date": {
+          "value": "2024-02-22",
+          "timestamp": 1708588800
+        }
+      },
+      "skills": {
+        "form": 15,
+        "tacticalDiscipline": 10,
+        "teamwork": 17,
+        "experience": 3,
+        "stamina": 7,
+        "keeper": 1,
+        "playmaking": 11,
+        "passing": 8,
+        "technique": 10,
+        "defending": 6,
+        "striker": 2,
+        "pace": 10
+      },
+      "skillsChange": {
+        "form": 3,
+        "tacticalDiscipline": 0,
+        "teamwork": 1,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 1,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 23620000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 90,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 99,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1075,
+      "day": {
+        "season": 68,
+        "week": 1075,
+        "seasonWeek": 9,
+        "day": 5,
+        "date": {
+          "value": "2024-02-15",
+          "timestamp": 1707984000
+        }
+      },
+      "skills": {
+        "form": 12,
+        "tacticalDiscipline": 10,
+        "teamwork": 16,
+        "experience": 3,
+        "stamina": 7,
+        "keeper": 1,
+        "playmaking": 11,
+        "passing": 8,
+        "technique": 9,
+        "defending": 6,
+        "striker": 2,
+        "pace": 10
+      },
+      "skillsChange": {
+        "form": 2,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 21140000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 0,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 85,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1074,
+      "day": {
+        "season": 68,
+        "week": 1074,
+        "seasonWeek": 8,
+        "day": 5,
+        "date": {
+          "value": "2024-02-08",
+          "timestamp": 1707379200
+        }
+      },
+      "skills": {
+        "form": 10,
+        "tacticalDiscipline": 10,
+        "teamwork": 16,
+        "experience": 3,
+        "stamina": 7,
+        "keeper": 1,
+        "playmaking": 11,
+        "passing": 8,
+        "technique": 9,
+        "defending": 6,
+        "striker": 2,
+        "pace": 10
+      },
+      "skillsChange": {
+        "form": -1,
+        "tacticalDiscipline": 1,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 18920000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 0,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 85,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1073,
+      "day": {
+        "season": 68,
+        "week": 1073,
+        "seasonWeek": 7,
+        "day": 5,
+        "date": {
+          "value": "2024-02-01",
+          "timestamp": 1706774400
+        }
+      },
+      "skills": {
+        "form": 11,
+        "tacticalDiscipline": 9,
+        "teamwork": 16,
+        "experience": 3,
+        "stamina": 7,
+        "keeper": 1,
+        "playmaking": 11,
+        "passing": 8,
+        "technique": 9,
+        "defending": 6,
+        "striker": 2,
+        "pace": 10
+      },
+      "skillsChange": {
+        "form": 2,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 18940000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 0,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 85,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1072,
+      "day": {
+        "season": 68,
+        "week": 1072,
+        "seasonWeek": 6,
+        "day": 5,
+        "date": {
+          "value": "2024-01-25",
+          "timestamp": 1706169600
+        }
+      },
+      "skills": {
+        "form": 9,
+        "tacticalDiscipline": 9,
+        "teamwork": 16,
+        "experience": 3,
+        "stamina": 7,
+        "keeper": 1,
+        "playmaking": 11,
+        "passing": 8,
+        "technique": 9,
+        "defending": 6,
+        "striker": 2,
+        "pace": 10
+      },
+      "skillsChange": {
+        "form": 2,
+        "tacticalDiscipline": 0,
+        "teamwork": 1,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 1,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 17060000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 90,
+        "minutesFriendly": 0,
+        "minutesNational": 0
+      },
+      "intensity": 96,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1071,
+      "day": {
+        "season": 68,
+        "week": 1071,
+        "seasonWeek": 5,
+        "day": 5,
+        "date": {
+          "value": "2024-01-18",
+          "timestamp": 1705564800
+        }
+      },
+      "skills": {
+        "form": 7,
+        "tacticalDiscipline": 9,
+        "teamwork": 15,
+        "experience": 3,
+        "stamina": 7,
+        "keeper": 1,
+        "playmaking": 11,
+        "passing": 8,
+        "technique": 8,
+        "defending": 6,
+        "striker": 2,
+        "pace": 10
+      },
+      "skillsChange": {
+        "form": 0,
+        "tacticalDiscipline": 1,
+        "teamwork": 2,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 15220000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1070,
+      "day": {
+        "season": 68,
+        "week": 1070,
+        "seasonWeek": 4,
+        "day": 5,
+        "date": {
+          "value": "2024-01-11",
+          "timestamp": 1704960000
+        }
+      },
+      "skills": {
+        "form": 7,
+        "tacticalDiscipline": 8,
+        "teamwork": 13,
+        "experience": 3,
+        "stamina": 7,
+        "keeper": 1,
+        "playmaking": 11,
+        "passing": 8,
+        "technique": 8,
+        "defending": 6,
+        "striker": 2,
+        "pace": 10
+      },
+      "skillsChange": {
+        "form": 0,
+        "tacticalDiscipline": 2,
+        "teamwork": 3,
+        "experience": 0,
+        "stamina": 1,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 14860000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 90,
+        "minutesFriendly": 90,
+        "minutesNational": 0
+      },
+      "intensity": 99,
+      "formation": {
+        "code": 3,
+        "name": "ATT"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1069,
+      "day": {
+        "season": 68,
+        "week": 1069,
+        "seasonWeek": 3,
+        "day": 5,
+        "date": {
+          "value": "2024-01-04",
+          "timestamp": 1704355200
+        }
+      },
+      "skills": {
+        "form": 7,
+        "tacticalDiscipline": 6,
+        "teamwork": 10,
+        "experience": 3,
+        "stamina": 6,
+        "keeper": 1,
+        "playmaking": 11,
+        "passing": 8,
+        "technique": 8,
+        "defending": 6,
+        "striker": 2,
+        "pace": 10
+      },
+      "skillsChange": {
+        "form": 2,
+        "tacticalDiscipline": 1,
+        "teamwork": 2,
+        "experience": 1,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 1,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 8,
+        "name": "pace"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 14240000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 90,
+        "minutesFriendly": 0,
+        "minutesNational": 0
+      },
+      "intensity": 96,
+      "formation": {
+        "code": 3,
+        "name": "ATT"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1068,
+      "day": {
+        "season": 68,
+        "week": 1068,
+        "seasonWeek": 2,
+        "day": 5,
+        "date": {
+          "value": "2023-12-28",
+          "timestamp": 1703750400
+        }
+      },
+      "skills": {
+        "form": 5,
+        "tacticalDiscipline": 5,
+        "teamwork": 8,
+        "experience": 2,
+        "stamina": 6,
+        "keeper": 1,
+        "playmaking": 11,
+        "passing": 8,
+        "technique": 8,
+        "defending": 6,
+        "striker": 1,
+        "pace": 10
+      },
+      "skillsChange": {
+        "form": -1,
+        "tacticalDiscipline": 2,
+        "teamwork": 5,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 1,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 1
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 12840000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 180,
+        "minutesFriendly": 0,
+        "minutesNational": 0
+      },
+      "intensity": 100,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1067,
+      "day": {
+        "season": 68,
+        "week": 1067,
+        "seasonWeek": 1,
+        "day": 5,
+        "date": {
+          "value": "2023-12-21",
+          "timestamp": 1703145600
+        }
+      },
+      "skills": {
+        "form": 6,
+        "tacticalDiscipline": 3,
+        "teamwork": 3,
+        "experience": 2,
+        "stamina": 6,
+        "keeper": 1,
+        "playmaking": 11,
+        "passing": 8,
+        "technique": 7,
+        "defending": 6,
+        "striker": 1,
+        "pace": 10
+      },
+      "skillsChange": {
+        "form": 1,
+        "tacticalDiscipline": 2,
+        "teamwork": 3,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 5,
+        "name": "technique"
+      },
+      "kind": {
+        "code": 1,
+        "name": "individual"
+      },
+      "playerValue": {
+        "value": 12500000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 0,
+        "minutesFriendly": 180,
+        "minutesNational": 0
+      },
+      "intensity": 98,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    },
+    {
+      "week": 1066,
+      "day": {
+        "season": 67,
+        "week": 1066,
+        "seasonWeek": 13,
+        "day": 5,
+        "date": {
+          "value": "2023-12-14",
+          "timestamp": 1702540800
+        }
+      },
+      "skills": {
+        "form": 5,
+        "tacticalDiscipline": 1,
+        "teamwork": 0,
+        "experience": 2,
+        "stamina": 6,
+        "keeper": 1,
+        "playmaking": 11,
+        "passing": 8,
+        "technique": 7,
+        "defending": 6,
+        "striker": 1,
+        "pace": 10
+      },
+      "skillsChange": {
+        "form": 0,
+        "tacticalDiscipline": 0,
+        "teamwork": 0,
+        "experience": 0,
+        "stamina": 0,
+        "keeper": 0,
+        "playmaking": 0,
+        "passing": 0,
+        "technique": 0,
+        "defending": 0,
+        "striker": 0,
+        "pace": 0,
+        "down": 0,
+        "up": 0
+      },
+      "type": {
+        "code": 0,
+        "name": "general"
+      },
+      "kind": {
+        "code": 0,
+        "name": "general"
+      },
+      "playerValue": {
+        "value": 11520000,
+        "currency": "din"
+      },
+      "games": {
+        "minutesOfficial": 0,
+        "minutesFriendly": 0,
+        "minutesNational": 0
+      },
+      "intensity": 0,
+      "formation": {
+        "code": 2,
+        "name": "MID"
+      },
+      "injury": {
+        "daysRemaining": 0,
+        "severe": false
+      }
+    }
+  ]
+}

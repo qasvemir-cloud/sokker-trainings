@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Main-Class: org.velja.app.ChargingDashboard
+SplashScreen-Image: splash.png

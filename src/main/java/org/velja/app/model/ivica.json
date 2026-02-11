@@ -1,0 +1,98 @@
+{
+  "effectiveness": 85,
+  "id": 39035382,
+  "info": {
+    "name": {
+      "name": "Ivica",
+      "surname": "Tomić",
+      "full": "Ivica Tomić"
+    },
+    "formation": null,
+    "number": null,
+    "team": {
+      "id": 73599,
+      "name": null
+    },
+    "country": {
+      "code": 39,
+      "name": "Srbija"
+    },
+    "value": {
+      "value": 97700000,
+      "currency": "din"
+    },
+    "previousValue": null,
+    "wage": {
+      "value": 1170000,
+      "currency": "din"
+    },
+    "characteristics": {
+      "age": 23,
+      "height": 184,
+      "weight": 87.8928,
+      "bmi": 25.960775047258977
+    },
+    "skills": {
+      "form": 15,
+      "tacticalDiscipline": 16,
+      "teamwork": 18,
+      "experience": 15,
+      "stamina": 11,
+      "keeper": 1,
+      "playmaking": 14,
+      "passing": 12,
+      "technique": 14,
+      "defending": 9,
+      "striker": 5,
+      "pace": 16
+    },
+    "stats": {
+      "cards": {
+        "cards": 1,
+        "yellow": 1,
+        "red": 0
+      },
+      "goals": 3,
+      "assists": 28,
+      "matches": 104
+    },
+    "nationalStats": {
+      "cards": {
+        "cards": 1,
+        "yellow": 1,
+        "red": 0
+      },
+      "goals": 0,
+      "assists": 2,
+      "matches": 17
+    },
+    "face": {
+      "face": 2,
+      "skinColor": 2,
+      "hairColor": 2,
+      "hair": 1,
+      "eyes": 2,
+      "nose": 10,
+      "beard": 0,
+      "beardColor": 2,
+      "shirt": 1,
+      "mouth": 4
+    },
+    "youthTeamId": 73530,
+    "injury": {
+      "daysRemaining": 0,
+      "severe": false
+    },
+    "nationalSharing": true
+  },
+  "formation": {
+    "code": 3,
+    "name": "ATT"
+  },
+  "games": {
+    "minutesOfficial": 0,
+    "minutesFriendly": 90,
+    "minutesNational": 0
+  },
+  "intensity": 85
+}

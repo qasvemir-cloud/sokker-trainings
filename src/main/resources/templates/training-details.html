@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Detalji treninga - skill promene</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <style>
+        .positive {
+            color: red;
+            font-weight: bold;
+            margin-left: 0.25rem;
+        }
+        .negative {
+            color: green;
+            font-weight: bold;
+            margin-left: 0.25rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold text-center mb-6">Detalji treninga - skill promene</h1>
+
+    <div class="bg-white p-6 rounded shadow-md">
+        <table class="w-full mt-4">
+            <tr>
+                <td class="py-2">
+                    <strong>Forma:</strong>
+                    <span th:if="${report.skillsChange.form != 0}"
+                          th:classappend="${(report.skillsChange.form + '').startsWith('-') ? 'negative' : 'positive'}"
+                          th:text="${report.skills.form + ' (' + ((report.skillsChange.form > 0) ? '+' : '') + report.skillsChange.form + ')'}">
+                    </span>
+                    <span th:if="${report.skillsChange.form == 0}"
+                          th:text="${report.skills.form}">
+                    </span>
+                </td>
+
+                <td class="py-2">
+                    <strong>Taktička disciplina:</strong>
+                    <span th:if="${report.skillsChange.tacticalDiscipline != 0}"
+                          th:classappend="${(report.skillsChange.tacticalDiscipline + '').startsWith('-') ? 'negative' : 'positive'}"
+                          th:text="${report.skills.tacticalDiscipline + ' (' + ((report.skillsChange.tacticalDiscipline > 0) ? '+' : '') + report.skillsChange.tacticalDiscipline + ')'}">
+                    </span>
+                    <span th:if="${report.skillsChange.tacticalDiscipline == 0}"
+                          th:text="${report.skills.tacticalDiscipline}">
+                    </span>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="py-2">
+                    <strong>Iskustvo:</strong>
+                    <span th:if="${report.skillsChange.experience != 0}"
+                          th:classappend="${(report.skillsChange.experience + '').startsWith('-') ? 'negative' : 'positive'}"
+                          th:text="${report.skills.experience + ' (' + ((report.skillsChange.experience > 0) ? '+' : '') + report.skillsChange.experience + ')'}">
+                    </span>
+                    <span th:if="${report.skillsChange.experience == 0}"
+                          th:text="${report.skills.experience}">
+                    </span>
+                </td>
+
+                <td class="py-2">
+                    <strong>Timski rad:</strong>
+                    <span th:if="${report.skillsChange.teamwork != 0}"
+                          th:classappend="${(report.skillsChange.teamwork + '').startsWith('-') ? 'negative' : 'positive'}"
+                          th:text="${report.skills.teamwork + ' (' + ((report.skillsChange.teamwork > 0) ? '+' : '') + report.skillsChange.teamwork + ')'}">
+                    </span>
+                    <span th:if="${report.skillsChange.teamwork == 0}"
+                          th:text="${report.skills.teamwork}">
+                    </span>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="py-2">
+                    <strong>Stamina:</strong>
+                    <span th:if="${report.skillsChange.stamina != 0}"
+                          th:classappend="${(report.skillsChange.stamina + '').startsWith('-') ? 'negative' : 'positive'}"
+                          th:text="${report.skills.stamina + ' (' + ((report.skillsChange.stamina > 0) ? '+' : '') + report.skillsChange.stamina + ')'}">
+                    </span>
+                    <span th:if="${report.skillsChange.stamina == 0}"
+                          th:text="${report.skills.stamina}">
+                    </span>
+                </td>
+
+                <td class="py-2">
+                    <strong>Golman:</strong>
+                    <span th:if="${report.skillsChange.keeper != 0}"
+                          th:classappend="${(report.skillsChange.keeper + '').startsWith('-') ? 'negative' : 'positive'}"
+                          th:text="${report.skills.keeper + ' (' + ((report.skillsChange.keeper > 0) ? '+' : '') + report.skillsChange.keeper + ')'}">
+                    </span>
+                    <span th:if="${report.skillsChange.keeper == 0}"
+                          th:text="${report.skills.keeper}">
+                    </span>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="py-2">
+                    <strong>Pace:</strong>
+                    <span th:if="${report.skillsChange.pace != 0}"
+                          th:classappend="${(report.skillsChange.pace + '').startsWith('-') ? 'negative' : 'positive'}"
+                          th:text="${report.skills.pace + ' (' + ((report.skillsChange.pace > 0) ? '+' : '') + report.skillsChange.pace + ')'}">
+                    </span>
+                    <span th:if="${report.skillsChange.pace == 0}"
+                          th:text="${report.skills.pace}">
+                    </span>
+                </td>
+
+                <td class="py-2">
+                    <strong>Defender:</strong>
+                    <span th:if="${report.skillsChange.defending != 0}"
+                          th:classappend="${(report.skillsChange.defending + '').startsWith('-') ? 'negative' : 'positive'}"
+                          th:text="${report.skills.defending + ' (' + ((report.skillsChange.defending > 0) ? '+' : '') + report.skillsChange.defending + ')'}">
+                    </span>
+                    <span th:if="${report.skillsChange.defending == 0}"
+                          th:text="${report.skills.defending}">
+                    </span>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="py-2">
+                    <strong>Technique:</strong>
+                    <span th:if="${report.skillsChange.technique != 0}"
+                          th:classappend="${(report.skillsChange.technique + '').startsWith('-') ? 'negative' : 'positive'}"
+                          th:text="${report.skills.technique + ' (' + ((report.skillsChange.technique > 0) ? '+' : '') + report.skillsChange.technique + ')'}">
+                    </span>
+                    <span th:if="${report.skillsChange.technique == 0}"
+                          th:text="${report.skills.technique}">
+                    </span>
+                </td>
+
+                <td class="py-2">
+                    <strong>Playmaking:</strong>
+                    <span th:if="${report.skillsChange.playmaking != 0}"
+                          th:classappend="${(report.skillsChange.playmaking + '').startsWith('-') ? 'negative' : 'positive'}"
+                          th:text="${report.skills.playmaking + ' (' + ((report.skillsChange.playmaking > 0) ? '+' : '') + report.skillsChange.playmaking + ')'}">
+                    </span>
+                    <span th:if="${report.skillsChange.playmaking == 0}"
+                          th:text="${report.skills.playmaking}">
+                    </span>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="py-2">
+                    <strong>Passing:</strong>
+                    <span th:if="${report.skillsChange.passing != 0}"
+                          th:classappend="${(report.skillsChange.passing + '').startsWith('-') ? 'negative' : 'positive'}"
+                          th:text="${report.skills.passing + ' (' + ((report.skillsChange.passing > 0) ? '+' : '') + report.skillsChange.passing + ')'}">
+                    </span>
+                    <span th:if="${report.skillsChange.passing == 0}"
+                          th:text="${report.skills.passing}">
+                    </span>
+                </td>
+
+                <td class="py-2">
+                    <strong>Striker:</strong>
+                    <span th:if="${report.skillsChange.striker != 0}"
+                          th:classappend="${(report.skillsChange.striker + '').startsWith('-') ? 'negative' : 'positive'}"
+                          th:text="${report.skills.striker + ' (' + ((report.skillsChange.striker > 0) ? '+' : '') + report.skillsChange.striker + ')'}">
+                    </span>
+                    <span th:if="${report.skillsChange.striker == 0}"
+                          th:text="${report.skills.striker}">
+                    </span>
+                </td>
+            </tr>
+        </table>
+
+        <div class="mt-6">
+            <a th:href="@{/api/player/{playerId}/training(playerId=${playerId},teamId=${teamId})}" class="inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mr-2">Nazad na treninge</a>
+            <a th:href="@{/api/team/{teamId}/players(teamId=${teamId})}" class="inline-block bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Nazad na igrače</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
