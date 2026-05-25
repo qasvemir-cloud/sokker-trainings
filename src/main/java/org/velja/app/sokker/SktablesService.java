@@ -36,7 +36,9 @@ public class SktablesService {
     private static final Pattern CELL_PATTERN = Pattern.compile("<td[^>]*>(.*?)</td>", Pattern.DOTALL);
     private static final Pattern TAG_PATTERN = Pattern.compile("<[^>]+>");
     private static final Pattern INTEGER_PATTERN = Pattern.compile("-?\\d+");
+    private static final Pattern DECIMAL_PATTERN = Pattern.compile("-?\\d+(?:\\.\\d+)?");
     private static final Pattern PERCENT_PATTERN = Pattern.compile("(\\d+)\\s*%");
+    private static final Pattern ACADEMY_ROW_ID_PATTERN = Pattern.compile("/academy/talent/ID/(\\d+)");
 
     private static final List<String> SKILLS = List.of(
             "stamina", "keeper", "pace", "defending", "technique", "playmaking", "passing", "striker"
@@ -115,6 +117,25 @@ public class SktablesService {
         return merged;
     }
 
+    public JsonNode academy(String cookieHeader) {
+        try {
+            HttpRequest request = baseRequest(BASE_URL + "/academy", cookieHeader).GET().build();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                return objectMapper.createObjectNode().set("juniors", objectMapper.createArrayNode());
+            }
+            ObjectNode payload = objectMapper.createObjectNode();
+            payload.set("juniors", parseAcademyTable(response.body()));
+            payload.put("source", "sktables");
+            return payload;
+        } catch (IOException e) {
+            return objectMapper.createObjectNode().set("juniors", objectMapper.createArrayNode());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return objectMapper.createObjectNode().set("juniors", objectMapper.createArrayNode());
+        }
+    }
+
     private boolean myTeamAccessible(String cookieHeader) throws IOException, InterruptedException {
         HttpRequest request = baseRequest(BASE_URL + "/myteam", cookieHeader).GET().build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -185,6 +206,46 @@ public class SktablesService {
         ArrayNode reports = objectMapper.createArrayNode();
         latestFirst.forEach(reports::add);
         return reports;
+    }
+
+    private ArrayNode parseAcademyTable(String html) {
+        Matcher bodyMatcher = Pattern.compile("<tbody[^>]*class=\"[^\"]*links-not-underlined[^\"]*\"[^>]*>(.*?)</tbody>", Pattern.DOTALL)
+                .matcher(html);
+        if (!bodyMatcher.find()) {
+            bodyMatcher = Pattern.compile("<tbody[^>]*>(.*?)</tbody>", Pattern.DOTALL).matcher(html);
+            if (!bodyMatcher.find()) {
+                return objectMapper.createArrayNode();
+            }
+        }
+
+        ArrayNode juniors = objectMapper.createArrayNode();
+        Matcher rowMatcher = ROW_PATTERN.matcher(bodyMatcher.group(1));
+        while (rowMatcher.find()) {
+            String rowHtml = rowMatcher.group(1);
+            List<String> rowCells = cells(rowHtml);
+            if (rowCells.size() < 8) {
+                continue;
+            }
+            Matcher idMatcher = ACADEMY_ROW_ID_PATTERN.matcher(rowHtml);
+            if (!idMatcher.find()) {
+                continue;
+            }
+
+            ObjectNode junior = objectMapper.createObjectNode();
+            junior.put("id", Long.parseLong(idMatcher.group(1)));
+            junior.put("name", text(rowCells.get(0)));
+            junior.put("age", firstInt(text(rowCells.get(1)), 0));
+            junior.put("skill", firstInt(text(rowCells.get(2)), 0));
+            junior.put("change", academySkillChange(rowCells.get(2)));
+            junior.put("talent", academyCellNumber(rowCells.get(3), "data-sort=\"([^\"]+)\"", 0));
+            junior.put("weeksLeft", firstInt(text(rowCells.get(4)), 0));
+            junior.put("ageOut", academyCellNumber(rowCells.get(5), null, 0));
+            junior.put("finalLevel", firstInt(text(rowCells.get(6)), 0));
+            junior.put("potential", text(rowCells.get(7)));
+            junior.put("score", academyCellNumber(rowCells.get(7), "data-sort=\"([^\"]+)\"", 0));
+            juniors.add(junior);
+        }
+        return juniors;
     }
 
     private ObjectNode reportFromCells(List<String> cells) {
@@ -322,6 +383,30 @@ public class SktablesService {
     private static int firstInt(String text, int fallback) {
         Matcher matcher = INTEGER_PATTERN.matcher(text);
         return matcher.find() ? Integer.parseInt(matcher.group()) : fallback;
+    }
+
+    private static int academySkillChange(String html) {
+        if (html.contains("green")) {
+            return 1;
+        }
+        if (html.contains("red")) {
+            return -1;
+        }
+        return 0;
+    }
+
+    private static double academyCellNumber(String html, String sourcePattern, double fallback) {
+        String source = html;
+        if (sourcePattern != null) {
+            Matcher sourceMatcher = Pattern.compile(sourcePattern).matcher(html);
+            if (sourceMatcher.find()) {
+                source = sourceMatcher.group(1);
+            }
+        } else {
+            source = text(html);
+        }
+        Matcher matcher = DECIMAL_PATTERN.matcher(source);
+        return matcher.find() ? Double.parseDouble(matcher.group()) : fallback;
     }
 
     private static int firstPercent(String html, int fallback) {

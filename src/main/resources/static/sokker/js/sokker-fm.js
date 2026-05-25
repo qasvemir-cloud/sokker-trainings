@@ -5,6 +5,13 @@ const api = {
     players: '/sokker/api/players',
     training: '/sokker/api/training/current',
     trainingPlayers: '/sokker/api/training/players',
+    trainingSummary: '/sokker/api/training/summary',
+    juniors: '/sokker/api/juniors',
+    juniorGraph: (juniorId) => `/sokker/api/juniors/${juniorId}/graph`,
+    teamTransfers: '/sokker/api/market/team-transfers',
+    marketTransfers: '/sokker/api/market/transfers',
+    matches: '/sokker/api/matches',
+    alumni: '/sokker/api/alumni',
     playerTraining: (playerId) => `/sokker/api/players/${playerId}/training`
 };
 
@@ -44,6 +51,12 @@ const state = {
     players: [],
     trainingRows: [],
     trainingSetup: null,
+    juniors: null,
+    juniorGraphs: new Map(),
+    trainingSummary: null,
+    market: null,
+    matches: null,
+    alumni: null,
     playerReports: new Map(),
     focusedPredictorPlayerId: null,
     activeView: 'players',
@@ -57,6 +70,11 @@ const loginError = document.querySelector('#login-error');
 const playersView = document.querySelector('#players-view');
 const trainingView = document.querySelector('#training-view');
 const predictorView = document.querySelector('#predictor-view');
+const juniorsView = document.querySelector('#juniors-view');
+const summaryView = document.querySelector('#summary-view');
+const marketView = document.querySelector('#market-view');
+const matchesView = document.querySelector('#matches-view');
+const alumniView = document.querySelector('#alumni-view');
 const playerDetailView = document.querySelector('#player-detail-view');
 
 loginForm.addEventListener('submit', async (event) => {
@@ -169,6 +187,26 @@ function showView(view) {
         document.querySelector('#page-title').textContent = 'Training Predictor';
         predictorView.classList.remove('hidden');
         renderPredictor();
+    } else if (view === 'juniors') {
+        document.querySelector('#page-title').textContent = 'Junior Academy';
+        juniorsView.classList.remove('hidden');
+        renderJuniors();
+    } else if (view === 'summary') {
+        document.querySelector('#page-title').textContent = 'Training Summary';
+        summaryView.classList.remove('hidden');
+        renderTrainingSummary();
+    } else if (view === 'market') {
+        document.querySelector('#page-title').textContent = 'Market';
+        marketView.classList.remove('hidden');
+        renderMarket();
+    } else if (view === 'matches') {
+        document.querySelector('#page-title').textContent = 'Matches';
+        matchesView.classList.remove('hidden');
+        renderMatches();
+    } else if (view === 'alumni') {
+        document.querySelector('#page-title').textContent = 'Alumni';
+        alumniView.classList.remove('hidden');
+        renderAlumni();
     } else {
         document.querySelector('#page-title').textContent = 'First Team';
         playersView.classList.remove('hidden');
@@ -251,6 +289,210 @@ function renderTraining() {
     });
 }
 
+async function renderJuniors() {
+    juniorsView.innerHTML = loadingPanel('Junior Academy', 'Ucitavam juniore i talent procene...');
+    try {
+        if (!state.juniors) {
+            state.juniors = await getJson(api.juniors);
+        }
+        const juniors = state.juniors.sokker?.juniors || [];
+        await Promise.all(juniors.map((junior) => loadJuniorGraph(junior.id)));
+        const reportById = new Map((state.juniors.report?.juniors || []).map((junior) => [Number(junior.id), junior]));
+        const sktablesById = new Map((state.juniors.sktables?.juniors || []).map((junior) => [Number(junior.id), junior]));
+        const rows = juniors
+            .map((junior) => ({ ...junior, report: reportById.get(Number(junior.id)), sktables: sktablesById.get(Number(junior.id)) }))
+            .sort((a, b) => (a.weeksLeft ?? 99) - (b.weeksLeft ?? 99));
+
+        juniorsView.innerHTML = `
+            <div class="view-panel">
+                <div class="toolbar">
+                    <h2>Junior Academy</h2>
+                    <button id="refresh-juniors" class="action-button">Refresh</button>
+                </div>
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Junior</th>
+                            <th>Age</th>
+                            <th>Lvl</th>
+                            <th>Talent</th>
+                            <th>Weeks</th>
+                            <th>Projection</th>
+                            <th>Potential</th>
+                            <th>Graph</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            ${rows.length ? rows.map(juniorRow).join('') : `<tr><td colspan="8" class="empty-state">Nema juniora.</td></tr>`}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        juniorsView.querySelector('#refresh-juniors').addEventListener('click', () => {
+            state.juniors = null;
+            state.juniorGraphs.clear();
+            renderJuniors();
+        });
+    } catch (error) {
+        juniorsView.innerHTML = errorPanel('Junior Academy', error.message);
+    }
+}
+
+async function renderTrainingSummary() {
+    summaryView.innerHTML = loadingPanel('Training Summary', 'Ucitavam nedeljni pregled treninga...');
+    try {
+        if (!state.trainingSummary) {
+            state.trainingSummary = await getJson(api.trainingSummary);
+        }
+        const weeks = state.trainingSummary.weeks || [];
+        summaryView.innerHTML = `
+            <div class="view-panel">
+                <div class="toolbar">
+                    <h2>Training Summary</h2>
+                    <button id="refresh-summary" class="action-button">Refresh</button>
+                </div>
+                <div class="summary-grid">
+                    ${weeks.slice(0, 12).map(summaryCard).join('')}
+                </div>
+            </div>
+        `;
+        summaryView.querySelector('#refresh-summary').addEventListener('click', () => {
+            state.trainingSummary = null;
+            renderTrainingSummary();
+        });
+    } catch (error) {
+        summaryView.innerHTML = errorPanel('Training Summary', error.message);
+    }
+}
+
+async function renderMarket() {
+    marketView.innerHTML = loadingPanel('Market', 'Ucitavam transfere i market listu...');
+    try {
+        if (!state.market) {
+            const [teamTransfers, marketTransfers] = await Promise.all([
+                getJson(api.teamTransfers),
+                getJson(api.marketTransfers).catch(() => ({ transfers: [] }))
+            ]);
+            state.market = { teamTransfers, marketTransfers };
+        }
+        const teamTransfers = state.market.teamTransfers?.transfers || [];
+        const marketTransfers = state.market.marketTransfers?.transfers || [];
+        marketView.innerHTML = `
+            <div class="view-panel">
+                <div class="toolbar">
+                    <h2>Market</h2>
+                    <button id="refresh-market" class="action-button">Refresh</button>
+                </div>
+                <div class="detail-layout">
+                    <section class="detail-card">
+                        <h3>Omladinac transfers</h3>
+                        <div class="table-scroll">
+                            <table class="data-table">
+                                <thead><tr><th>Igrac</th><th>Age</th><th>Price</th><th>Value</th><th>Date</th><th>Deal</th></tr></thead>
+                                <tbody>${teamTransfers.slice(0, 20).map(teamTransferRow).join('') || `<tr><td colspan="6" class="empty-state">Nema transfera.</td></tr>`}</tbody>
+                            </table>
+                        </div>
+                    </section>
+                    <section class="detail-card">
+                        <h3>Transfer list</h3>
+                        <div class="table-scroll">
+                            <table class="data-table">
+                                <thead><tr><th>Igrac</th><th>Age</th><th>Price</th><th>Deadline</th><th>Team</th></tr></thead>
+                                <tbody>${marketTransfers.slice(0, 20).map(marketTransferRow).join('') || `<tr><td colspan="5" class="empty-state">Market lista nije dostupna.</td></tr>`}</tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        `;
+        marketView.querySelector('#refresh-market').addEventListener('click', () => {
+            state.market = null;
+            renderMarket();
+        });
+    } catch (error) {
+        marketView.innerHTML = errorPanel('Market', error.message);
+    }
+}
+
+async function renderMatches() {
+    matchesView.innerHTML = loadingPanel('Matches', 'Ucitavam meceve i minute za trening...');
+    try {
+        if (!state.matches) {
+            state.matches = await getJson(api.matches);
+        }
+        const matches = state.matches.matches || [];
+        const minuteRows = state.trainingRows
+            .map((row) => ({ row, player: row.player ? { id: row.id, info: row.player } : findPlayer(row.id) }))
+            .sort((a, b) => (b.row.report?.intensity ?? 0) - (a.row.report?.intensity ?? 0));
+        matchesView.innerHTML = `
+            <div class="view-panel">
+                <div class="toolbar">
+                    <h2>Matches & Minutes</h2>
+                    <button id="refresh-matches" class="action-button">Refresh</button>
+                </div>
+                <div class="detail-layout">
+                    <section class="detail-card">
+                        <h3>Training minutes audit</h3>
+                        <div class="table-scroll">
+                            <table class="data-table">
+                                <thead><tr><th>Igrac</th><th>Intensity</th><th>Official</th><th>Friendly</th><th>National</th><th>Risk</th></tr></thead>
+                                <tbody>${minuteRows.map(minutesRow).join('') || `<tr><td colspan="6" class="empty-state">Nema minutaze.</td></tr>`}</tbody>
+                            </table>
+                        </div>
+                    </section>
+                    <section class="detail-card">
+                        <h3>Recent matches</h3>
+                        <div class="table-scroll">
+                            <table class="data-table">
+                                <thead><tr><th>Week</th><th>Match</th><th>Type</th><th>Score</th></tr></thead>
+                                <tbody>${matches.slice(0, 15).map(matchRow).join('') || `<tr><td colspan="4" class="empty-state">Nema meceva.</td></tr>`}</tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        `;
+        matchesView.querySelector('#refresh-matches').addEventListener('click', () => {
+            state.matches = null;
+            renderMatches();
+        });
+    } catch (error) {
+        matchesView.innerHTML = errorPanel('Matches', error.message);
+    }
+}
+
+async function renderAlumni() {
+    alumniView.innerHTML = loadingPanel('Alumni', 'Ucitavam bivse igrace...');
+    try {
+        if (!state.alumni) {
+            state.alumni = await getJson(api.alumni);
+        }
+        const players = state.alumni.players || [];
+        alumniView.innerHTML = `
+            <div class="view-panel">
+                <div class="toolbar">
+                    <h2>Alumni</h2>
+                    <button id="refresh-alumni" class="action-button">Refresh</button>
+                </div>
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>Igrac</th><th>Age</th><th>Current team</th><th>Sold</th><th>First price</th><th>Tax income</th></tr></thead>
+                        <tbody>${players.slice(0, 40).map(alumniRow).join('') || `<tr><td colspan="6" class="empty-state">Nema alumni igraca.</td></tr>`}</tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        alumniView.querySelector('#refresh-alumni').addEventListener('click', () => {
+            state.alumni = null;
+            renderAlumni();
+        });
+    } catch (error) {
+        alumniView.innerHTML = errorPanel('Alumni', error.message);
+    }
+}
+
 async function renderPredictor() {
     predictorView.innerHTML = `
         <div class="view-panel">
@@ -297,6 +539,117 @@ function renderPredictorList(advanced) {
 function renderFocusedPredictor(advanced) {
     const player = advanced.find((item) => Number(item.id) === Number(state.focusedPredictorPlayerId));
     return player ? `<div class="predictor-single">${predictorCard(player)}</div>` : `<div class="empty-state">Igrac nije pronadjen na advanced treningu.</div>`;
+}
+
+async function loadJuniorGraph(juniorId) {
+    if (state.juniorGraphs.has(juniorId)) {
+        return state.juniorGraphs.get(juniorId);
+    }
+    const graph = await getJson(api.juniorGraph(juniorId)).catch(() => ({ values: [] }));
+    state.juniorGraphs.set(juniorId, graph);
+    return graph;
+}
+
+function juniorRow(junior) {
+    const graph = state.juniorGraphs.get(junior.id)?.values || [];
+    const sktables = junior.sktables || {};
+    const change = junior.report?.change ?? sktables.change ?? 0;
+    return `
+        <tr>
+            <td><strong>${escapeHtml(junior.fullName?.full || junior.name)}</strong><div class="small-muted">ID ${junior.id}</div></td>
+            <td>${junior.age}</td>
+            <td><strong class="${skillChangeClass(change)}">${junior.skill}</strong> ${change ? deltaInline(change) : ''}</td>
+            <td>${sktables.talent ? `<strong>${Number(sktables.talent).toFixed(1)}</strong>` : '<span class="small-muted">-</span>'}</td>
+            <td>${junior.weeksLeft ?? sktables.weeksLeft ?? '-'}</td>
+            <td>${sktables.finalLevel ? `${Number(sktables.ageOut).toFixed(1)}y | lvl ${sktables.finalLevel}` : '<span class="small-muted">Sokker only</span>'}</td>
+            <td>${sktables.potential ? potentialTag(sktables.potential) : '<span class="small-muted">-</span>'}</td>
+            <td>${miniGraph(graph)}</td>
+        </tr>
+    `;
+}
+
+function summaryCard(week) {
+    return `
+        <article class="summary-card">
+            <div>
+                <strong>S${week.gameDay?.season ?? '-'}/${week.gameDay?.seasonWeek ?? '-'}</strong>
+                <span class="small-muted">${week.gameDay?.date?.value ?? ''}</span>
+            </div>
+            <div class="summary-metrics">
+                <span>Advanced <strong>${week.stats?.advanced ?? 0}</strong></span>
+                <span>General <strong>${week.stats?.general ?? 0}</strong></span>
+                <span>Skill ups <strong class="positive">${week.stats?.skillsUp ?? 0}</strong></span>
+                <span>Junior ups <strong class="positive">${week.juniors?.skillsUp ?? 0}</strong></span>
+            </div>
+        </article>
+    `;
+}
+
+function teamTransferRow(transfer) {
+    const isBuy = Number(transfer.buyer?.id) === Number(state.current?.team?.id);
+    return `
+        <tr>
+            <td><strong>${escapeHtml(transfer.playerName?.full || transfer.player?.name?.full || '-')}</strong></td>
+            <td>${transfer.age ?? '-'}</td>
+            <td>${money(transfer.price)}</td>
+            <td>${money(transfer.value)}</td>
+            <td>${transfer.date?.value ?? '-'}</td>
+            <td><span class="training-badge ${isBuy ? '' : 'source-badge'}">${isBuy ? 'Buy' : 'Sell'}</span></td>
+        </tr>
+    `;
+}
+
+function marketTransferRow(transfer) {
+    return `
+        <tr>
+            <td><strong>${escapeHtml(transfer.playerName?.full || transfer.name?.full || transfer.info?.name?.full || '-')}</strong></td>
+            <td>${transfer.age ?? transfer.info?.characteristics?.age ?? '-'}</td>
+            <td>${money(transfer.price || transfer.bid || transfer.currentBid)}</td>
+            <td>${transfer.deadline?.value || transfer.dateEnd?.value || transfer.end?.value || '-'}</td>
+            <td>${escapeHtml(transfer.seller?.name || transfer.team?.name || '-')}</td>
+        </tr>
+    `;
+}
+
+function minutesRow(item) {
+    const report = item.row.report || {};
+    const games = report.games || {};
+    const intensity = report.intensity ?? 0;
+    const risk = intensity <= 0 ? 'No training' : intensity < 85 ? 'Low' : 'OK';
+    return `
+        <tr>
+            <td><strong>${escapeHtml(fullName(item.player))}</strong></td>
+            <td><strong class="${intensity < 85 ? 'negative' : 'positive'}">${intensity}%</strong></td>
+            <td>${games.minutesOfficial ?? 0}</td>
+            <td>${games.minutesFriendly ?? 0}</td>
+            <td>${games.minutesNational ?? 0}</td>
+            <td>${riskTag(risk)}</td>
+        </tr>
+    `;
+}
+
+function matchRow(match) {
+    return `
+        <tr>
+            <td>S${match.day?.season ?? '-'}/${match.day?.seasonWeek ?? '-'}</td>
+            <td><strong>${escapeHtml(match.home?.name || '-')}</strong> - <strong>${escapeHtml(match.away?.name || '-')}</strong></td>
+            <td>${escapeHtml(match.league?.type?.name || match.league?.name || '-')}</td>
+            <td>${match.score ? `${match.score.home ?? '-'}:${match.score.away ?? '-'}` : '-'}</td>
+        </tr>
+    `;
+}
+
+function alumniRow(player) {
+    return `
+        <tr>
+            <td><strong>${escapeHtml(player.name?.full || '-')}</strong></td>
+            <td>${player.age ?? '-'}</td>
+            <td>${escapeHtml(player.team?.name || '-')}</td>
+            <td>${player.sellDate?.value ?? '-'}</td>
+            <td>${money(player.firstPrice)}</td>
+            <td>${money(player.taxIncome)}</td>
+        </tr>
+    `;
 }
 
 function predictorListItem(trainingPlayer) {
@@ -864,6 +1217,66 @@ function addStatChange(bucket, value) {
 
 function statPair(up, down) {
     return `<span class="form-good">${up}</span> / <span class="form-bad">${down}</span>`;
+}
+
+function deltaInline(value) {
+    const sign = value > 0 ? '+' : '-';
+    return `<span class="${skillChangeClass(value)} smaller-2 bold">${sign}${Math.abs(value)}</span>`;
+}
+
+function potentialTag(value) {
+    const normalized = String(value).toLowerCase();
+    const klass = normalized.includes('excellent') ? 'positive'
+        : normalized.includes('tragic') || normalized.includes('weak') ? 'negative'
+            : '';
+    return `<span class="training-badge ${klass ? `badge-${klass}` : ''}">${escapeHtml(value)}</span>`;
+}
+
+function riskTag(value) {
+    const klass = value === 'OK' ? 'positive' : 'negative';
+    return `<span class="training-badge badge-${klass}">${escapeHtml(value)}</span>`;
+}
+
+function miniGraph(values) {
+    if (!values.length) {
+        return '<span class="small-muted">-</span>';
+    }
+    const numeric = values.map((item) => Number(item.y ?? 0));
+    const min = Math.min(...numeric);
+    const max = Math.max(...numeric);
+    return `
+        <div class="mini-graph" title="${numeric.join(' ')}">
+            ${numeric.slice(-18).map((value) => {
+                const height = max === min ? 45 : 18 + ((value - min) / (max - min)) * 62;
+                return `<span style="--h:${height}%"></span>`;
+            }).join('')}
+        </div>
+    `;
+}
+
+function loadingPanel(title, message) {
+    return `
+        <div class="view-panel">
+            <div class="toolbar"><h2>${escapeHtml(title)}</h2></div>
+            <div class="empty-state">${escapeHtml(message)}</div>
+        </div>
+    `;
+}
+
+function errorPanel(title, message) {
+    return `
+        <div class="view-panel">
+            <div class="toolbar"><h2>${escapeHtml(title)}</h2></div>
+            <div class="empty-state">${escapeHtml(message)}</div>
+        </div>
+    `;
+}
+
+function money(value) {
+    if (!value || typeof value.value !== 'number') {
+        return '-';
+    }
+    return `${number(value.value)} ${escapeHtml(value.currency || '')}`;
 }
 
 function findPlayer(playerId) {

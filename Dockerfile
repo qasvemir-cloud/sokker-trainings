@@ -14,4 +14,4 @@ COPY --from=build /app/target/classes ./target/classes
 COPY --from=build /app/target/classpath.txt ./target/classpath.txt
 
 EXPOSE 8080
-CMD ["sh", "-c", "java -Dserver.port=${PORT:-8080} -cp \"target/classes:$(cat target/classpath.txt)\" org.velja.app.sokker.SokkerManagerWebApp"]
+CMD ["sh", "-c", "java -Dserver.port=${PORT:-8080} -Dsokker.open-browser=false -cp \"target/classes:$(cat target/classpath.txt)\" org.velja.app.sokker.SokkerManagerWebApp"]

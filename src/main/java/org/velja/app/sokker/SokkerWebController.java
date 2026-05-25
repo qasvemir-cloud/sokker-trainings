@@ -1,6 +1,8 @@
 package org.velja.app.sokker;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,10 +25,12 @@ public class SokkerWebController {
 
     private final SokkerApiService sokkerApiService;
     private final SktablesService sktablesService;
+    private final ObjectMapper objectMapper;
 
-    public SokkerWebController(SokkerApiService sokkerApiService, SktablesService sktablesService) {
+    public SokkerWebController(SokkerApiService sokkerApiService, SktablesService sktablesService, ObjectMapper objectMapper) {
         this.sokkerApiService = sokkerApiService;
         this.sktablesService = sktablesService;
+        this.objectMapper = objectMapper;
     }
 
     @PostMapping("/login")
@@ -70,6 +74,11 @@ public class SokkerWebController {
         return sokkerApiService.trainingPlayers(sessionCookie(session));
     }
 
+    @GetMapping("/training/summary")
+    public JsonNode trainingSummary(HttpSession session) {
+        return sokkerApiService.trainingSummary(sessionCookie(session));
+    }
+
     @GetMapping("/players/{playerId}/training")
     public JsonNode playerTraining(@PathVariable long playerId, HttpSession session) {
         JsonNode report = sokkerApiService.trainingReport(playerId, sessionCookie(session));
@@ -78,6 +87,52 @@ public class SokkerWebController {
             return sktablesService.mergeTrainingReport(report, playerId, cookie);
         }
         return report;
+    }
+
+    @GetMapping("/juniors")
+    public JsonNode juniors(HttpSession session) {
+        ObjectNode payload = objectMapper.createObjectNode();
+        payload.set("sokker", sokkerApiService.juniors(sessionCookie(session)));
+        payload.set("report", sokkerApiService.juniorReport(sessionCookie(session)));
+        Object sktablesCookie = session.getAttribute(SKTABLES_COOKIE);
+        if (sktablesCookie instanceof String cookie && !cookie.isBlank()) {
+            payload.set("sktables", sktablesService.academy(cookie));
+        } else {
+            ObjectNode sktables = objectMapper.createObjectNode();
+            sktables.set("juniors", objectMapper.createArrayNode());
+            payload.set("sktables", sktables);
+        }
+        return payload;
+    }
+
+    @GetMapping("/juniors/{juniorId}/graph")
+    public JsonNode juniorGraph(@PathVariable long juniorId, HttpSession session) {
+        return sokkerApiService.juniorGraph(juniorId, sessionCookie(session));
+    }
+
+    @GetMapping("/market/team-transfers")
+    public JsonNode teamTransfers(HttpSession session) {
+        return sokkerApiService.teamTransfers(teamId(session), sessionCookie(session));
+    }
+
+    @GetMapping("/market/transfers")
+    public JsonNode marketTransfers(HttpSession session) {
+        return sokkerApiService.marketTransfers(sessionCookie(session));
+    }
+
+    @GetMapping("/matches")
+    public JsonNode teamMatches(HttpSession session) {
+        return sokkerApiService.teamMatches(teamId(session), sessionCookie(session));
+    }
+
+    @GetMapping("/matches/{matchId}/stats")
+    public JsonNode matchStats(@PathVariable long matchId, HttpSession session) {
+        return sokkerApiService.matchStats(matchId, sessionCookie(session));
+    }
+
+    @GetMapping("/alumni")
+    public JsonNode alumni(HttpSession session) {
+        return sokkerApiService.teamAlumni(teamId(session), sessionCookie(session));
     }
 
     @ExceptionHandler(SokkerApiException.class)

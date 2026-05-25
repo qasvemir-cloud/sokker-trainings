@@ -608,6 +608,63 @@ input {
     font-weight: 800;
 }
 
+.training-badge.badge-positive {
+    color: #c8ffd9;
+    background: rgba(42, 140, 74, 0.28);
+    border-color: rgba(42, 140, 74, 0.45);
+}
+
+.training-badge.badge-negative {
+    color: #ffd2d2;
+    background: rgba(205, 70, 70, 0.26);
+    border-color: rgba(205, 70, 70, 0.45);
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px;
+}
+
+.summary-card {
+    display: grid;
+    gap: 10px;
+    padding: 14px;
+    background: rgba(40, 40, 40, 0.86);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+}
+
+.summary-card > div:first-child {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.summary-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    color: #aeb8c2;
+    font-size: 0.82rem;
+}
+
+.mini-graph {
+    display: flex;
+    align-items: end;
+    gap: 2px;
+    width: 96px;
+    height: 30px;
+}
+
+.mini-graph span {
+    width: 4px;
+    height: var(--h);
+    min-height: 4px;
+    background: #4fd36c;
+    border-radius: 2px 2px 0 0;
+}
+
 .prediction-main {
     padding: 12px;
     background: rgba(255, 255, 255, 0.055);

@@ -66,8 +66,44 @@ public class SokkerApiService {
         return get("/training/players", phpSessionId);
     }
 
+    public JsonNode trainingSummary(String phpSessionId) {
+        return get("/training/summary", phpSessionId);
+    }
+
     public JsonNode trainingReport(long playerId, String phpSessionId) {
         return get("/training/" + playerId + "/report", phpSessionId);
+    }
+
+    public JsonNode juniors(String phpSessionId) {
+        return get("/junior", phpSessionId);
+    }
+
+    public JsonNode juniorReport(String phpSessionId) {
+        return get("/junior/report", phpSessionId);
+    }
+
+    public JsonNode juniorGraph(long juniorId, String phpSessionId) {
+        return get("/junior/" + juniorId + "/graph", phpSessionId);
+    }
+
+    public JsonNode teamTransfers(int teamId, String phpSessionId) {
+        return get("/team/" + teamId + "/transfer", phpSessionId);
+    }
+
+    public JsonNode marketTransfers(String phpSessionId) {
+        return get("/transfer", phpSessionId);
+    }
+
+    public JsonNode teamMatches(int teamId, String phpSessionId) {
+        return get("/team/" + teamId + "/match", phpSessionId);
+    }
+
+    public JsonNode matchStats(long matchId, String phpSessionId) {
+        return get("/match/" + matchId + "/stats", phpSessionId);
+    }
+
+    public JsonNode teamAlumni(int teamId, String phpSessionId) {
+        return get("/team/" + teamId + "/alumni", phpSessionId);
     }
 
     private JsonNode get(String path, String phpSessionId) {
