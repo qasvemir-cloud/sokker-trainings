@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: sokker-manager
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /sokker/index.html
+    envVars:
+      - key: JAVA_TOOL_OPTIONS
+        value: -XX:MaxRAMPercentage=75

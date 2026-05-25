@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sokker Training Manager</title>
+    <link rel="stylesheet" href="/sokker/css/sokker-fm.css">
+</head>
+<body>
+<div class="background"></div>
+
+<main id="login-screen" class="login-shell">
+    <section class="login-panel">
+        <div class="brand-mark">
+            <img src="/sokker/images/logomain.jpg" alt="Tifo Manager">
+            <div>
+                <span>Sokker</span>
+                <strong>Training Manager</strong>
+            </div>
+        </div>
+        <form id="login-form" class="login-form">
+            <label>
+                Korisnicko ime
+                <input id="login" name="login" autocomplete="username" required>
+            </label>
+            <label>
+                Lozinka
+                <input id="password" name="password" type="password" autocomplete="current-password" required>
+            </label>
+            <button type="submit">Login</button>
+            <p id="login-error" class="error-text" aria-live="polite"></p>
+        </form>
+    </section>
+</main>
+
+<main id="app-screen" class="app-shell hidden">
+    <nav class="top-menu">
+        <button class="menu-button active" data-view="players">Club</button>
+        <button class="menu-button" data-view="training">Training</button>
+        <button class="menu-button" data-view="predictor">Predictor</button>
+        <button id="logout-button" class="menu-button logout-button">Logout</button>
+        <div class="logo-corner">
+            <img id="nav-team-emblem" src="/sokker/images/omladinacLogo.png" alt="Club emblem">
+        </div>
+    </nav>
+
+    <aside class="sidebar">
+        <div class="sidebar-content">
+            <h3 id="team-name">Club</h3>
+            <div class="sidebar-link active" data-view="players">First Team</div>
+            <div class="sidebar-link" data-view="training">Training Reports</div>
+            <div class="sidebar-link" data-view="predictor">Predictor</div>
+        </div>
+    </aside>
+
+    <section class="dashboard-content">
+        <header class="club-profile-card compact">
+            <div class="club-header">
+                <img id="team-emblem" class="club-logo" src="/sokker/images/omladinacLogo.png" alt="Club emblem">
+                <div class="club-title">
+                    <h1 id="page-title">First Team</h1>
+                    <p id="team-meta" class="club-subtitle">Sokker training overview</p>
+                </div>
+            </div>
+            <div class="club-stats-grid">
+                <div class="stat-card">
+                    <div id="stat-players" class="stat-value">0</div>
+                    <div class="stat-label">Players</div>
+                </div>
+                <div class="stat-card">
+                    <div id="stat-form" class="stat-value">0 / 0</div>
+                    <div class="stat-label">Form up / down</div>
+                </div>
+                <div class="stat-card">
+                    <div id="stat-stamina" class="stat-value">0 / 0</div>
+                    <div class="stat-label">Stamina up / down</div>
+                </div>
+                <div class="stat-card">
+                    <div id="stat-skills" class="stat-value">0 / 0</div>
+                    <div class="stat-label">Other skills up / down</div>
+                </div>
+            </div>
+        </header>
+
+        <section id="players-view" class="view"></section>
+        <section id="training-view" class="view hidden"></section>
+        <section id="predictor-view" class="view hidden"></section>
+        <section id="player-detail-view" class="view hidden"></section>
+    </section>
+</main>
+
+<script type="module" src="/sokker/js/sokker-fm.js"></script>
+</body>
+</html>
