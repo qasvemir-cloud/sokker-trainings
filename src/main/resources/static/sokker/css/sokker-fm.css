@@ -8,6 +8,7 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     background: #111;
     color: #eee;
+    overflow-x: hidden;
 }
 
 button,
@@ -141,11 +142,16 @@ input {
     padding: 10px 20px;
     background: rgba(20, 20, 20, 0.96);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    overflow-x: auto;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
 }
 
 .menu-button {
+    flex: 0 0 auto;
     padding: 10px 18px;
     background: #222;
+    white-space: nowrap;
 }
 
 .menu-button.active {
@@ -789,13 +795,20 @@ input {
 }
 
 @media (max-width: 560px) {
+    body {
+        background: #0f1110;
+    }
+
     .top-menu {
-        gap: 7px;
-        padding: 8px;
+        min-height: 54px;
+        gap: 6px;
+        padding: 8px max(8px, env(safe-area-inset-right)) 8px max(8px, env(safe-area-inset-left));
     }
 
     .menu-button {
-        padding: 9px 10px;
+        min-height: 38px;
+        padding: 8px 10px;
+        font-size: 0.84rem;
     }
 
     .logo-corner {
@@ -803,22 +816,171 @@ input {
     }
 
     .club-header {
+        gap: 12px;
         align-items: flex-start;
+        margin-bottom: 14px;
+    }
+
+    .club-logo {
+        width: 58px;
+        height: 58px;
+        border-width: 3px;
     }
 
     .club-title h1 {
-        font-size: 1.55rem;
+        font-size: 1.32rem;
+        line-height: 1.1;
+        overflow-wrap: anywhere;
+    }
+
+    .club-subtitle {
+        font-size: 0.82rem;
+    }
+
+    .dashboard-content {
+        margin: 10px auto 28px;
+        padding: 0 10px;
+    }
+
+    .club-profile-card {
+        margin-bottom: 10px;
+        padding: 12px;
+        border-radius: 6px;
+    }
+
+    .club-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .stat-card {
+        padding: 10px 8px;
+        border-radius: 6px;
+    }
+
+    .stat-value {
+        font-size: 1.28rem;
+    }
+
+    .stat-label {
+        font-size: 0.74rem;
+        line-height: 1.2;
+    }
+
+    .view-panel,
+    .player-detail-shell {
+        border-radius: 6px;
+    }
+
+    .toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .toolbar h2 {
+        font-size: 1rem;
+    }
+
+    .toolbar-actions {
+        width: 100%;
+    }
+
+    .action-button {
+        min-height: 36px;
+        padding: 8px 10px;
+        font-size: 0.84rem;
     }
 
     .player-grid {
         grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .player-card {
+        min-height: auto;
+        padding: 12px;
+    }
+
+    .player-card h3 {
+        font-size: 0.96rem;
+    }
+
+    .player-skill-columns {
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .delta-strip {
+        gap: 5px;
     }
 
     .data-table {
-        min-width: 720px;
+        min-width: 680px;
+        font-size: 0.84rem;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 9px 10px;
     }
 
     .table-scroll {
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -1px;
+    }
+
+    .predictor-list,
+    .predictor-single {
+        padding: 10px;
+    }
+
+    .predictor-list-item {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        padding: 11px;
+    }
+
+    .predictor-list-item .training-badge {
+        grid-column: 1 / -1;
+        justify-self: start;
+    }
+
+    .predictor-card {
+        padding: 12px;
+    }
+
+    .predictor-head,
+    .prediction-row,
+    .gt-item,
+    .trace-head,
+    .trace-line,
+    .trace-week {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+        padding: 10px;
+    }
+
+    .summary-card {
+        padding: 12px;
+    }
+
+    .detail-card {
+        padding: 12px;
+    }
+
+    .skill-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mini-graph {
+        width: 80px;
     }
 }
