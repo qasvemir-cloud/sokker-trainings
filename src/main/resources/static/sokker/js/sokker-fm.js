@@ -513,6 +513,16 @@ async function renderPredictor() {
     bindPredictorRefresh();
     bindPredictorFocus();
     bindTraceButtons();
+
+    // Auto-render DT skill trace when viewing player details
+    if (state.focusedPredictorPlayerId) {
+        const focusedPlayer = advanced.find((p) => Number(p.id) === Number(state.focusedPredictorPlayerId));
+        if (focusedPlayer) {
+            const row = state.trainingRows.find((item) => Number(item.id) === Number(focusedPlayer.id));
+            const dtSkill = row?.report?.type?.name || 'pace';
+            setTimeout(() => renderSkillTrace(focusedPlayer.id, dtSkill), 50);
+        }
+    }
 }
 
 function renderPredictorList(advanced) {
