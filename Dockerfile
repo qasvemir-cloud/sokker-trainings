@@ -5,13 +5,13 @@ COPY pom.xml .
 RUN mvn -q -DskipTests dependency:go-offline
 
 COPY src ./src
-RUN mvn -q -DskipTests compile dependency:build-classpath -Dmdep.outputFile=target/classpath.txt
+RUN mvn -q -DskipTests package
 
 FROM eclipse-temurin:21-jre
 
 WORKDIR /app
-COPY --from=build /app/target/classes ./target/classes
-COPY --from=build /app/target/classpath.txt ./target/classpath.txt
+COPY --from=build /app/target/uiApplications-1.0-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
-CMD ["sh", "-c", "java -Dserver.address=0.0.0.0 -Dserver.port=${PORT:-8080} -Dsokker.open-browser=false -cp \"target/classes:$(cat target/classpath.txt)\" org.velja.app.sokker.SokkerManagerWebApp"]
+
+CMD ["java", "-Dserver.address=0.0.0.0", "-Dserver.port=${PORT:-8080}", "-Dsokker.open-browser=false", "-jar", "app.jar"]

@@ -984,3 +984,72 @@ input {
         width: 80px;
     }
 }
+
+/* ========== HIDDEN VIEWS & SIDEBAR ========== */
+
+/* Hide specific navigation buttons and sidebar links */
+.top-menu .menu-button[data-view="training"],
+.top-menu .menu-button[data-view="summary"],
+.top-menu .menu-button[data-view="market"],
+.top-menu .menu-button[data-view="matches"] {
+    display: none !important;
+}
+
+.sidebar .sidebar-link[data-view="training"],
+.sidebar .sidebar-link[data-view="summary"],
+.sidebar .sidebar-link[data-view="market"],
+.sidebar .sidebar-link[data-view="matches"] {
+    display: none !important;
+}
+
+/* Hide the actual view sections */
+#training-view,
+#summary-view,
+#market-view,
+#matches-view {
+    display: none !important;
+}
+
+/* Hide entire sidebar */
+.sidebar {
+    display: none !important;
+}
+
+/* Expand dashboard content to full width */
+.dashboard-content {
+    padding: 20px 22px 42px !important;
+    max-width: 100% !important;
+    margin: 20px auto 42px !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+    .top-menu .menu-button[data-view="training"],
+    .top-menu .menu-button[data-view="summary"],
+    .top-menu .menu-button[data-view="market"],
+    .top-menu .menu-button[data-view="matches"],
+    .sidebar .sidebar-link[data-view="training"],
+    .sidebar .sidebar-link[data-view="summary"],
+    .sidebar .sidebar-link[data-view="market"],
+    .sidebar .sidebar-link[data-view="matches"] {
+        display: none !important;
+    }
+
+    .sidebar {
+        display: none !important;
+    }
+
+    .dashboard-content {
+        padding: 0 14px !important;
+    }
+}
+
+@media (max-width: 560px) {
+    .sidebar {
+        display: none !important;
+    }
+
+    .dashboard-content {
+        padding: 0 10px !important;
+    }
+}

@@ -118,6 +118,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>org.velja.app.sokker.SokkerManagerWebApp</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
