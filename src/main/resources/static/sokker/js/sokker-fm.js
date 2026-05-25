@@ -303,31 +303,18 @@ async function renderJuniors() {
             .map((junior) => ({ ...junior, report: reportById.get(Number(junior.id)), sktables: sktablesById.get(Number(junior.id)) }))
             .sort((a, b) => (a.weeksLeft ?? 99) - (b.weeksLeft ?? 99));
 
+        const isMobile = window.innerWidth < 768;
+        const content = isMobile && rows.length
+            ? `<div class="juniors-cards">${rows.map(juniorCard).join('')}</div>`
+            : `<div class="table-scroll"><table class="data-table"><thead><tr><th>Junior</th><th>Age</th><th>Lvl</th><th>Talent</th><th>Weeks</th><th>Projection</th><th>Potential</th><th>Graph</th></tr></thead><tbody>${rows.length ? rows.map(juniorRow).join('') : `<tr><td colspan="8" class="empty-state">Nema juniora.</td></tr>`}</tbody></table></div>`;
+
         juniorsView.innerHTML = `
             <div class="view-panel">
                 <div class="toolbar">
                     <h2>Junior Academy</h2>
                     <button id="refresh-juniors" class="action-button">Refresh</button>
                 </div>
-                <div class="table-scroll">
-                    <table class="data-table">
-                        <thead>
-                        <tr>
-                            <th>Junior</th>
-                            <th>Age</th>
-                            <th>Lvl</th>
-                            <th>Talent</th>
-                            <th>Weeks</th>
-                            <th>Projection</th>
-                            <th>Potential</th>
-                            <th>Graph</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            ${rows.length ? rows.map(juniorRow).join('') : `<tr><td colspan="8" class="empty-state">Nema juniora.</td></tr>`}
-                        </tbody>
-                    </table>
-                </div>
+                ${content}
             </div>
         `;
         juniorsView.querySelector('#refresh-juniors').addEventListener('click', () => {
@@ -565,6 +552,48 @@ function juniorRow(junior) {
             <td>${sktables.potential ? potentialTag(sktables.potential) : '<span class="small-muted">-</span>'}</td>
             <td>${miniGraph(graph)}</td>
         </tr>
+    `;
+}
+
+function juniorCard(junior) {
+    const graph = state.juniorGraphs.get(junior.id)?.values || [];
+    const sktables = junior.sktables || {};
+    const change = junior.report?.change ?? sktables.change ?? 0;
+    return `
+        <div class="junior-card">
+            <div>
+                <span class="junior-name">${escapeHtml(junior.fullName?.full || junior.name)}</span>
+                <span class="minor-info">ID ${junior.id}</span>
+            </div>
+            <div>
+                <span>Age:</span>
+                <strong>${junior.age}</strong>
+            </div>
+            <div>
+                <span>Level:</span>
+                <strong class="${skillChangeClass(change)}">${junior.skill}</strong> ${change ? deltaInline(change) : ''}
+            </div>
+            <div>
+                <span>Talent:</span>
+                <strong>${sktables.talent ? Number(sktables.talent).toFixed(1) : '-'}</strong>
+            </div>
+            <div>
+                <span>Weeks left:</span>
+                <strong>${junior.weeksLeft ?? sktables.weeksLeft ?? '-'}</strong>
+            </div>
+            <div>
+                <span>Projection:</span>
+                <strong>${sktables.finalLevel ? `${Number(sktables.ageOut).toFixed(1)}y | lvl ${sktables.finalLevel}` : 'Sokker only'}</strong>
+            </div>
+            <div>
+                <span>Potential:</span>
+                ${sktables.potential ? potentialTag(sktables.potential) : '<span class="small-muted">-</span>'}
+            </div>
+            <div>
+                <span>Graph:</span>
+                ${miniGraph(graph)}
+            </div>
+        </div>
     `;
 }
 

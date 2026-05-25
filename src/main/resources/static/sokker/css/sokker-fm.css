@@ -797,18 +797,22 @@ input {
 @media (max-width: 560px) {
     body {
         background: #0f1110;
+        font-size: 15px;
     }
 
     .top-menu {
         min-height: 54px;
-        gap: 6px;
-        padding: 8px max(8px, env(safe-area-inset-right)) 8px max(8px, env(safe-area-inset-left));
+        gap: 4px;
+        padding: 6px max(6px, env(safe-area-inset-right)) 6px max(6px, env(safe-area-inset-left));
     }
 
     .menu-button {
-        min-height: 38px;
-        padding: 8px 10px;
-        font-size: 0.84rem;
+        min-height: 40px;
+        padding: 8px 9px;
+        font-size: 0.78rem;
+        flex: 0 0 auto;
+        flex-grow: 1;
+        max-width: 90px;
     }
 
     .logo-corner {
@@ -818,142 +822,248 @@ input {
     .club-header {
         gap: 12px;
         align-items: flex-start;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
     }
 
     .club-logo {
-        width: 58px;
-        height: 58px;
-        border-width: 3px;
+        width: 52px;
+        height: 52px;
+        border-width: 2px;
+        flex-shrink: 0;
     }
 
     .club-title h1 {
-        font-size: 1.32rem;
-        line-height: 1.1;
-        overflow-wrap: anywhere;
+        font-size: 1.2rem;
+        line-height: 1;
+        overflow-wrap: break-word;
     }
 
     .club-subtitle {
-        font-size: 0.82rem;
+        font-size: 0.75rem;
+        margin-top: 3px;
     }
 
     .dashboard-content {
-        margin: 10px auto 28px;
-        padding: 0 10px;
+        margin: 8px auto 20px;
+        padding: 0 8px;
     }
 
     .club-profile-card {
-        margin-bottom: 10px;
-        padding: 12px;
+        margin-bottom: 8px;
+        padding: 10px;
         border-radius: 6px;
     }
 
     .club-stats-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
+        gap: 6px;
     }
 
     .stat-card {
-        padding: 10px 8px;
+        padding: 8px 6px;
         border-radius: 6px;
     }
 
     .stat-value {
-        font-size: 1.28rem;
+        font-size: 1.1rem;
+        font-weight: 700;
     }
 
     .stat-label {
-        font-size: 0.74rem;
-        line-height: 1.2;
+        font-size: 0.68rem;
+        line-height: 1.1;
+        margin-top: 2px;
     }
 
     .view-panel,
     .player-detail-shell {
         border-radius: 6px;
+        background: rgba(20, 20, 20, 0.92);
     }
 
     .toolbar {
-        align-items: flex-start;
+        align-items: stretch;
         flex-direction: column;
-        gap: 10px;
-        padding: 12px;
+        gap: 8px;
+        padding: 10px;
     }
 
     .toolbar h2 {
-        font-size: 1rem;
+        font-size: 0.95rem;
+        margin: 0;
     }
 
     .toolbar-actions {
         width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
     }
 
     .action-button {
-        min-height: 36px;
-        padding: 8px 10px;
-        font-size: 0.84rem;
+        min-height: 34px;
+        padding: 7px 8px;
+        font-size: 0.78rem;
+        white-space: nowrap;
     }
 
     .player-grid {
         grid-template-columns: 1fr;
-        gap: 10px;
-        padding: 10px;
-    }
-
-    .player-card {
-        min-height: auto;
-        padding: 12px;
-    }
-
-    .player-card h3 {
-        font-size: 0.96rem;
-    }
-
-    .player-skill-columns {
         gap: 8px;
         padding: 8px;
     }
 
+    .player-card {
+        min-height: auto;
+        padding: 10px;
+        gap: 6px;
+    }
+
+    .player-card h3 {
+        font-size: 0.9rem;
+    }
+
+    .player-card-head {
+        gap: 6px;
+    }
+
+    .player-card-head span {
+        font-size: 0.75rem;
+    }
+
+    .player-form-row {
+        font-size: 0.75rem;
+    }
+
+    .player-skill-columns {
+        gap: 6px;
+        padding: 6px;
+    }
+
+    .player-skill-line {
+        font-size: 0.75rem;
+        padding: 2px 0;
+    }
+
     .delta-strip {
-        gap: 5px;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    .delta-pill {
+        font-size: 0.7rem;
+        padding: 3px 5px;
+        min-height: 20px;
     }
 
     .data-table {
-        min-width: 680px;
-        font-size: 0.84rem;
+        width: 100%;
+        font-size: 0.75rem;
     }
 
     .data-table th,
     .data-table td {
-        padding: 9px 10px;
+        padding: 7px 6px;
+    }
+
+    .data-table th {
+        font-size: 0.7rem;
     }
 
     .table-scroll {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        margin: 0 -1px;
+        margin: 0 -8px;
+        padding: 0 8px;
+    }
+
+    /* Juniors table mobile cards */
+    .junior-card {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.055);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 6px;
+        margin-bottom: 8px;
+    }
+
+    .junior-card > div {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 0.75rem;
+    }
+
+    .junior-card strong {
+        font-weight: 700;
+        color: #fff;
+    }
+
+    .junior-name {
+        font-size: 0.85rem !important;
+        font-weight: 700;
+    }
+
+    .minor-info {
+        color: #aeb8c2;
+        font-size: 0.7rem;
     }
 
     .predictor-list,
     .predictor-single {
-        padding: 10px;
+        padding: 8px;
     }
 
     .predictor-list-item {
         grid-template-columns: minmax(0, 1fr) auto;
-        gap: 8px;
-        padding: 11px;
+        gap: 6px;
+        padding: 9px;
+        font-size: 0.8rem;
+    }
+
+    .predictor-list-item small {
+        font-size: 0.7rem;
+    }
+
+    .predictor-list-prob {
+        min-width: 40px;
+        font-size: 0.8rem;
     }
 
     .predictor-list-item .training-badge {
         grid-column: 1 / -1;
         justify-self: start;
+        font-size: 0.7rem;
+        padding: 4px 6px;
     }
 
     .predictor-card {
-        padding: 12px;
+        padding: 10px;
+        gap: 8px;
     }
 
-    .predictor-head,
+    .predictor-head {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .predictor-head h3 {
+        font-size: 0.9rem;
+    }
+
+    .training-badge {
+        font-size: 0.7rem;
+        padding: 4px 6px;
+        min-width: 48px;
+    }
+
+    .prediction-main,
+    .gt-item {
+        font-size: 0.75rem;
+        padding: 9px;
+    }
+
     .prediction-row,
     .gt-item,
     .trace-head,
@@ -961,27 +1071,92 @@ input {
     .trace-week {
         align-items: flex-start;
         flex-direction: column;
+        gap: 4px;
+        font-size: 0.75rem;
+    }
+
+    .probability-bar {
+        height: 8px;
+        margin-top: 4px;
     }
 
     .summary-grid {
         grid-template-columns: 1fr;
-        padding: 10px;
+        padding: 8px;
+        gap: 8px;
     }
 
     .summary-card {
-        padding: 12px;
+        padding: 10px;
+    }
+
+    .summary-card > div:first-child {
+        gap: 8px;
+    }
+
+    .summary-card strong {
+        font-size: 0.9rem;
+    }
+
+    .summary-card span {
+        font-size: 0.75rem;
+    }
+
+    .summary-metrics {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        font-size: 0.75rem;
     }
 
     .detail-card {
-        padding: 12px;
+        padding: 10px;
+    }
+
+    .detail-card h2 {
+        font-size: 1rem;
+    }
+
+    .detail-card h3 {
+        font-size: 0.9rem;
+    }
+
+    .detail-layout {
+        grid-template-columns: 1fr;
+        gap: 12px;
     }
 
     .skill-grid {
         grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .skill-row {
+        padding: 6px 8px;
+        font-size: 0.8rem;
+    }
+
+    .gt-list {
+        gap: 5px;
     }
 
     .mini-graph {
-        width: 80px;
+        width: 70px;
+        height: 25px;
+    }
+
+    .mini-graph span {
+        width: 3px;
+    }
+
+    .small-muted {
+        font-size: 0.7rem;
+    }
+
+    .juniors-cards {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 8px;
     }
 }
 
