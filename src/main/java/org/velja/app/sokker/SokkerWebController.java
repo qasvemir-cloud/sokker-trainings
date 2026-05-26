@@ -23,6 +23,7 @@ public class SokkerWebController {
     private static final String SKTABLES_COOKIE = "sktablesCookie";
     private static final String TEAM_ID = "sokkerTeamId";
 
+
     private final SokkerApiService sokkerApiService;
     private final SktablesService sktablesService;
     private final ObjectMapper objectMapper;

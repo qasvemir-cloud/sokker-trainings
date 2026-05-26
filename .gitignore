@@ -38,3 +38,12 @@ build/
 .DS_Store
 # Project exclude paths
 /out/
+/src/main/resources/static/sokker/data/
+/.junie/
+/.refact/
+/.idea/
+/src/main/resources/Vuk iz Grinvila final.txt
+/src/main/resources/Vuk iz Grinvila final-backup-pre-djec-fix.docx
+/src/main/resources/Vuk iz Grinvila final-backup-pre-lektura.docx
+/src/main/resources/Vuk iz Grinvila final-backup-pre-prevod-zamene.docx
+/src/main/resources/~$k iz Grinvila final.docx

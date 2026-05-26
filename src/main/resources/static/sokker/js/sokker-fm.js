@@ -63,7 +63,8 @@ const state = {
     playerReports: new Map(),
     focusedPredictorPlayerId: null,
     activeView: 'players',
-    playerSort: 'name'
+    playerSort: 'name',
+    predictorSort: 'prob'
 };
 
 const loginScreen = document.querySelector('#login-screen');
@@ -320,6 +321,8 @@ async function renderJuniors() {
                 ${content}
             </div>
         `;
+        const juniorsTable = juniorsView.querySelector('.data-table');
+        if (juniorsTable) makeSortable(juniorsTable);
         juniorsView.querySelector('#refresh-juniors').addEventListener('click', () => {
             state.juniors = null;
             state.juniorGraphs.clear();
@@ -397,6 +400,7 @@ async function renderMarket() {
                 </div>
             </div>
         `;
+        marketView.querySelectorAll('.data-table').forEach(makeSortable);
         marketView.querySelector('#refresh-market').addEventListener('click', () => {
             state.market = null;
             renderMarket();
@@ -444,6 +448,7 @@ async function renderMatches() {
                 </div>
             </div>
         `;
+        matchesView.querySelectorAll('.data-table').forEach(makeSortable);
         matchesView.querySelector('#refresh-matches').addEventListener('click', () => {
             state.matches = null;
             renderMatches();
@@ -460,20 +465,32 @@ async function renderAlumni() {
             state.alumni = await getJson(api.alumni);
         }
         const players = state.alumni.players || [];
+        const totFirst = players.reduce((s, p) => s + (p.firstPrice?.value || 0), 0);
+        const totTax = players.reduce((s, p) => s + (p.taxIncome?.value || 0), 0);
+        const currency = players.find((p) => p.firstPrice?.currency)?.firstPrice?.currency || '';
         alumniView.innerHTML = `
             <div class="view-panel">
                 <div class="toolbar">
                     <h2>Alumni</h2>
                     <button id="refresh-alumni" class="action-button">Refresh</button>
                 </div>
+                <div class="alumni-summary">
+                    <div><strong>First price</strong><span class="value positive">${number(totFirst)} ${escapeHtml(currency)}</span></div>
+                    <div><strong>Tax income</strong><span class="value positive">${number(totTax)} ${escapeHtml(currency)}</span></div>
+                    <div></div>
+                    <div class="alumni-total-line"><strong>Total</strong><span class="value positive">${number(totFirst + totTax)} ${escapeHtml(currency)}</span></div>
+                    <div class="small-muted">(${players.length} players)</div>
+                </div>
                 <div class="table-scroll">
                     <table class="data-table">
-                        <thead><tr><th>Player</th><th>Age</th><th>Current team</th><th>Sold</th><th>First price</th><th>Tax income</th></tr></thead>
-                        <tbody>${players.slice(0, 40).map(alumniRow).join('') || `<tr><td colspan="6" class="empty-state">No alumni players.</td></tr>`}</tbody>
+                        <thead><tr><th>Player</th><th>Age</th><th>Current team</th><th>Sold</th><th>First price</th><th>Tax income</th><th>Total</th></tr></thead>
+                        <tbody>${players.slice(0, 40).map(alumniRow).join('') || `<tr><td colspan="7" class="empty-state">No alumni players.</td></tr>`}</tbody>
                     </table>
                 </div>
             </div>
         `;
+        const alumniTable = alumniView.querySelector('.data-table');
+        if (alumniTable) makeSortable(alumniTable);
         alumniView.querySelector('#refresh-alumni').addEventListener('click', () => {
             state.alumni = null;
             renderAlumni();
@@ -498,15 +515,40 @@ async function renderPredictor() {
     if (!state.trainingSetup) {
         state.trainingSetup = await getJson(api.trainingPlayers);
     }
-    const advanced = state.trainingSetup.advanced || [];
+    let advanced = state.trainingSetup.advanced || [];
     await Promise.all(advanced.map((player) => loadPlayerReport(player.id)));
+    const sortField = state.predictorSort;
+    advanced = advanced.slice().sort((a, b) => {
+        if (sortField === 'prob') {
+            const pa = findPlayer(a.id) || { id: a.id, info: a.info };
+            const pb = findPlayer(b.id) || { id: b.id, info: b.info };
+            const rowA = state.trainingRows.find((r) => Number(r.id) === Number(a.id));
+            const rowB = state.trainingRows.find((r) => Number(r.id) === Number(b.id));
+            const skillA = rowA?.report?.type?.name || 'pace';
+            const skillB = rowB?.report?.type?.name || 'pace';
+            const repA = state.playerReports.get(Number(a.id)) || [];
+            const repB = state.playerReports.get(Number(b.id)) || [];
+            const predA = predictSkill(pa, repA, skillA, 'DT');
+            const predB = predictSkill(pb, repB, skillB, 'DT');
+            return (predB.nextProbability || 0) - (predA.nextProbability || 0);
+        }
+        if (sortField === 'name') {
+            return fullName(a).toLowerCase().localeCompare(fullName(b).toLowerCase());
+        }
+        const sa = a?.characteristics?.age ?? a?.info?.characteristics?.age ?? 0;
+        const sb = b?.characteristics?.age ?? b?.info?.characteristics?.age ?? 0;
+        return sa - sb;
+    });
 
+    const sortLabels = { prob: 'Probability', name: 'Name', age: 'Age' };
+    const nextSort = { prob: 'name', name: 'age', age: 'prob' };
     predictorView.innerHTML = `
         <div class="view-panel">
             <div class="toolbar">
                 <h2>${state.focusedPredictorPlayerId ? 'Player Predictor' : 'Advanced Training Predictor'}</h2>
                 <div class="toolbar-actions">
                     ${state.focusedPredictorPlayerId ? '<button id="predictor-back" class="action-button secondary">Back</button>' : ''}
+                    <button id="predictor-sort" class="action-button secondary">Sort: ${sortLabels[state.predictorSort] || 'Name'}</button>
                     <button id="refresh-predictor" class="action-button">Refresh</button>
                 </div>
             </div>
@@ -514,6 +556,7 @@ async function renderPredictor() {
         </div>
     `;
     bindPredictorRefresh();
+    bindPredictorSort();
     bindPredictorFocus();
     bindTraceButtons();
 
@@ -682,6 +725,9 @@ function matchRow(match) {
 }
 
 function alumniRow(player) {
+    const fp = player.firstPrice?.value || 0;
+    const ti = player.taxIncome?.value || 0;
+    const cur = player.firstPrice?.currency || '';
     return `
         <tr>
             <td><strong>${escapeHtml(player.name?.full || '-')}</strong></td>
@@ -690,6 +736,7 @@ function alumniRow(player) {
             <td>${player.sellDate?.value ?? '-'}</td>
             <td>${money(player.firstPrice)}</td>
             <td>${money(player.taxIncome)}</td>
+            <td>${number(fp + ti)} ${escapeHtml(cur)}</td>
         </tr>
     `;
 }
@@ -721,6 +768,14 @@ function bindPredictorRefresh() {
         state.playerReports.clear();
         await loadData();
         renderShell();
+        renderPredictor();
+    });
+}
+
+function bindPredictorSort() {
+    predictorView.querySelector('#predictor-sort')?.addEventListener('click', () => {
+        const nextSort = { prob: 'name', name: 'age', age: 'prob' };
+        state.predictorSort = nextSort[state.predictorSort] || 'prob';
         renderPredictor();
     });
 }
@@ -888,7 +943,8 @@ function predictSkill(player, reports, skill, mode) {
             source: 'max-level',
             nextProbability: 0,
             remainingTrainings: Infinity,
-            maxed: true
+            maxed: true,
+            hasHistory: true
         };
     }
     const accumulated = accumulatedCredit(reports, skill);
@@ -897,6 +953,7 @@ function predictSkill(player, reports, skill, mode) {
     const nextCredit = mode === 'DT' ? 1 : 1 / gtRatio;
     const nextRatio = (accumulated + nextCredit) / target;
     const currentRatio = accumulated / target;
+    const hasHistory = intervals.length > 0;
     const nextProbability = nextRatio >= 1
         ? Math.min(99, Math.max(92, Math.round(92 + Math.min(1, currentRatio) * 7)))
         : Math.min(91, Math.max(3, Math.round(nextRatio * 100)));
@@ -907,7 +964,8 @@ function predictSkill(player, reports, skill, mode) {
         level,
         accumulated,
         target,
-        source: intervals.length ? 'player-history' : 'global-fallback',
+        source: hasHistory ? 'player-history' : 'global-fallback',
+        hasHistory,
         nextProbability,
         remainingTrainings: Math.ceil(remaining / nextCredit)
     };
@@ -1162,6 +1220,7 @@ function renderPlayerDetail(player, reports) {
                             <tr>
                                 <th>Season</th>
                                 <th>Week</th>
+                                <th>Date</th>
                                 <th>Type</th>
                                 <th>Intensity</th>
                                 <th>Source</th>
@@ -1169,7 +1228,7 @@ function renderPlayerDetail(player, reports) {
                             </tr>
                             </thead>
                             <tbody id="training-history-body">
-                            ${reports.length ? reports.map((report, idx) => historyRow(report, idx)).join('') : `<tr><td colspan="6" class="empty-state">No previous training for this player.</td></tr>`}
+                            ${reports.length ? reports.map((report, idx) => historyRow(report, idx)).join('') : `<tr><td colspan="7" class="empty-state">No previous training for this player.</td></tr>`}
                             </tbody>
                         </table>
                     </div>
@@ -1177,6 +1236,8 @@ function renderPlayerDetail(player, reports) {
             </div>
         </div>
     `;
+    const historyTable = document.querySelector('.training-history');
+    if (historyTable) makeSortable(historyTable);
     document.querySelector('#back-from-detail').addEventListener('click', () => showView(state.activeView));
     document.querySelectorAll('#training-history-body tr.clickable-row').forEach((row) => {
         row.addEventListener('click', () => {
@@ -1189,7 +1250,7 @@ function renderPlayerDetail(player, reports) {
                 const detailRow = document.createElement('tr');
                 detailRow.className = 'week-detail';
                 detailRow.dataset.reportIndex = idx;
-                detailRow.innerHTML = `<td colspan="6"><div class="week-skill-detail"><div class="player-skill-columns">${weekSkillColumns(report.skills || {}, report.skillsChange || {})}</div></div></td>`;
+                detailRow.innerHTML = `<td colspan="7"><div class="week-skill-detail"><div class="player-skill-columns">${weekSkillColumns(report.skills || {}, report.skillsChange || {})}</div></div></td>`;
                 row.after(detailRow);
             }
         });
@@ -1198,18 +1259,19 @@ function renderPlayerDetail(player, reports) {
 
 function playerCard(player) {
     const skills = player.info?.skills || {};
+    const changes = player.info?.skillsChange || {};
     return `
         <button class="player-card" data-player-id="${player.id}">
             <div class="player-card-head">
                 <h3>${escapeHtml(fullName(player))}</h3>
                 <span>Age: ${age(player)}</span>
             </div>
-            <div class="player-form-row">Form: <strong>${skills.form ?? '-'}</strong></div>
             <div class="player-skill-columns">
-                <div>${playerSkillRows(skills, player.info?.skillsChange || {}, ['stamina', 'pace', 'technique', 'passing'])}</div>
-                <div>${playerSkillRows(skills, player.info?.skillsChange || {}, ['keeper', 'defending', 'playmaking', 'striker'])}</div>
+                <div class="skill-column-extra">${playerSkillRows(skills, changes, ['form', 'tacticalDiscipline', 'teamwork'])}</div>
+                <div class="skill-column-left">${playerSkillRows(skills, changes, ['stamina', 'pace', 'technique', 'passing'])}</div>
+                <div class="skill-column-right">${playerSkillRows(skills, changes, ['keeper', 'defending', 'playmaking', 'striker'])}</div>
             </div>
-            <div class="delta-strip">${deltaPills(player.info?.skillsChange || {})}</div>
+            <div class="delta-strip">${deltaPills(changes)}</div>
         </button>
     `;
 }
@@ -1224,7 +1286,10 @@ function playerSkillRows(skills, changes, keys) {
 }
 
 function weekSkillColumns(skills, changes) {
+    const extraSkills = ['form', 'tacticalDiscipline', 'teamwork'];
+    const anyExtra = extraSkills.some((key) => (changes[key] ?? 0) !== 0);
     return `
+        ${anyExtra ? `<div class="skill-column-extra">${playerSkillRows(skills, changes, extraSkills)}</div>` : ''}
         <div class="skill-column-left">${playerSkillRows(skills, changes, ['stamina', 'pace', 'technique', 'passing'])}</div>
         <div class="skill-column-right">${playerSkillRows(skills, changes, ['keeper', 'defending', 'playmaking', 'striker'])}</div>
     `;
@@ -1258,6 +1323,7 @@ function historyRow(report, index) {
         <tr class="clickable-row" data-report-index="${index}">
             <td>${report.day?.season ?? '-'}</td>
             <td>${report.day?.seasonWeek ?? report.week ?? '-'}</td>
+            <td>${formatDate(report.day?.date?.value || report.date?.value)}</td>
             <td>${escapeHtml(report.type?.name || report.kind?.name || '-')}</td>
             <td>${report.intensity ?? '-'}%</td>
             <td>${report.source === 'sktables' ? '<span class="training-badge source-badge">SkTables</span>' : '<span class="small-muted">Sokker</span>'}</td>
@@ -1267,12 +1333,11 @@ function historyRow(report, index) {
 }
 
 function skillGrid(skills) {
-    return skillLabels.map(([key, label]) => `
-        <div class="skill-row">
-            <span>${label}</span>
-            <strong>${skills[key] ?? '-'}</strong>
-        </div>
-    `).join('');
+    return `
+        <div class="skill-column-extra">${playerSkillRows(skills, {}, ['form', 'tacticalDiscipline', 'experience', 'teamwork'])}</div>
+        <div class="skill-column-left">${playerSkillRows(skills, {}, ['stamina', 'pace', 'technique', 'passing'])}</div>
+        <div class="skill-column-right">${playerSkillRows(skills, {}, ['keeper', 'defending', 'playmaking', 'striker'])}</div>
+    `;
 }
 
 function topSkills(skills) {
@@ -1427,4 +1492,46 @@ function escapeHtml(value) {
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#039;');
+}
+
+function makeSortable(table) {
+    const tbody = table.querySelector('tbody');
+    if (!tbody) return;
+    const thead = table.querySelector('thead');
+    if (!thead) return;
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    if (!rows.length) return;
+    const ths = thead.querySelectorAll('th');
+    let sortCol = -1;
+    let sortAsc = true;
+
+    function getVal(row, col) {
+        const cell = row.children[col];
+        if (!cell) return '';
+        const text = cell.textContent.trim();
+        const num = parseFloat(text.replace(/[^0-9.\-]/g, ''));
+        return isNaN(num) ? text.toLowerCase() : num;
+    }
+
+    function sort(col) {
+        const isSame = col === sortCol;
+        sortAsc = isSame ? !sortAsc : true;
+        sortCol = col;
+        const dir = sortAsc ? 1 : -1;
+        const sorted = rows.slice().sort((a, b) => {
+            const va = getVal(a, col);
+            const vb = getVal(b, col);
+            if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir;
+            return String(va).localeCompare(String(vb)) * dir;
+        });
+        ths.forEach((th, i) => {
+            th.classList.toggle('sort-asc', i === col && sortAsc);
+            th.classList.toggle('sort-desc', i === col && !sortAsc);
+        });
+        sorted.forEach((row) => tbody.appendChild(row));
+    }
+
+    ths.forEach((th, i) => {
+        th.addEventListener('click', () => sort(i));
+    });
 }

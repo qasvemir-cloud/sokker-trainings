@@ -323,7 +323,7 @@ input {
 }
 
 .player-card {
-    min-height: 172px;
+    min-height: 200px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -464,9 +464,67 @@ input {
 
 .data-table th {
     color: #aeb8c2;
-    background: rgba(255, 255, 255, 0.04);
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+}
+
+.data-table th:hover {
+    color: #d6dde4;
+}
+
+.data-table th.sort-asc::after {
+    content: ' ▲';
+    font-size: 0.6rem;
+}
+
+.data-table th.sort-desc::after {
+    content: ' ▼';
+    font-size: 0.6rem;
+}
+
+.alumni-total td {
+    border-top: 2px solid rgba(255, 255, 255, 0.12);
+    padding: 8px 10px;
+    font-size: 0.82rem;
+}
+
+.alumni-summary {
+    padding: 14px 18px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    margin: 0 14px 10px;
+    font-size: 0.9rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 6px 20px;
+}
+
+.alumni-summary .alumni-total-line {
+    grid-column: 1 / -1;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 8px;
+    margin-top: 4px;
+    font-size: 1rem;
+}
+
+.alumni-summary strong {
+    color: #d6dde4;
+}
+
+.alumni-summary .value {
+    color: #f4f8ff;
+    float: right;
+}
+
+.alumni-summary .value.positive {
+    color: #4fd36c;
 }
 
 .data-table tr {
@@ -502,18 +560,41 @@ input {
 .skill-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 6px 10px;
+    padding: 9px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 6px;
 }
 
-.skill-row {
+.skill-grid .skill-column-extra {
+    display: flex;
+    gap: 14px;
+    grid-column: 1 / -1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 2px;
+    padding-bottom: 4px;
+}
+
+.skill-grid .skill-column-extra .player-skill-line {
+    flex: 1;
+}
+
+.skill-grid .player-skill-line {
     display: flex;
     justify-content: space-between;
     gap: 8px;
-    padding: 8px 9px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
+    padding: 3px 0;
+    color: #d6dde4;
+    font-size: 0.82rem;
 }
 
+.skill-grid .player-skill-line span {
+    color: #aeb8c2;
+}
+
+.skill-grid .player-skill-line strong {
+    color: #f4f8ff;
+}
 .empty-state {
     padding: 22px;
     color: #aeb8c2;
@@ -1008,11 +1089,29 @@ input {
     margin: 0;
 }
 
-.skill-column-left,
+.skill-column-left {
+    min-width: 130px;
+    grid-column: 1;
+}
+
 .skill-column-right {
+    min-width: 130px;
+    grid-column: 2;
+}
+
+.player-skill-columns .skill-column-extra,
+.skill-grid .skill-column-extra,
+.skill-column-extra {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    gap: 20px;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 4px;
+    grid-column: 1 / -1;
+}
+
+.skill-column-extra .player-skill-line {
+    flex: 1;
 }
 
     .data-table th {
@@ -1176,13 +1275,17 @@ input {
     }
 
     .skill-grid {
-        grid-template-columns: 1fr;
-        gap: 6px;
+        gap: 4px 6px;
     }
 
-    .skill-row {
-        padding: 6px 8px;
-        font-size: 0.8rem;
+    .skill-grid .skill-column-extra {
+        flex-wrap: wrap;
+        gap: 2px 12px;
+    }
+
+    .skill-grid .skill-column-extra .player-skill-line {
+        flex: 0 0 auto;
+        min-width: 70px;
     }
 
     .gt-list {
