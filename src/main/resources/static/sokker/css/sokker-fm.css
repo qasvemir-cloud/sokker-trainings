@@ -357,15 +357,10 @@ input {
     gap: 10px;
 }
 
-.player-card-head span,
-.player-form-row {
+.player-card-head span {
     color: #aeb8c2;
     font-size: 0.84rem;
     font-weight: 700;
-}
-
-.player-form-row strong {
-    color: #f4f8ff;
 }
 
 .player-skill-columns {
@@ -1035,10 +1030,6 @@ input {
     }
 
     .player-card-head span {
-        font-size: 0.75rem;
-    }
-
-    .player-form-row {
         font-size: 0.75rem;
     }
 

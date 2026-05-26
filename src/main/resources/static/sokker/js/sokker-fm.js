@@ -949,7 +949,8 @@ function predictSkill(player, reports, skill, mode) {
     }
     const accumulated = accumulatedCredit(reports, skill);
     const intervals = completedIntervals(reports, skill);
-    const target = targetCredit(skill, level, intervals);
+    const age = player.info?.characteristics?.age;
+    const target = targetCredit(skill, level, intervals, age);
     const nextCredit = mode === 'DT' ? 1 : 1 / gtRatio;
     const nextRatio = (accumulated + nextCredit) / target;
     const currentRatio = accumulated / target;
@@ -1140,7 +1141,7 @@ function isDirectTraining(report, skill) {
     return ['GK', 'DEF', 'MID', 'ATT'].includes(formation);
 }
 
-function targetCredit(skill, level, intervals) {
+function targetCredit(skill, level, intervals, age) {
     if (intervals.length) {
         const recent = intervals[intervals.length - 1];
         const previous = intervals[intervals.length - 2];
@@ -1148,7 +1149,8 @@ function targetCredit(skill, level, intervals) {
         const scale = clamp(globalLevelCredit(level) / globalLevelCredit(recent.from), 0.92, 1.22);
         return base * scale * highSkillDrag(skill, level);
     }
-    return globalLevelCredit(level) * (skillFactor[skill] || 1) * highSkillDrag(skill, level);
+    const af = age != null ? ageFactor(age) : 1;
+    return globalLevelCredit(level) * (skillFactor[skill] || 1) * highSkillDrag(skill, level) * af;
 }
 
 function globalLevelCredit(level) {
@@ -1157,10 +1159,20 @@ function globalLevelCredit(level) {
 
 function highSkillDrag(skill, level) {
     let drag = 1 + Math.max(0, level - 14) * 0.08;
-    if (skill === 'pace' && level >= 15) {
-        drag += 0.12 + Math.max(0, level - 16) * 0.08;
+    if (skill === 'pace') {
+        if (level >= 15) drag += Math.max(0, level - 14) * 0.05;
+        if (level >= 17) drag += Math.max(0, level - 16) * 0.08;
     }
     return drag;
+}
+
+function ageFactor(age) {
+    if (age <= 17) return 0.70;
+    if (age === 18) return 0.82;
+    if (age === 19) return 0.92;
+    if (age <= 27) return 1.0;
+    if (age <= 29) return 1.08;
+    return 1.20;
 }
 
 function clamp(value, min, max) {
