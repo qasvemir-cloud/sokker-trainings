@@ -39,7 +39,7 @@ public class SokkerWebController {
         JsonNode current = sokkerApiService.current(phpSessionId);
         JsonNode teamId = current.path("team").path("id");
         if (!teamId.isInt()) {
-            throw new SokkerApiException("Sokker nije vratio tim za trenutnog korisnika.");
+            throw new SokkerApiException("Sokker did not return team for current user.");
         }
         session.setAttribute(SESSION_COOKIE, phpSessionId);
         session.setAttribute(TEAM_ID, teamId.asInt());
@@ -81,7 +81,7 @@ public class SokkerWebController {
 
     @GetMapping("/players/{playerId}/training")
     public JsonNode playerTraining(@PathVariable long playerId, HttpSession session) {
-        JsonNode report = sokkerApiService.trainingReport(playerId, sessionCookie(session));
+        JsonNode report = sokkerApiService.trainingReportWithFallback(playerId, sessionCookie(session));
         Object sktablesCookie = session.getAttribute(SKTABLES_COOKIE);
         if (sktablesCookie instanceof String cookie && !cookie.isBlank()) {
             return sktablesService.mergeTrainingReport(report, playerId, cookie);
@@ -148,7 +148,7 @@ public class SokkerWebController {
     private String sessionCookie(HttpSession session) {
         Object phpSessionId = session.getAttribute(SESSION_COOKIE);
         if (!(phpSessionId instanceof String value) || value.isBlank()) {
-            throw new IllegalStateException("Niste ulogovani.");
+            throw new IllegalStateException("You are not logged in.");
         }
         return value;
     }
@@ -158,7 +158,7 @@ public class SokkerWebController {
         if (teamId instanceof Integer value) {
             return value;
         }
-        throw new IllegalStateException("Tim nije ucitan. Uloguj se ponovo.");
+        throw new IllegalStateException("Team not loaded. Log in again.");
     }
 
     public record LoginRequest(String login, String password) {

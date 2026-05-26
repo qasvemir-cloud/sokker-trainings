@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
-    <title>Detalji treninga - skill promene</title>
+    <title>Training Details - Skill Changes</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
     <style>
         .positive {
@@ -19,13 +19,13 @@
 </head>
 <body class="bg-gray-100">
 <div class="container mx-auto p-4">
-    <h1 class="text-3xl font-bold text-center mb-6">Detalji treninga - skill promene</h1>
+    <h1 class="text-3xl font-bold text-center mb-6">Training Details - Skill Changes</h1>
 
     <div class="bg-white p-6 rounded shadow-md">
         <table class="w-full mt-4">
             <tr>
                 <td class="py-2">
-                    <strong>Forma:</strong>
+                    <strong>Form:</strong>
                     <span th:if="${report.skillsChange.form != 0}"
                           th:classappend="${(report.skillsChange.form + '').startsWith('-') ? 'negative' : 'positive'}"
                           th:text="${report.skills.form + ' (' + ((report.skillsChange.form > 0) ? '+' : '') + report.skillsChange.form + ')'}">
@@ -36,7 +36,7 @@
                 </td>
 
                 <td class="py-2">
-                    <strong>Taktička disciplina:</strong>
+                    <strong>Tactical Discipline:</strong>
                     <span th:if="${report.skillsChange.tacticalDiscipline != 0}"
                           th:classappend="${(report.skillsChange.tacticalDiscipline + '').startsWith('-') ? 'negative' : 'positive'}"
                           th:text="${report.skills.tacticalDiscipline + ' (' + ((report.skillsChange.tacticalDiscipline > 0) ? '+' : '') + report.skillsChange.tacticalDiscipline + ')'}">
@@ -49,7 +49,7 @@
 
             <tr>
                 <td class="py-2">
-                    <strong>Iskustvo:</strong>
+                    <strong>Experience:</strong>
                     <span th:if="${report.skillsChange.experience != 0}"
                           th:classappend="${(report.skillsChange.experience + '').startsWith('-') ? 'negative' : 'positive'}"
                           th:text="${report.skills.experience + ' (' + ((report.skillsChange.experience > 0) ? '+' : '') + report.skillsChange.experience + ')'}">
@@ -60,7 +60,7 @@
                 </td>
 
                 <td class="py-2">
-                    <strong>Timski rad:</strong>
+                    <strong>Teamwork:</strong>
                     <span th:if="${report.skillsChange.teamwork != 0}"
                           th:classappend="${(report.skillsChange.teamwork + '').startsWith('-') ? 'negative' : 'positive'}"
                           th:text="${report.skills.teamwork + ' (' + ((report.skillsChange.teamwork > 0) ? '+' : '') + report.skillsChange.teamwork + ')'}">
@@ -84,7 +84,7 @@
                 </td>
 
                 <td class="py-2">
-                    <strong>Golman:</strong>
+                    <strong>Goalkeeper:</strong>
                     <span th:if="${report.skillsChange.keeper != 0}"
                           th:classappend="${(report.skillsChange.keeper + '').startsWith('-') ? 'negative' : 'positive'}"
                           th:text="${report.skills.keeper + ' (' + ((report.skillsChange.keeper > 0) ? '+' : '') + report.skillsChange.keeper + ')'}">
@@ -169,8 +169,8 @@
         </table>
 
         <div class="mt-6">
-            <a th:href="@{/api/player/{playerId}/training(playerId=${playerId},teamId=${teamId})}" class="inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mr-2">Nazad na treninge</a>
-            <a th:href="@{/api/team/{teamId}/players(teamId=${teamId})}" class="inline-block bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Nazad na igrače</a>
+            <a th:href="@{/api/player/{playerId}/training(playerId=${playerId},teamId=${teamId})}" class="inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mr-2">Back to Training</a>
+            <a th:href="@{/api/team/{teamId}/players(teamId=${teamId})}" class="inline-block bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Back to Players</a>
         </div>
     </div>
 </div>

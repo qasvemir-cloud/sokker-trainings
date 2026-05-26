@@ -2,6 +2,7 @@ package org.velja.app.sokker;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class SokkerApiService {
 
         HttpResponse<String> response = send(request);
         if (response.statusCode() != 200) {
-            throw new SokkerApiException("Login nije uspeo. Sokker status: " + response.statusCode());
+            throw new SokkerApiException("Login failed. Sokker status: " + response.statusCode());
         }
 
         Optional<String> sessionCookie = response.headers().allValues(HttpHeaders.SET_COOKIE).stream()
@@ -47,15 +48,19 @@ public class SokkerApiService {
 
         return sessionCookie
                 .map(cookie -> cookie.split(";", 2)[0].split("=", 2)[1])
-                .orElseThrow(() -> new SokkerApiException("Sokker nije vratio PHPSESSID cookie."));
+                .orElseThrow(() -> new SokkerApiException("Sokker did not return PHPSESSID cookie."));
     }
 
     public JsonNode current(String phpSessionId) {
         return get("/current", phpSessionId);
     }
 
+    public JsonNode user(long userId, String phpSessionId) {
+        return get("/user/" + userId, phpSessionId);
+    }
+
     public JsonNode players(int teamId, String phpSessionId) {
-        return get("/team/" + teamId + "/player", phpSessionId);
+        return get("/team/" + teamId + "/player?filter[limit]=200", phpSessionId);
     }
 
     public JsonNode currentTraining(String phpSessionId) {
@@ -70,8 +75,20 @@ public class SokkerApiService {
         return get("/training/summary", phpSessionId);
     }
 
-    public JsonNode trainingReport(long playerId, String phpSessionId) {
-        return get("/training/" + playerId + "/report", phpSessionId);
+    public JsonNode trainingReportWithFallback(long playerId, String phpSessionId) {
+        Optional<JsonNode> report = getSafe("/training/" + playerId + "/report", phpSessionId);
+        if (report.isPresent()) {
+            return report.get();
+        }
+        Optional<JsonNode> fallback = getSafe("/training/players/" + playerId, phpSessionId);
+        if (fallback.isPresent()) {
+            ObjectNode wrapper = objectMapper.createObjectNode();
+            wrapper.set("reports", objectMapper.createArrayNode());
+            return wrapper;
+        }
+        ObjectNode empty = objectMapper.createObjectNode();
+        empty.set("reports", objectMapper.createArrayNode());
+        return empty;
     }
 
     public JsonNode juniors(String phpSessionId) {
@@ -116,15 +133,34 @@ public class SokkerApiService {
 
         HttpResponse<String> response = send(request);
         if (response.statusCode() == 401) {
-            throw new SokkerApiException("Sokker sesija je istekla. Uloguj se ponovo.");
+            throw new SokkerApiException("Sokker session expired. Please log in again.");
         }
         if (response.statusCode() < 200 || response.statusCode() >= 300) {
-            throw new SokkerApiException("Sokker API greska za " + path + ". Status: " + response.statusCode());
+            throw new SokkerApiException("Sokker API error for " + path + ". Status: " + response.statusCode());
         }
         try {
             return objectMapper.readTree(response.body());
         } catch (IOException e) {
-            throw new SokkerApiException("Ne mogu da procitam Sokker JSON odgovor.", e);
+            throw new SokkerApiException("Cannot read Sokker JSON response.", e);
+        }
+    }
+
+    private Optional<JsonNode> getSafe(String path, String phpSessionId) {
+        HttpRequest request = HttpRequest.newBuilder(URI.create(BASE_URL + path))
+                .timeout(Duration.ofSeconds(25))
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .header(HttpHeaders.COOKIE, "PHPSESSID=" + phpSessionId)
+                .GET()
+                .build();
+
+        try {
+            HttpResponse<String> response = send(request);
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                return Optional.empty();
+            }
+            return Optional.of(objectMapper.readTree(response.body()));
+        } catch (Exception e) {
+            return Optional.empty();
         }
     }
 
@@ -132,10 +168,10 @@ public class SokkerApiService {
         try {
             return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException e) {
-            throw new SokkerApiException("Sokker API nije dostupan: " + e.getMessage(), e);
+            throw new SokkerApiException("Sokker API unavailable: " + e.getMessage(), e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new SokkerApiException("Sokker API poziv je prekinut.", e);
+            throw new SokkerApiException("Sokker API request was interrupted.", e);
         }
     }
 }

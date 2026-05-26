@@ -394,6 +394,14 @@ input {
     color: #f4f8ff;
 }
 
+.player-skill-line strong.positive {
+    color: #4fd36c;
+}
+
+.player-skill-line strong.negative {
+    color: #ff6b6b;
+}
+
 .player-meta,
 .small-muted {
     color: #aeb8c2;
@@ -727,6 +735,17 @@ input {
     font-size: 0.82rem;
 }
 
+.prediction-main.maxed,
+.gt-item.maxed {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.prediction-main.maxed strong,
+.gt-item.maxed strong {
+    color: #f0c040;
+}
+
 .skill-trace {
     display: grid;
     gap: 10px;
@@ -960,10 +979,41 @@ input {
         font-size: 0.75rem;
     }
 
-    .data-table th,
-    .data-table td {
-        padding: 7px 6px;
-    }
+.data-table th,
+.data-table td {
+    padding: 10px 11px;
+    text-align: left;
+    color: #d6dde4;
+}
+
+.clickable-row {
+    cursor: pointer;
+}
+
+.clickable-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.week-detail td {
+    padding: 0;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.week-skill-detail {
+    padding: 12px 16px;
+}
+
+.week-skill-detail .player-skill-columns {
+    max-width: 420px;
+    margin: 0;
+}
+
+.skill-column-left,
+.skill-column-right {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
 
     .data-table th {
         font-size: 0.7rem;

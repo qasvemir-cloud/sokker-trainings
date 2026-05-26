@@ -26,7 +26,10 @@ const skillLabels = [
     ['technique', 'Tech'],
     ['playmaking', 'PM'],
     ['passing', 'Pass'],
-    ['striker', 'Str']
+    ['striker', 'Str'],
+    ['tacticalDiscipline', 'Tact'],
+    ['experience', 'Exp'],
+    ['teamwork', 'TW']
 ];
 
 const predictorSkills = ['pace', 'defending', 'technique', 'passing', 'playmaking', 'striker'];
@@ -208,7 +211,7 @@ function showView(view) {
         alumniView.classList.remove('hidden');
         renderAlumni();
     } else {
-        document.querySelector('#page-title').textContent = 'First Team';
+        document.querySelector('#page-title').textContent = state.current?.team?.name || 'Sokker Club';
         playersView.classList.remove('hidden');
     }
 }
@@ -223,7 +226,7 @@ function renderPlayers() {
     playersView.innerHTML = `
         <div class="view-panel">
             <div class="toolbar">
-                <h2>First Team</h2>
+                <h2>${state.current?.team?.name || 'Sokker Club'}</h2>
                 <div class="toolbar-actions">
                     <button class="action-button secondary" data-sort="name">Name</button>
                     <button class="action-button secondary" data-sort="age">Age</button>
@@ -264,15 +267,15 @@ function renderTraining() {
                 <table class="data-table">
                     <thead>
                     <tr>
-                        <th>Igrac</th>
-                        <th>Godine</th>
-                        <th>Tip</th>
-                        <th>Intenzitet</th>
-                        <th>Skokovi / padovi ove nedelje</th>
+                        <th>Player</th>
+                        <th>Age</th>
+                        <th>Type</th>
+                        <th>Intensity</th>
+                        <th>Weekly changes</th>
                     </tr>
                     </thead>
                     <tbody>
-                    ${rows.length ? rows.map(trainingRow).join('') : `<tr><td colspan="5" class="empty-state">Nema trening izvestaja za ovu nedelju.</td></tr>`}
+                    ${rows.length ? rows.map(trainingRow).join('') : `<tr><td colspan="5" class="empty-state">No training reports for this week.</td></tr>`}
                     </tbody>
                 </table>
             </div>
@@ -290,7 +293,7 @@ function renderTraining() {
 }
 
 async function renderJuniors() {
-    juniorsView.innerHTML = loadingPanel('Junior Academy', 'Ucitavam juniore i talent procene...');
+    juniorsView.innerHTML = loadingPanel('Junior Academy', 'Loading juniors and talent assessments...');
     try {
         if (!state.juniors) {
             state.juniors = await getJson(api.juniors);
@@ -306,7 +309,7 @@ async function renderJuniors() {
         const isMobile = window.innerWidth < 768;
         const content = isMobile && rows.length
             ? `<div class="juniors-cards">${rows.map(juniorCard).join('')}</div>`
-            : `<div class="table-scroll"><table class="data-table"><thead><tr><th>Junior</th><th>Age</th><th>Lvl</th><th>Talent</th><th>Weeks</th><th>Projection</th><th>Potential</th><th>Graph</th></tr></thead><tbody>${rows.length ? rows.map(juniorRow).join('') : `<tr><td colspan="8" class="empty-state">Nema juniora.</td></tr>`}</tbody></table></div>`;
+            : `<div class="table-scroll"><table class="data-table"><thead><tr><th>Junior</th><th>Age</th><th>Lvl</th><th>Talent</th><th>Weeks</th><th>Projection</th><th>Potential</th><th>Graph</th></tr></thead><tbody>${rows.length ? rows.map(juniorRow).join('') : `<tr><td colspan="8" class="empty-state">No juniors.</td></tr>`}</tbody></table></div>`;
 
         juniorsView.innerHTML = `
             <div class="view-panel">
@@ -328,7 +331,7 @@ async function renderJuniors() {
 }
 
 async function renderTrainingSummary() {
-    summaryView.innerHTML = loadingPanel('Training Summary', 'Ucitavam nedeljni pregled treninga...');
+    summaryView.innerHTML = loadingPanel('Training Summary', 'Loading weekly training summary...');
     try {
         if (!state.trainingSummary) {
             state.trainingSummary = await getJson(api.trainingSummary);
@@ -355,7 +358,7 @@ async function renderTrainingSummary() {
 }
 
 async function renderMarket() {
-    marketView.innerHTML = loadingPanel('Market', 'Ucitavam transfere i market listu...');
+    marketView.innerHTML = loadingPanel('Market', 'Loading transfers and market list...');
     try {
         if (!state.market) {
             const [teamTransfers, marketTransfers] = await Promise.all([
@@ -374,11 +377,11 @@ async function renderMarket() {
                 </div>
                 <div class="detail-layout">
                     <section class="detail-card">
-                        <h3>Omladinac transfers</h3>
+                        <h3>Team transfers</h3>
                         <div class="table-scroll">
                             <table class="data-table">
-                                <thead><tr><th>Igrac</th><th>Age</th><th>Price</th><th>Value</th><th>Date</th><th>Deal</th></tr></thead>
-                                <tbody>${teamTransfers.slice(0, 20).map(teamTransferRow).join('') || `<tr><td colspan="6" class="empty-state">Nema transfera.</td></tr>`}</tbody>
+                                <thead><tr><th>Player</th><th>Age</th><th>Price</th><th>Value</th><th>Date</th><th>Deal</th></tr></thead>
+                                <tbody>${teamTransfers.slice(0, 20).map(teamTransferRow).join('') || `<tr><td colspan="6" class="empty-state">No transfers.</td></tr>`}</tbody>
                             </table>
                         </div>
                     </section>
@@ -386,8 +389,8 @@ async function renderMarket() {
                         <h3>Transfer list</h3>
                         <div class="table-scroll">
                             <table class="data-table">
-                                <thead><tr><th>Igrac</th><th>Age</th><th>Price</th><th>Deadline</th><th>Team</th></tr></thead>
-                                <tbody>${marketTransfers.slice(0, 20).map(marketTransferRow).join('') || `<tr><td colspan="5" class="empty-state">Market lista nije dostupna.</td></tr>`}</tbody>
+                                <thead><tr><th>Player</th><th>Age</th><th>Price</th><th>Deadline</th><th>Team</th></tr></thead>
+                                <tbody>${marketTransfers.slice(0, 20).map(marketTransferRow).join('') || `<tr><td colspan="5" class="empty-state">Market list not available.</td></tr>`}</tbody>
                             </table>
                         </div>
                     </section>
@@ -404,7 +407,7 @@ async function renderMarket() {
 }
 
 async function renderMatches() {
-    matchesView.innerHTML = loadingPanel('Matches', 'Ucitavam meceve i minute za trening...');
+    matchesView.innerHTML = loadingPanel('Matches', 'Loading matches and training minutes...');
     try {
         if (!state.matches) {
             state.matches = await getJson(api.matches);
@@ -424,8 +427,8 @@ async function renderMatches() {
                         <h3>Training minutes audit</h3>
                         <div class="table-scroll">
                             <table class="data-table">
-                                <thead><tr><th>Igrac</th><th>Intensity</th><th>Official</th><th>Friendly</th><th>National</th><th>Risk</th></tr></thead>
-                                <tbody>${minuteRows.map(minutesRow).join('') || `<tr><td colspan="6" class="empty-state">Nema minutaze.</td></tr>`}</tbody>
+                                <thead><tr><th>Player</th><th>Intensity</th><th>Official</th><th>Friendly</th><th>National</th><th>Risk</th></tr></thead>
+                                <tbody>${minuteRows.map(minutesRow).join('') || `<tr><td colspan="6" class="empty-state">No minutes data.</td></tr>`}</tbody>
                             </table>
                         </div>
                     </section>
@@ -451,7 +454,7 @@ async function renderMatches() {
 }
 
 async function renderAlumni() {
-    alumniView.innerHTML = loadingPanel('Alumni', 'Ucitavam bivse igrace...');
+    alumniView.innerHTML = loadingPanel('Alumni', 'Loading former players...');
     try {
         if (!state.alumni) {
             state.alumni = await getJson(api.alumni);
@@ -465,8 +468,8 @@ async function renderAlumni() {
                 </div>
                 <div class="table-scroll">
                     <table class="data-table">
-                        <thead><tr><th>Igrac</th><th>Age</th><th>Current team</th><th>Sold</th><th>First price</th><th>Tax income</th></tr></thead>
-                        <tbody>${players.slice(0, 40).map(alumniRow).join('') || `<tr><td colspan="6" class="empty-state">Nema alumni igraca.</td></tr>`}</tbody>
+                        <thead><tr><th>Player</th><th>Age</th><th>Current team</th><th>Sold</th><th>First price</th><th>Tax income</th></tr></thead>
+                        <tbody>${players.slice(0, 40).map(alumniRow).join('') || `<tr><td colspan="6" class="empty-state">No alumni players.</td></tr>`}</tbody>
                     </table>
                 </div>
             </div>
@@ -487,7 +490,7 @@ async function renderPredictor() {
                 <h2>Advanced Training Predictor</h2>
                 <button id="refresh-predictor" class="action-button">Refresh</button>
             </div>
-            <div class="empty-state">Ucitavam istoriju advanced igraca...</div>
+            <div class="empty-state">Loading advanced player history...</div>
         </div>
     `;
     bindPredictorRefresh();
@@ -528,14 +531,14 @@ async function renderPredictor() {
 function renderPredictorList(advanced) {
     return `
         <div class="predictor-list">
-            ${advanced.length ? advanced.map(predictorListItem).join('') : `<div class="empty-state">Nema igraca na advanced treningu.</div>`}
+            ${advanced.length ? advanced.map(predictorListItem).join('') : `<div class="empty-state">No players on advanced training.</div>`}
         </div>
     `;
 }
 
 function renderFocusedPredictor(advanced) {
     const player = advanced.find((item) => Number(item.id) === Number(state.focusedPredictorPlayerId));
-    return player ? `<div class="predictor-single">${predictorCard(player)}</div>` : `<div class="empty-state">Igrac nije pronadjen na advanced treningu.</div>`;
+    return player ? `<div class="predictor-single">${predictorCard(player)}</div>` : `<div class="empty-state">Player not found on advanced training.</div>`;
 }
 
 async function loadJuniorGraph(juniorId) {
@@ -699,6 +702,7 @@ function predictorListItem(trainingPlayer) {
     const reports = state.playerReports.get(trainingPlayer.id) || [];
     const mainPrediction = predictSkill(player, reports, trainedSkill, 'DT');
 
+    const probLabel = mainPrediction.maxed ? 'MAX' : `${mainPrediction.nextProbability}%`;
     return `
         <button class="predictor-list-item" data-focus-player="${player.id}">
             <span>
@@ -706,7 +710,7 @@ function predictorListItem(trainingPlayer) {
                 <small>Age ${age(player)} | ${escapeHtml(currentReport.formation?.name || trainingPlayer.formation?.name || '-')} | ${currentReport.intensity ?? trainingPlayer.intensity ?? '-'}%</small>
             </span>
             <span class="training-badge">DT ${escapeHtml(skillNames[trainedSkill] || trainedSkill)}</span>
-            <span class="predictor-list-prob">${mainPrediction.nextProbability}%</span>
+            <span class="predictor-list-prob">${probLabel}</span>
         </button>
     `;
 }
@@ -758,14 +762,14 @@ function renderSkillTrace(playerId, skill) {
             <span>${trace.current.level} -> ${trace.current.level + 1}</span>
         </div>
         <div class="trace-section">
-            <div class="small-muted">Prethodni skokovi</div>
-            ${trace.intervals.length ? trace.intervals.map(traceInterval).join('') : '<div class="small-muted">Nema kompletnih intervala; koristi se globalni fallback.</div>'}
+            <div class="small-muted">Previous jumps</div>
+            ${trace.intervals.length ? trace.intervals.map(traceInterval).join('') : '<div class="small-muted">No complete intervals; using global fallback.</div>'}
         </div>
         <div class="trace-section">
-            <div class="small-muted">Trenutno od poslednjeg skoka</div>
+            <div class="small-muted">Current since last jump</div>
             <div class="trace-line">
                 <span>Credit ${trace.current.credit.toFixed(2)} | DT ${trace.current.dtWeeks} | GT ${trace.current.gtWeeks} | skip ${trace.current.skipWeeks}</span>
-                <strong>${trace.current.weeks} ned.</strong>
+                <strong>${trace.current.weeks} w.</strong>
             </div>
             ${trace.current.weeksList.map(traceWeek).join('')}
         </div>
@@ -833,6 +837,16 @@ function predictorCard(trainingPlayer) {
 }
 
 function predictionMain(prediction, playerId) {
+    if (prediction.maxed) {
+        return `
+            <div class="prediction-main maxed">
+                <div class="prediction-row">
+                    <span>${escapeHtml(skillNames[prediction.skill] || prediction.skill)} ${prediction.level}</span>
+                    <strong>MAX</strong>
+                </div>
+            </div>
+        `;
+    }
     return `
         <button class="prediction-main prediction-trigger" data-trace-player="${playerId}" data-trace-skill="${prediction.skill}">
             <div class="prediction-row">
@@ -842,13 +856,21 @@ function predictionMain(prediction, playerId) {
             <div class="probability-bar"><div class="probability-fill" style="--probability:${prediction.nextProbability}%"></div></div>
             <div class="prediction-row">
                 <span>Credit ${prediction.accumulated.toFixed(2)} / ${prediction.target.toFixed(2)}</span>
-                <span>fali ~${prediction.remainingTrainings} ${prediction.mode}</span>
+                <span>~${prediction.remainingTrainings} ${prediction.mode}</span>
             </div>
         </button>
     `;
 }
 
 function gtItem(prediction, playerId) {
+    if (prediction.maxed) {
+        return `
+            <div class="gt-item maxed">
+                <span>GT ${escapeHtml(skillNames[prediction.skill] || prediction.skill)} ${prediction.level}</span>
+                <strong>MAX</strong>
+            </div>
+        `;
+    }
     return `
         <button class="gt-item prediction-trigger" data-trace-player="${playerId}" data-trace-skill="${prediction.skill}">
             <span>GT ${escapeHtml(skillNames[prediction.skill] || prediction.skill)} ${prediction.level}->${prediction.level + 1}</span>
@@ -859,6 +881,16 @@ function gtItem(prediction, playerId) {
 
 function predictSkill(player, reports, skill, mode) {
     const level = Number(player.info?.skills?.[skill] ?? 0);
+    if (level >= 18) {
+        return {
+            skill, mode, level,
+            accumulated: 0, target: 0,
+            source: 'max-level',
+            nextProbability: 0,
+            remainingTrainings: Infinity,
+            maxed: true
+        };
+    }
     const accumulated = accumulatedCredit(reports, skill);
     const intervals = completedIntervals(reports, skill);
     const target = targetCredit(skill, level, intervals);
@@ -1084,9 +1116,18 @@ function reportWeek(report) {
     return report.week ?? report.day?.week ?? 0;
 }
 
+function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const parts = dateStr.split(/[-\s]/);
+    if (parts.length >= 3) {
+        return `${parts[2].padStart(2, '0')}-${parts[1].padStart(2, '0')}-${parts[0]}`;
+    }
+    return dateStr;
+}
+
 async function openPlayerDetail(playerId) {
     const player = findPlayer(playerId) || { id: playerId, info: {} };
-    playerDetailView.innerHTML = `<div class="player-detail-shell"><div class="empty-state">Ucitavam istoriju treninga...</div></div>`;
+    playerDetailView.innerHTML = `<div class="player-detail-shell"><div class="empty-state">Loading training history...</div></div>`;
     document.querySelectorAll('.view').forEach((element) => element.classList.add('hidden'));
     playerDetailView.classList.remove('hidden');
     document.querySelector('#page-title').textContent = fullName(player);
@@ -1114,21 +1155,21 @@ function renderPlayerDetail(player, reports) {
                     <div class="skill-grid">${skillGrid(player.info?.skills || {})}</div>
                 </section>
                 <section class="detail-card">
-                    <h3>Prethodni treninzi</h3>
+                    <h3>Training History</h3>
                     <div class="table-scroll">
-                        <table class="data-table">
+                        <table class="data-table training-history">
                             <thead>
                             <tr>
-                                <th>Sezona</th>
-                                <th>Nedelja</th>
-                                <th>Tip</th>
-                                <th>Intenzitet</th>
-                                <th>Izvor</th>
-                                <th>Promene</th>
+                                <th>Season</th>
+                                <th>Week</th>
+                                <th>Type</th>
+                                <th>Intensity</th>
+                                <th>Source</th>
+                                <th>Changes</th>
                             </tr>
                             </thead>
-                            <tbody>
-                            ${reports.length ? reports.map(historyRow).join('') : `<tr><td colspan="6" class="empty-state">Nema prethodnih treninga za igraca.</td></tr>`}
+                            <tbody id="training-history-body">
+                            ${reports.length ? reports.map((report, idx) => historyRow(report, idx)).join('') : `<tr><td colspan="6" class="empty-state">No previous training for this player.</td></tr>`}
                             </tbody>
                         </table>
                     </div>
@@ -1137,6 +1178,22 @@ function renderPlayerDetail(player, reports) {
         </div>
     `;
     document.querySelector('#back-from-detail').addEventListener('click', () => showView(state.activeView));
+    document.querySelectorAll('#training-history-body tr.clickable-row').forEach((row) => {
+        row.addEventListener('click', () => {
+            const idx = Number(row.dataset.reportIndex);
+            const detail = document.querySelector(`tr.week-detail[data-report-index="${idx}"]`);
+            if (detail) {
+                detail.classList.toggle('hidden');
+            } else {
+                const report = reports[idx];
+                const detailRow = document.createElement('tr');
+                detailRow.className = 'week-detail';
+                detailRow.dataset.reportIndex = idx;
+                detailRow.innerHTML = `<td colspan="6"><div class="week-skill-detail"><div class="player-skill-columns">${weekSkillColumns(report.skills || {}, report.skillsChange || {})}</div></div></td>`;
+                row.after(detailRow);
+            }
+        });
+    });
 }
 
 function playerCard(player) {
@@ -1166,6 +1223,13 @@ function playerSkillRows(skills, changes, keys) {
     `).join('');
 }
 
+function weekSkillColumns(skills, changes) {
+    return `
+        <div class="skill-column-left">${playerSkillRows(skills, changes, ['stamina', 'pace', 'technique', 'passing'])}</div>
+        <div class="skill-column-right">${playerSkillRows(skills, changes, ['keeper', 'defending', 'playmaking', 'striker'])}</div>
+    `;
+}
+
 function skillChangeClass(value) {
     if (value > 0) {
         return 'positive';
@@ -1189,9 +1253,9 @@ function trainingRow(row) {
     `;
 }
 
-function historyRow(report) {
+function historyRow(report, index) {
     return `
-        <tr>
+        <tr class="clickable-row" data-report-index="${index}">
             <td>${report.day?.season ?? '-'}</td>
             <td>${report.day?.seasonWeek ?? report.week ?? '-'}</td>
             <td>${escapeHtml(report.type?.name || report.kind?.name || '-')}</td>
@@ -1229,7 +1293,7 @@ function deltaPills(changes) {
             const klass = value > 0 ? 'positive' : 'negative';
             return `<span class="delta-pill ${klass}">${label} ${sign}${Math.abs(value)}</span>`;
         });
-    return pills.length ? pills.join('') : '<span class="small-muted">Bez promene</span>';
+    return pills.length ? pills.join('') : '<span class="small-muted">No change</span>';
 }
 
 function sumWeeklyChanges() {
@@ -1353,7 +1417,7 @@ async function parseJsonResponse(response) {
 }
 
 function number(value) {
-    return new Intl.NumberFormat('sr-RS', { maximumFractionDigits: 0 }).format(value);
+    return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(value);
 }
 
 function escapeHtml(value) {

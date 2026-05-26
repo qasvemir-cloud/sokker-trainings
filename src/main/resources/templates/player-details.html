@@ -2,28 +2,28 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Detalji o igraču</title>
+    <title>Player Details</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
 <div class="container mx-auto p-4">
-    <h1 class="text-3xl font-bold text-center mb-6">Detalji o igraču</h1>
+    <h1 class="text-3xl font-bold text-center mb-6">Player Details</h1>
     <div class="bg-white p-6 rounded shadow-md">
         <p class="text-lg"><strong>ID:</strong> <span th:text="${player.id}"></span></p>
-        <p class="text-lg"><strong>Ime:</strong> <span th:text="${player.info.name.full}"></span></p>
-        <p class="text-lg"><strong>Godine:</strong> <span th:text="${player.info.characteristics.age}"></span></p>
+        <p class="text-lg"><strong>Name:</strong> <span th:text="${player.info.name.full}"></span></p>
+        <p class="text-lg"><strong>Age:</strong> <span th:text="${player.info.characteristics.age}"></span></p>
         <table class="w-full mt-4">
             <tr>
-                <td class="py-2"><strong>Forma:</strong> <span th:text="${player.info.skills.form}"></span></td>
-                <td class="py-2"><strong>Taktička disciplina:</strong> <span th:text="${player.info.skills.tacticalDiscipline}"></span></td>
+                <td class="py-2"><strong>Form:</strong> <span th:text="${player.info.skills.form}"></span></td>
+                <td class="py-2"><strong>Tactical Discipline:</strong> <span th:text="${player.info.skills.tacticalDiscipline}"></span></td>
             </tr>
             <tr>
-                <td class="py-2"><strong>Iskustvo:</strong> <span th:text="${player.info.skills.experience}"></span></td>
-                <td class="py-2"><strong>Timski rad:</strong> <span th:text="${player.info.skills.teamwork}"></span></td>
+                <td class="py-2"><strong>Experience:</strong> <span th:text="${player.info.skills.experience}"></span></td>
+                <td class="py-2"><strong>Teamwork:</strong> <span th:text="${player.info.skills.teamwork}"></span></td>
             </tr>
             <tr>
                 <td class="py-2"><strong>Stamina:</strong> <span th:text="${player.info.skills.stamina}"></span></td>
-                <td class="py-2"><strong>Golman:</strong> <span th:text="${player.info.skills.keeper}"></span></td>
+                <td class="py-2"><strong>Goalkeeper:</strong> <span th:text="${player.info.skills.keeper}"></span></td>
 
             </tr>
             <tr>
@@ -39,8 +39,8 @@
                 <td class="py-2"><strong>Striker:</strong> <span th:text="${player.info.skills.striker}"></span></td>
             </tr>
         </table>
-        <a th:href="@{/api/player/{playerId}/training(playerId=${player.id},teamId=${teamId})}" class="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Prikaži trening izveštaje</a>
-        <a th:href="@{/api/team/{teamId}/players(teamId=${teamId})}" class="mt-4 inline-block bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Nazad</a>
+        <a th:href="@{/api/player/{playerId}/training(playerId=${player.id},teamId=${teamId})}" class="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Show Training Reports</a>
+        <a th:href="@{/api/team/{teamId}/players(teamId=${teamId})}" class="mt-4 inline-block bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Back</a>
     </div>
 </div>
 </body>

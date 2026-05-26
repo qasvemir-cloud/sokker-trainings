@@ -2,17 +2,17 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Informacije o timu</title>
+    <title>Team Information</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
 <div class="container mx-auto p-4">
-    <h1 class="text-3xl font-bold text-center mb-6">Informacije o timu</h1>
+    <h1 class="text-3xl font-bold text-center mb-6">Team Information</h1>
     <div class="bg-white p-6 rounded shadow-md">
-        <p class="text-lg"><strong>Tim:</strong> <span th:text="${team.name}"></span></p>
-        <p class="text-lg"><strong>Rang:</strong> <span th:text="${team.rank}"></span></p>
-        <p class="text-lg"><strong>Država:</strong> <span th:text="${team.country}"></span></p>
-        <a th:href="@{/api/team/{teamId}/players(teamId=${team.id})}" class="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Prikaži igrače</a>
+        <p class="text-lg"><strong>Team:</strong> <span th:text="${team.name}"></span></p>
+        <p class="text-lg"><strong>Rank:</strong> <span th:text="${team.rank}"></span></p>
+        <p class="text-lg"><strong>Country:</strong> <span th:text="${team.country}"></span></p>
+        <a th:href="@{/api/team/{teamId}/players(teamId=${team.id})}" class="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Show Players</a>
     </div>
 </div>
 </body>
