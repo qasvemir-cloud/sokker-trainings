@@ -17,10 +17,13 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -99,13 +102,22 @@ public class SktablesService {
         ObjectNode merged = sokkerReport.deepCopy();
         ArrayNode sokkerReports = sokkerReport.withArray("reports");
         Set<String> sokkerWeeks = new HashSet<>();
+        Map<String, JsonNode> sktablesByWeek = new HashMap<>();
+        sktablesReports.forEach(report -> sktablesByWeek.put(weekKey(report), report));
+
         List<JsonNode> rows = new ArrayList<>();
         sokkerReports.forEach(report -> {
-            sokkerWeeks.add(weekKey(report));
-            rows.add(report);
+            String key = weekKey(report);
+            sokkerWeeks.add(key);
+            String typeName = report.path("type").path("name").asText("");
+            if ("general".equals(typeName) && sktablesByWeek.containsKey(key)) {
+                rows.add(sktablesByWeek.get(key));
+            } else {
+                rows.add(report);
+            }
         });
-        sktablesReports.forEach(report -> {
-            if (!sokkerWeeks.contains(weekKey(report))) {
+        sktablesByWeek.forEach((key, report) -> {
+            if (!sokkerWeeks.contains(key)) {
                 rows.add(report);
             }
         });
@@ -113,8 +125,59 @@ public class SktablesService {
         rows.sort(Comparator.comparingInt(SktablesService::sortableWeek).reversed());
         ArrayNode reports = objectMapper.createArrayNode();
         rows.forEach(reports::add);
+        fillMissingDates(reports);
         merged.set("reports", reports);
         return merged;
+    }
+
+    private void fillMissingDates(ArrayNode reports) {
+        Set<Integer> missingSeasons = new HashSet<>();
+        for (JsonNode report : reports) {
+            JsonNode date = report.path("day").path("date");
+            String dateValue = date.isObject() ? date.path("value").asText("") : "";
+            if (dateValue.isEmpty()) {
+                int season = report.path("day").path("season").asInt(0);
+                if (season > 0) missingSeasons.add(season);
+            }
+        }
+        if (missingSeasons.isEmpty()) return;
+
+        Map<Integer, LocalDate> seasonStarts = new HashMap<>();
+        for (int season : missingSeasons) {
+            try {
+                JsonNode seasonInfo = fetchSeasonInfo(season);
+                String startStr = seasonInfo.path("start").path("date").path("value").asText("");
+                if (!startStr.isEmpty()) seasonStarts.put(season, LocalDate.parse(startStr));
+            } catch (Exception e) {
+                // season info unavailable — skip
+            }
+        }
+        if (seasonStarts.isEmpty()) return;
+
+        for (JsonNode report : reports) {
+            JsonNode day = report.path("day");
+            JsonNode date = day.path("date");
+            String dateValue = date.isObject() ? date.path("value").asText("") : "";
+            if (!dateValue.isEmpty()) continue;
+            int season = day.path("season").asInt(0);
+            int seasonWeek = day.path("seasonWeek").asInt(0);
+            LocalDate start = seasonStarts.get(season);
+            if (start != null && seasonWeek > 0 && day instanceof ObjectNode dayObj) {
+                dayObj.putObject("date").put("value", start.plusDays((seasonWeek - 1) * 7L + 5).toString());
+            }
+        }
+    }
+
+    private JsonNode fetchSeasonInfo(int season) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder(URI.create("https://sokker.org/api/season/" + season))
+                .timeout(Duration.ofSeconds(10))
+                .GET()
+                .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            throw new IOException("Season API returned " + response.statusCode());
+        }
+        return objectMapper.readTree(response.body());
     }
 
     public JsonNode academy(String cookieHeader) {
@@ -259,7 +322,6 @@ public class SktablesService {
         int intensity = firstPercent(cells.get(12), 0);
         String trainedSkill = trainedSkill(cells);
         boolean missing = intensity <= 0 || hasClass(cells, "bg-gray");
-        boolean formationTraining = trainedSkill != null && hasSkillClass(cells, trainedSkill, "bg-blue");
 
         ObjectNode report = objectMapper.createObjectNode();
         report.put("week", season * 100 + seasonWeek);
@@ -285,8 +347,8 @@ public class SktablesService {
         type.put("name", trainedSkill == null ? "missing" : trainedSkill);
 
         ObjectNode kind = report.putObject("kind");
-        kind.put("code", missing ? 0 : formationTraining ? 2 : 1);
-        kind.put("name", missing ? "missing" : formationTraining ? "formation" : "individual");
+        kind.put("code", missing ? 0 : 1);
+        kind.put("name", missing ? "missing" : "individual");
 
         report.put("intensity", intensity);
         ObjectNode formationNode = report.putObject("formation");

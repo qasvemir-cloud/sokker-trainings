@@ -1250,7 +1250,7 @@ function renderPlayerDetail(player, reports) {
                 const detailRow = document.createElement('tr');
                 detailRow.className = 'week-detail';
                 detailRow.dataset.reportIndex = idx;
-                detailRow.innerHTML = `<td colspan="7"><div class="week-skill-detail"><div class="player-skill-columns">${weekSkillColumns(report.skills || {}, report.skillsChange || {})}</div></div></td>`;
+                detailRow.innerHTML = `<td colspan="7"><div class="week-skill-detail"><div class="skill-grid">${weekSkillColumns(report.skills || {}, report.skillsChange || {})}</div></div></td>`;
                 row.after(detailRow);
             }
         });
@@ -1266,8 +1266,8 @@ function playerCard(player) {
                 <h3>${escapeHtml(fullName(player))}</h3>
                 <span>Age: ${age(player)}</span>
             </div>
-            <div class="player-skill-columns">
-                <div class="skill-column-extra">${playerSkillRows(skills, changes, ['form', 'tacticalDiscipline', 'teamwork'])}</div>
+            <div class="skill-grid">
+                <div class="skill-column-extra">${playerSkillRows(skills, changes, ['form', 'tacticalDiscipline', 'experience', 'teamwork'])}</div>
                 <div class="skill-column-left">${playerSkillRows(skills, changes, ['stamina', 'pace', 'technique', 'passing'])}</div>
                 <div class="skill-column-right">${playerSkillRows(skills, changes, ['keeper', 'defending', 'playmaking', 'striker'])}</div>
             </div>
@@ -1286,10 +1286,8 @@ function playerSkillRows(skills, changes, keys) {
 }
 
 function weekSkillColumns(skills, changes) {
-    const extraSkills = ['form', 'tacticalDiscipline', 'teamwork'];
-    const anyExtra = extraSkills.some((key) => (changes[key] ?? 0) !== 0);
     return `
-        ${anyExtra ? `<div class="skill-column-extra">${playerSkillRows(skills, changes, extraSkills)}</div>` : ''}
+        <div class="skill-column-extra">${playerSkillRows(skills, changes, ['form', 'tacticalDiscipline', 'experience', 'teamwork'])}</div>
         <div class="skill-column-left">${playerSkillRows(skills, changes, ['stamina', 'pace', 'technique', 'passing'])}</div>
         <div class="skill-column-right">${playerSkillRows(skills, changes, ['keeper', 'defending', 'playmaking', 'striker'])}</div>
     `;
