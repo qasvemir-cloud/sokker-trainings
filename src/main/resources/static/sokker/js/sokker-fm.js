@@ -66,7 +66,8 @@ const state = {
     focusedPredictorPlayerId: null,
     activeView: 'players',
     playerSort: 'age',
-    predictorSort: 'prob'
+    predictorSort: 'prob',
+    predictorShowAll: false
 };
 
 const loginScreen = document.querySelector('#login-screen');
@@ -76,6 +77,7 @@ const loginError = document.querySelector('#login-error');
 const playersView = document.querySelector('#players-view');
 const trainingView = document.querySelector('#training-view');
 const lastTrainingView = document.querySelector('#last-training-view');
+const plannerView = document.querySelector('#planner-view');
 const predictorView = document.querySelector('#predictor-view');
 const juniorsView = document.querySelector('#juniors-view');
 const summaryView = document.querySelector('#summary-view');
@@ -117,6 +119,11 @@ document.querySelector('#logout-button').addEventListener('click', async () => {
 
 document.querySelectorAll('[data-view]').forEach((item) => {
     item.addEventListener('click', () => showView(item.dataset.view));
+});
+
+document.querySelector('.menu-items')?.addEventListener('click', () => {
+    const toggle = document.getElementById('menu-toggle');
+    if (toggle) toggle.checked = false;
 });
 
 async function bootstrap() {
@@ -180,7 +187,7 @@ function resolveSokkerAsset(url) {
     return url;
 }
 
-function showView(view) {
+async function showView(view) {
     state.activeView = view;
     document.querySelectorAll('.view').forEach((element) => element.classList.add('hidden'));
     document.querySelectorAll('[data-view]').forEach((element) => {
@@ -194,6 +201,10 @@ function showView(view) {
         document.querySelector('#page-title').textContent = 'Last Training';
         lastTrainingView.classList.remove('hidden');
         renderLastTraining();
+    } else if (view === 'planner') {
+        document.querySelector('#page-title').textContent = 'Training Planner';
+        plannerView.classList.remove('hidden');
+        await renderPlanner();
     } else if (view === 'predictor') {
         document.querySelector('#page-title').textContent = 'Training Predictor';
         predictorView.classList.remove('hidden');
@@ -275,15 +286,16 @@ function renderTraining() {
                 <table class="data-table">
                     <thead>
                     <tr>
+                        <th title="Advanced training">AT</th>
                         <th>Player</th>
                         <th>Age</th>
-                        <th>Type</th>
-                        <th>Intensity</th>
+                        <th class="mobile-hide">Type</th>
+                        <th class="mobile-hide">Intensity</th>
                         <th>Weekly changes</th>
                     </tr>
                     </thead>
                     <tbody>
-                    ${rows.length ? rows.map(trainingRow).join('') : `<tr><td colspan="5" class="empty-state">No training reports for this week.</td></tr>`}
+                    ${rows.length ? rows.map(trainingRow).join('') : `<tr><td colspan="6" class="empty-state">No training reports for this week.</td></tr>`}
                     </tbody>
                 </table>
             </div>
@@ -314,6 +326,7 @@ function renderLastTraining() {
         const hasChange = nonStaminaSkills.some(key => (changes[key] || 0) !== 0);
         return {
             id: row.id, player, report, skills, changes, hasChange,
+            isAdv: report.kind?.name === 'individual',
             ord: report.formation?.name || player?.info?.formation?.name || '-',
             trPct: report.intensity ?? '-',
             pAge: report.age ?? age(player)
@@ -335,6 +348,7 @@ function renderLastTraining() {
                 <table class="data-table training-summary-table">
                     <thead>
                     <tr>
+                        <th title="Advanced training">AT</th>
                         <th data-sort>Name</th>
                         <th data-sort>Age</th>
                         <th data-sort>Ord</th>
@@ -350,6 +364,7 @@ function renderLastTraining() {
                         const skills = r.skills;
                         const changes = r.changes;
                         return `<tr data-player-id="${r.id}">
+                            <td>${r.isAdv ? '<span class="planner-adv-marker" title="Advanced training">&#x2605;</span>' : ''}</td>
                             <td><strong>${escapeHtml(fullName(r.player))}</strong><div class="small-muted">ID ${r.id}</div></td>
                             <td>${pAge}</td>
                             <td><span class="training-badge">${escapeHtml(orderNames[ord] || ord)}</span></td>
@@ -570,9 +585,26 @@ async function renderPredictor() {
         }
     }
     let advanced = state.trainingSetup.advanced || [];
-    await Promise.all(advanced.map((player) => loadPlayerReport(player.id)));
+    let allPlayers = advanced.slice();
+
+    if (state.predictorShowAll) {
+        const nonAdvRows = state.trainingRows.filter(r => r.report?.kind?.name !== 'individual');
+        for (const r of nonAdvRows) {
+            if (!allPlayers.some(p => Number(p.id) === Number(r.id))) {
+                allPlayers.push({
+                    id: r.id,
+                    info: r.player,
+                    formation: r.report?.formation ? { name: r.report.formation.name } : r.player?.formation,
+                    intensity: r.report?.intensity
+                });
+            }
+        }
+    }
+
+    await Promise.all(allPlayers.map((player) => loadPlayerReport(player.id).catch(() => {})));
+
     const sortField = state.predictorSort;
-    advanced = advanced.slice().sort((a, b) => {
+    allPlayers = allPlayers.slice().sort((a, b) => {
         if (sortField === 'prob') {
             const pa = findPlayer(a.id) || { id: a.id, info: a.info };
             const pb = findPlayer(b.id) || { id: b.id, info: b.info };
@@ -584,8 +616,10 @@ async function renderPredictor() {
             const skillB = (state.formationSkills && fb && state.formationSkills[fb]) || rowB?.report?.type?.name || 'pace';
             const repA = state.playerReports.get(Number(a.id)) || [];
             const repB = state.playerReports.get(Number(b.id)) || [];
-            const predA = predictSkill(pa, repA, skillA, 'DT');
-            const predB = predictSkill(pb, repB, skillB, 'DT');
+            const isAdvA = rowA?.report?.kind?.name === 'individual';
+            const isAdvB = rowB?.report?.kind?.name === 'individual';
+            const predA = predictSkill(pa, repA, skillA, 'DT', isAdvA);
+            const predB = predictSkill(pb, repB, skillB, 'DT', isAdvB);
             return (predB.nextProbability || 0) - (predA.nextProbability || 0);
         }
         if (sortField === 'name') {
@@ -598,27 +632,30 @@ async function renderPredictor() {
 
     const sortLabels = { prob: 'Probability', name: 'Name', age: 'Age' };
     const nextSort = { prob: 'name', name: 'age', age: 'prob' };
+    const toggleLabel = state.predictorShowAll ? 'Advanced only' : 'Show all';
     predictorView.innerHTML = `
         <div class="view-panel">
             <div class="toolbar">
-                <h2>${state.focusedPredictorPlayerId ? 'Player Predictor' : 'Advanced Training Predictor'}</h2>
+                <h2>${state.focusedPredictorPlayerId ? 'Player Predictor' : 'Training Predictor'}</h2>
                 <div class="toolbar-actions">
                     ${state.focusedPredictorPlayerId ? '<button id="predictor-back" class="action-button secondary">Back</button>' : ''}
+                    ${!state.focusedPredictorPlayerId ? '<button id="predictor-toggle-all" class="action-button secondary">' + toggleLabel + '</button>' : ''}
                     <button id="predictor-sort" class="action-button secondary">Sort: ${sortLabels[state.predictorSort] || 'Name'}</button>
                     <button id="refresh-predictor" class="action-button">Refresh</button>
                 </div>
             </div>
-            ${state.focusedPredictorPlayerId ? renderFocusedPredictor(advanced) : renderPredictorList(advanced)}
+            ${state.focusedPredictorPlayerId ? renderFocusedPredictor(allPlayers) : renderPredictorList(allPlayers)}
+            ${!state.focusedPredictorPlayerId && !state.predictorShowAll ? '<div class="small-muted" style="margin-top:8px;text-align:center">Showing players on Advanced training. <a href="#" id="predictor-show-all-link">Show all players</a></div>' : ''}
         </div>
     `;
     bindPredictorRefresh();
     bindPredictorSort();
     bindPredictorFocus();
+    bindPredictorToggle();
     bindTraceButtons();
 
-    // Auto-render DT skill trace when viewing player details
     if (state.focusedPredictorPlayerId) {
-        const focusedPlayer = advanced.find((p) => Number(p.id) === Number(state.focusedPredictorPlayerId));
+        const focusedPlayer = allPlayers.find((p) => Number(p.id) === Number(state.focusedPredictorPlayerId));
         if (focusedPlayer) {
             const row = state.trainingRows.find((item) => Number(item.id) === Number(focusedPlayer.id));
             const formationName = row?.report?.formation?.name || focusedPlayer.formation?.name;
@@ -636,9 +673,9 @@ function renderPredictorList(advanced) {
     `;
 }
 
-function renderFocusedPredictor(advanced) {
-    const player = advanced.find((item) => Number(item.id) === Number(state.focusedPredictorPlayerId));
-    return player ? `<div class="predictor-single">${predictorCard(player)}</div>` : `<div class="empty-state">Player not found on advanced training.</div>`;
+function renderFocusedPredictor(players) {
+    const player = players.find((item) => Number(item.id) === Number(state.focusedPredictorPlayerId));
+    return player ? `<div class="predictor-single">${predictorCard(player)}</div>` : `<div class="empty-state">Player not found.</div>`;
 }
 
 async function loadJuniorGraph(juniorId) {
@@ -807,18 +844,20 @@ function alumniRow(player) {
 function predictorListItem(trainingPlayer) {
     const row = state.trainingRows.find((item) => Number(item.id) === Number(trainingPlayer.id));
     const currentReport = row?.report || {};
+    const isAdv = currentReport.kind?.name === 'individual';
     const formationName = currentReport.formation?.name || trainingPlayer.formation?.name;
     const trainedSkill = (state.formationSkills && formationName && state.formationSkills[formationName]) || currentReport.type?.name || 'pace';
     const player = findPlayer(trainingPlayer.id) || { id: trainingPlayer.id, info: trainingPlayer.info };
     const reports = state.playerReports.get(trainingPlayer.id) || [];
-    const mainPrediction = predictSkill(player, reports, trainedSkill, 'DT');
+    const mainPrediction = predictSkill(player, reports, trainedSkill, 'DT', isAdv);
 
     const probLabel = mainPrediction.maxed ? 'MAX' : `${mainPrediction.nextProbability}%`;
+    const advLabel = isAdv ? '<span class="training-badge advanced-badge">★</span>' : '<span class="training-badge formation-badge">FT</span>';
     return `
-        <button class="predictor-list-item" data-focus-player="${player.id}">
+        <button class="predictor-list-item ${isAdv ? '' : 'predictor-nonadv'}" data-focus-player="${player.id}">
             <span>
                 <strong>${escapeHtml(fullName(player))}</strong>
-                <small>Age ${age(player)} | ${escapeHtml(formationName || '-')} | ${currentReport.intensity ?? trainingPlayer.intensity ?? '-'}%</small>
+                <small>${advLabel} Age ${age(player)} | ${escapeHtml(formationName || '-')} | ${currentReport.intensity ?? trainingPlayer.intensity ?? '-'}%</small>
             </span>
             <span class="training-badge">DT ${escapeHtml(skillNames[trainedSkill] || trainedSkill)}</span>
             <span class="predictor-list-prob">${probLabel}</span>
@@ -842,6 +881,20 @@ function bindPredictorSort() {
         const nextSort = { prob: 'name', name: 'age', age: 'prob' };
         state.predictorSort = nextSort[state.predictorSort] || 'prob';
         renderPredictor();
+    });
+}
+
+function bindPredictorToggle() {
+    const toggle = (showAll) => {
+        state.predictorShowAll = showAll;
+        renderPredictor();
+    };
+    predictorView.querySelector('#predictor-toggle-all')?.addEventListener('click', () => {
+        toggle(!state.predictorShowAll);
+    });
+    predictorView.querySelector('#predictor-show-all-link')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggle(true);
     });
 }
 
@@ -939,14 +992,15 @@ async function loadPlayerReport(playerId) {
 function predictorCard(trainingPlayer) {
     const row = state.trainingRows.find((item) => Number(item.id) === Number(trainingPlayer.id));
     const currentReport = row?.report || {};
+    const isAdv = currentReport.kind?.name === 'individual';
     const formationName = currentReport.formation?.name || trainingPlayer.formation?.name;
     const defaultDtSkill = (state.formationSkills && formationName && state.formationSkills[formationName]) || currentReport.type?.name || 'pace';
     const player = findPlayer(trainingPlayer.id) || { id: trainingPlayer.id, info: trainingPlayer.info };
     const reports = state.playerReports.get(trainingPlayer.id) || [];
 
     const skillsHtml = predictorSkills.map((skill) => {
-        const dtPred = predictSkill(player, reports, skill, 'DT');
-        const gtPred = predictSkill(player, reports, skill, 'GT');
+        const dtPred = predictSkill(player, reports, skill, 'DT', isAdv);
+        const gtPred = predictSkill(player, reports, skill, 'GT', isAdv);
         const isDefault = skill === defaultDtSkill;
         return `
                 <div class="predictor-skill-row ${isDefault ? 'dt-active' : ''}" role="button" tabindex="0" data-trace-player="${player.id}" data-trace-skill="${skill}" title="View training history for ${skill}">
@@ -998,7 +1052,7 @@ function predictorCard(trainingPlayer) {
     `;
 }
 
-function predictSkill(player, reports, skill, mode) {
+function predictSkill(player, reports, skill, mode, isAdv) {
     const level = Number(player.info?.skills?.[skill] ?? 0);
     if (level >= 18) {
         return {
@@ -1015,7 +1069,7 @@ function predictSkill(player, reports, skill, mode) {
     const intervals = completedIntervals(reports, skill);
     const age = player.info?.characteristics?.age;
     const target = targetCredit(skill, level, intervals, age);
-    const nextCredit = mode === 'DT' ? 1 : 1 / gtRatio;
+    const nextCredit = (mode === 'DT' ? 1 : 1 / gtRatio) / (isAdv ? 1 : 3.5);
     const nextRatio = (accumulated + nextCredit) / target;
     const currentRatio = accumulated / target;
     const hasHistory = intervals.length > 0;
@@ -1041,9 +1095,11 @@ function accumulatedCredit(reports, skill) {
     let seenFirstJump = false;
     let credit = 0;
     for (const report of sorted) {
+        const isAtReport = report.kind?.name === 'individual';
+        const perWeek = reportCredit(report, skill) / (isAtReport ? 1 : 3.5);
         const change = report.skillsChange?.[skill] || 0;
-        if (seenFirstJump) {
-            credit += reportCredit(report, skill);
+        if (seenFirstJump || !isAtReport) {
+            credit += perWeek;
         }
         if (change > 0) {
             if (!seenFirstJump) {
@@ -1394,12 +1450,12 @@ function renderPlayerDetail(player, reports) {
                         <table class="data-table training-history">
                             <thead>
                             <tr>
-                                <th>Season</th>
-                                <th>Week</th>
-                                <th>Date</th>
-                                <th>Type</th>
-                                <th>Intensity</th>
-                                <th>Source</th>
+                                <th data-sort>Season</th>
+                                <th data-sort>Week</th>
+                                <th data-sort>Date</th>
+                                <th data-sort>Type</th>
+                                <th data-sort class="mobile-hide">Intensity</th>
+                                <th data-sort class="mobile-hide">Source</th>
                                 <th>Changes</th>
                             </tr>
                             </thead>
@@ -1481,26 +1537,34 @@ function skillChangeClass(value) {
 
 function trainingRow(row) {
     const report = row.report || {};
+    const isAdv = report.kind?.name === 'individual';
     return `
         <tr data-player-id="${row.id}">
+            <td>${isAdv ? '<span class="planner-adv-marker" title="Advanced training">&#x2605;</span>' : ''}</td>
             <td><strong>${escapeHtml(fullName(row.player))}</strong><div class="small-muted">ID ${row.id}</div></td>
             <td>${age(row.player)}</td>
-            <td>${escapeHtml(report.type?.name || report.kind?.name || 'missing')}</td>
-            <td>${report.intensity ?? '-'}%</td>
+            <td class="mobile-hide">${escapeHtml(report.type?.name || report.kind?.name || 'missing')}</td>
+            <td class="mobile-hide">${report.intensity ?? '-'}%</td>
             <td><div class="delta-strip">${deltaPills(report.skillsChange || {})}</div></td>
         </tr>
     `;
 }
 
 function historyRow(report, index) {
+    const kind = report.kind?.name;
+    const badge = kind === 'individual'
+        ? '<span class="training-badge advanced-badge">★</span> '
+        : kind === 'formation'
+            ? '<span class="training-badge formation-badge">FT</span> '
+            : '';
     return `
         <tr class="clickable-row" data-report-index="${index}">
             <td>${report.day?.season ?? '-'}</td>
             <td>${report.day?.seasonWeek ?? report.week ?? '-'}</td>
             <td>${formatDate(report.day?.date?.value || report.date?.value)}</td>
-            <td>${escapeHtml(report.type?.name || report.kind?.name || '-')}</td>
-            <td>${report.intensity ?? '-'}%</td>
-            <td>${report.source === 'sktables' ? '<span class="training-badge source-badge">SkTables</span>' : '<span class="small-muted">Sokker</span>'}</td>
+            <td>${badge}${escapeHtml(report.type?.name || report.kind?.name || '-')}</td>
+            <td class="mobile-hide">${report.intensity ?? '-'}%</td>
+            <td class="mobile-hide">${report.source === 'sktables' ? '<span class="training-badge source-badge">SkTables</span>' : '<span class="small-muted">Sokker</span>'}</td>
             <td><div class="delta-strip">${deltaPills(report.skillsChange || {})}</div></td>
         </tr>
     `;
@@ -1707,5 +1771,220 @@ function makeSortable(table) {
 
     ths.forEach((th, i) => {
         th.addEventListener('click', () => sort(i));
+    });
+}
+
+async function renderPlanner() {
+    const posSkills = { GK:'keeper', DEF:'defending', MID:'playmaking', ATT:'striker' };
+    const formations = ['GK','DEF','MID','ATT'];
+    const sLabel = { stamina:'Sta', keeper:'GK', pace:'Pac', defending:'Def', technique:'Tec', playmaking:'Pla', passing:'Pas', striker:'Str' };
+    const allSkills = ['stamina','keeper','pace','defending','technique','playmaking','passing','striker'];
+    const sColor = { stamina:'#8ab4f8', keeper:'#f0c040', pace:'#4fd36c', defending:'#ff6b6b', technique:'#c084fc', playmaking:'#f0c040', passing:'#4fd36c', striker:'#ff6b6b' };
+    const trainableSkills = ['pace','defending','technique','playmaking','passing','striker'];
+
+    plannerView.innerHTML = `
+        <div class="view-panel">
+            <div class="toolbar"><h2>Training Planner</h2></div>
+            <div class="empty-state">Loading player history...</div>
+        </div>
+    `;
+
+    await Promise.all(state.trainingRows.map(r => loadPlayerReport(r.id).catch(() => {})));
+
+    let players = state.trainingRows.map(row => {
+        const player = row.player ? { id: row.id, info: row.player } : findPlayer(row.id);
+        const report = row.report || {};
+        const skills = report.skills || player?.info?.skills || {};
+        const fm = report.formation?.name || player?.info?.formation?.name || 'MID';
+            const isAdv = report.kind?.name === 'individual';
+            const pAge = report.age ?? age(player);
+            const reports = state.playerReports.get(row.id) || [];
+            const skillData = {};
+            for (const sk of allSkills) {
+                const cur = skills[sk] ?? 0;
+                if (cur >= 18) { skillData[sk] = { cur, maxed: true, accumulated: 0, target: 0, remaining: 0 }; continue; }
+                const intervals = completedIntervals(reports, sk);
+                const target = targetCredit(sk, cur, intervals, pAge);
+                const accumulated = accumulatedCredit(reports, sk);
+                const remaining = Math.max(0, target - accumulated);
+                skillData[sk] = { cur, maxed: false, accumulated, target, remaining };
+            }
+        let bestScore = -1, bestFm = fm, bestSkill = 'pace';
+        const validFms = fm === 'GK' ? formations : formations.filter(f => f !== 'GK');
+        for (const f of validFms) {
+            const valid = [...trainableSkills, posSkills[f]].filter((v, i, a) => a.indexOf(v) === i);
+            for (const sk of valid) {
+                const nd = skillData[sk];
+                if (!nd || nd.maxed) continue;
+                if (nd.remaining > bestScore) { bestScore = nd.remaining; bestFm = f; bestSkill = sk; }
+            }
+        }
+        return { id: row.id, player, age: pAge, skillData, isAdv, bestFm, bestSkill, bestScore };
+    });
+
+    const advancedCount = players.filter(p => p.isAdv).length;
+
+    players.sort((a, b) => {
+        if (a.isAdv !== b.isAdv) return a.isAdv ? -1 : 1;
+        return b.bestScore - a.bestScore;
+    });
+
+    const fmPlan = {};
+    for (const fm of formations) {
+        const assigned = players.filter(p => p.bestFm === fm);
+        if (!assigned.length) { fmPlan[fm] = posSkills[fm]; continue; }
+        const skillScores = {};
+        for (const p of assigned) {
+            const valid = [...trainableSkills, posSkills[fm]].filter((v, i, a) => a.indexOf(v) === i);
+            for (const sk of valid) {
+                const nd = p.skillData[sk];
+                if (nd && !nd.maxed) skillScores[sk] = (skillScores[sk] || 0) + nd.remaining;
+            }
+        }
+        fmPlan[fm] = Object.entries(skillScores).sort((a, b) => b[1] - a[1])[0]?.[0] || posSkills[fm];
+    }
+
+    const planLegend = formations.map(fm =>
+        `<span class="order-legend-item"><span class="training-badge">${fm}</span> → ${sLabel[fmPlan[fm]] || fmPlan[fm]}</span>`
+    ).join('');
+
+    const desktopHtml = `
+        <div class="planner-desktop">
+            <div class="planner-note small-muted">Each cell shows the <strong>current skill level</strong>. Hover for details: next level, accumulated/target credits and remaining need. The bar fills by <strong>accumulated/target</strong> credits toward the next level.</div>
+            <div class="table-scroll">
+                <table class="data-table planner-table">
+                    <thead>
+                    <tr>
+                        <th title="Advanced training (Sokker)">Adv</th>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Pos</th>
+                        ${allSkills.map(sk => `<th title="${sk}" style="color:${sColor[sk]}">${sLabel[sk]||sk}</th>`).join('')}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    ${players.length ? players.map(p => {
+                        const advClass = p.isAdv ? 'planner-adv-row' : '';
+                        const advMarker = p.isAdv ? '<span class="planner-adv-marker" title="On advanced training in Sokker">&#x2605;</span>' : '';
+                        return `<tr class="${advClass}" data-player-id="${p.id}">
+                            <td>${advMarker}</td>
+                            <td><strong>${escapeHtml(fullName(p.player))}</strong><div class="small-muted">ID ${p.id}</div></td>
+                            <td>${p.age}</td>
+                            <td><span class="training-badge">${(state.trainingRows.find(r => Number(r.id) === Number(p.id))?.report?.formation?.name) || p.player?.info?.formation?.name || 'MID'}</span></td>
+                            ${allSkills.map(sk => {
+                                const sd = p.skillData[sk];
+                                if (!sd) return '<td class="small-muted">-</td>';
+                                if (sd.maxed) return '<td style="color:#4fd36c"><strong>MAX</strong></td>';
+                                const pct = sd.target > 0 ? Math.min(100, Math.round((sd.accumulated / sd.target) * 100)) : 0;
+                                const barColor = pct >= 100 ? '#4fd36c' : pct >= 80 ? '#f0c040' : '#ff6b6b';
+                                return `<td title="${sk} ${sd.cur} → ${sd.cur + 1}, ${sd.accumulated.toFixed(2)}/${sd.target.toFixed(2)} (${pct}%), need: ${sd.remaining.toFixed(2)}">
+                                    <div class="deficit-bar-container">
+                                        <div class="deficit-bar" style="width:${pct}%;background:${barColor}"></div>
+                                        <span class="deficit-label">${sd.cur}</span>
+                                    </div>
+                                </td>`;
+                            }).join('')}
+                        </tr>`;
+                    }).join('') : '<tr><td colspan="20" class="empty-state">No training data.</td></tr>'}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+    const mobileHtml = `
+        <div class="planner-mobile">
+            <div class="planner-note small-muted">Tap a player to see all skills. Each bar shows <strong>accumulated/target</strong> credits toward the next level.</div>
+            ${players.length ? players.map(p => {
+                const advClass = p.isAdv ? 'planner-adv-row' : '';
+                const advMarker = p.isAdv ? '<span class="planner-adv-marker">★</span>' : '';
+                const fm = (state.trainingRows.find(r => Number(r.id) === Number(p.id))?.report?.formation?.name) || p.player?.info?.formation?.name || 'MID';
+                const bestEntry = Object.entries(p.skillData).filter(([_, sd]) => sd && !sd.maxed).sort((a, b) => b[1].remaining - a[1].remaining)[0];
+                const bestKey = bestEntry ? bestEntry[0] : null;
+                const bestData = bestEntry ? bestEntry[1] : null;
+                const bestPct = bestData && bestData.target > 0 ? Math.min(100, Math.round((bestData.accumulated / bestData.target) * 100)) : 0;
+                const bestColor = bestPct >= 100 ? '#4fd36c' : bestPct >= 80 ? '#f0c040' : '#ff6b6b';
+                return `
+                <div class="planner-mobile-card ${advClass}" data-mobile-pid="${p.id}">
+                    <div class="pm-header" data-pm-toggle>
+                        <span class="pm-header-left">
+                            ${advMarker}
+                            <strong>${escapeHtml(fullName(p.player))}</strong>
+                            <span class="small-muted">Age ${p.age}</span>
+                            <span class="training-badge">${fm}</span>
+                        </span>
+                        <span class="pm-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="pm-summary">
+                        ${bestData ? `
+                            <span class="pm-label">${sLabel[bestKey]} ${bestData.cur}</span>
+                            <div class="deficit-bar-container">
+                                <div class="deficit-bar" style="width:${bestPct}%;background:${bestColor}"></div>
+                                <span class="deficit-label">${bestPct}%</span>
+                            </div>
+                            <span class="pm-need">need ${bestData.remaining.toFixed(1)}</span>
+                        ` : '<span class="small-muted">All MAX</span>'}
+                    </div>
+                    <div class="pm-detail">
+                        ${allSkills.map(sk => {
+                            const sd = p.skillData[sk];
+                            if (!sd) return `<div class="pm-skill"><span class="pm-label">${sLabel[sk]}</span><span class="small-muted">-</span></div>`;
+                            if (sd.maxed) return `<div class="pm-skill"><span class="pm-label" style="color:#4fd36c">${sLabel[sk]}</span><strong style="color:#4fd36c">MAX</strong></div>`;
+                            const pct = sd.target > 0 ? Math.min(100, Math.round((sd.accumulated / sd.target) * 100)) : 0;
+                            const barColor = pct >= 100 ? '#4fd36c' : pct >= 80 ? '#f0c040' : '#ff6b6b';
+                            return `<div class="pm-skill">
+                                <div class="pm-skill-head">
+                                    <span class="pm-label">${sLabel[sk]} ${sd.cur}</span>
+                                    <span class="pm-pct">${pct}%</span>
+                                    <span class="pm-need">need ${sd.remaining.toFixed(1)}</span>
+                                </div>
+                                <div class="deficit-bar-container">
+                                    <div class="deficit-bar" style="width:${pct}%;background:${barColor}"></div>
+                                    <span class="deficit-label">${sd.cur}</span>
+                                </div>
+                                <div class="small-muted" style="font-size:10px;text-align:right">${sd.accumulated.toFixed(2)}/${sd.target.toFixed(2)}</div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>`;
+            }).join('') : '<div class="empty-state">No training data.</div>'}
+        </div>
+    `;
+
+    plannerView.innerHTML = `
+        <div class="view-panel">
+            <div class="toolbar">
+                <h2>Training Planner</h2>
+                <button id="refresh-planner" class="action-button">Refresh</button>
+            </div>
+            <div class="planner-summary">
+                <div class="planner-summary-item"><strong>Advanced:</strong> ${advancedCount} / 10</div>
+                <div class="planner-summary-item"><strong>Suggested formation plan:</strong></div>
+                <div class="order-legend">${planLegend}</div>
+            </div>
+            ${desktopHtml}
+            ${mobileHtml}
+        </div>
+    `;
+    makeSortable(plannerView.querySelector('.planner-table'));
+    plannerView.querySelector('#refresh-planner')?.addEventListener('click', async () => {
+        await loadData();
+        renderShell();
+        showView('planner');
+    });
+    plannerView.querySelectorAll('.planner-table [data-player-id]').forEach(row => {
+        row.addEventListener('click', () => openPlayerDetail(Number(row.dataset.playerId)));
+    });
+    plannerView.querySelectorAll('[data-pm-toggle]').forEach(el => {
+        el.addEventListener('click', () => {
+            const card = el.closest('.planner-mobile-card');
+            if (!card) return;
+            const detail = card.querySelector('.pm-detail');
+            const arrow = card.querySelector('.pm-arrow');
+            if (!detail) return;
+            const expanded = detail.style.display !== 'none';
+            detail.style.display = expanded ? 'none' : 'block';
+            if (arrow) arrow.innerHTML = expanded ? '&#x25B6;' : '&#x25BC;';
+        });
     });
 }
