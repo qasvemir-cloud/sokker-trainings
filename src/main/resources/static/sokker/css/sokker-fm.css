@@ -680,6 +680,105 @@ input {
     font-size: 1rem;
 }
 
+.predictor-skills {
+    display: grid;
+    gap: 8px;
+}
+
+.predictor-skill-row {
+    display: grid;
+    gap: 6px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+}
+
+.predictor-skill-row.dt-active {
+    background: rgba(42, 140, 74, 0.10);
+    border-color: rgba(42, 140, 74, 0.25);
+}
+
+.predictor-skill-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 4px 0;
+    border-radius: 3px;
+    transition: background 0.15s;
+}
+
+.predictor-skill-head:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.predictor-skill-name {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #dbe5ee;
+}
+
+.predictor-modes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.predictor-mode {
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.18);
+    border-radius: 4px;
+}
+
+.predictor-mode .mode-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #8a9aa8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.predictor-mode .mode-prob {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #f4f8ff;
+}
+
+.predictor-mode .mode-detail {
+    font-size: 0.74rem;
+    color: #8a9aa8;
+}
+
+.probability-bar.mini {
+    height: 6px;
+    margin: 4px 0;
+}
+
+.predictor-mode strong {
+    color: #f0c040;
+    font-size: 0.85rem;
+}
+
+.training-badge.small {
+    min-width: auto;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+}
+
+.trace-hint {
+    font-size: 0.7rem;
+    color: #8a9aa8;
+    opacity: 0.7;
+    white-space: nowrap;
+}
+
+.predictor-skill-head:hover .trace-hint {
+    opacity: 1;
+    color: #f4f8ff;
+}
+
 .predictor-player-button {
     margin: 0;
     padding: 0;
@@ -851,6 +950,123 @@ input {
 .trace-section {
     display: grid;
     gap: 6px;
+}
+
+.training-stats-section {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 0.78rem;
+}
+
+.training-stats-section .skill-grid {
+    font-size: 0.72rem;
+    margin: 6px 0 8px;
+}
+
+.training-stats-section .skill-column-extra {
+    padding-bottom: 2px;
+    margin-bottom: 2px;
+}
+
+.training-stats-section .player-skill-line {
+    padding: 1px 0;
+}
+
+.stat-grid {
+    display: grid;
+    gap: 3px;
+    margin-top: 6px;
+}
+
+.stat-header,
+.stat-line {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+}
+
+.stat-header {
+    color: #8a9aa8;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.stat-label {
+    color: #b8c8d8;
+}
+
+.stat-line .stat-label {
+    font-weight: 500;
+}
+
+.stat-digits {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.stat-dt {
+    color: #7eb8f0;
+    font-weight: 500;
+    min-width: 20px;
+    text-align: right;
+}
+
+.stat-gt {
+    color: #a0b8c8;
+    min-width: 20px;
+    text-align: right;
+}
+
+.stat-jumps {
+    color: #f0d87e;
+    min-width: 18px;
+    text-align: right;
+}
+
+.stat-injury {
+    color: #e07060;
+    min-width: 18px;
+    text-align: right;
+    font-weight: 500;
+}
+
+.stat-avg {
+    color: #8aaa78;
+    min-width: 30px;
+    text-align: right;
+    font-weight: 500;
+}
+
+.stat-total {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding-top: 4px;
+    margin-top: 2px;
+}
+
+.stat-total .stat-label {
+    font-weight: 700;
+    color: #f4f8ff;
+}
+
+.stat-total .stat-dt {
+    font-weight: 700;
+    color: #5aa8e8;
+}
+
+.stat-total .stat-jumps {
+    font-weight: 700;
+    color: #e8c86e;
+}
+
+.stat-total .stat-injury {
+    font-weight: 700;
+    color: #d06050;
 }
 
 .trace-line,
@@ -1302,6 +1518,19 @@ input {
 
     .small-muted {
         font-size: 0.7rem;
+    }
+
+    .predictor-modes {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+
+    .predictor-skill-row {
+        padding: 8px;
+    }
+
+    .predictor-mode {
+        padding: 6px;
     }
 
     .juniors-cards {

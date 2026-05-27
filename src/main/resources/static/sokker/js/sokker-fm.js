@@ -5,6 +5,7 @@ const api = {
     players: '/sokker/api/players',
     training: '/sokker/api/training/current',
     trainingPlayers: '/sokker/api/training/players',
+    trainingFormations: '/sokker/api/training/formations',
     trainingSummary: '/sokker/api/training/summary',
     juniors: '/sokker/api/juniors',
     juniorGraph: (juniorId) => `/sokker/api/juniors/${juniorId}/graph`,
@@ -61,9 +62,10 @@ const state = {
     matches: null,
     alumni: null,
     playerReports: new Map(),
+    formationSkills: null,
     focusedPredictorPlayerId: null,
     activeView: 'players',
-    playerSort: 'name',
+    playerSort: 'age',
     predictorSort: 'prob'
 };
 
@@ -515,6 +517,14 @@ async function renderPredictor() {
     if (!state.trainingSetup) {
         state.trainingSetup = await getJson(api.trainingPlayers);
     }
+    if (!state.formationSkills) {
+        const formationsRes = await getJson(api.trainingFormations);
+        const formations = formationsRes.formations || [];
+        state.formationSkills = {};
+        for (const f of formations) {
+            state.formationSkills[f.formation.name] = f.type.name;
+        }
+    }
     let advanced = state.trainingSetup.advanced || [];
     await Promise.all(advanced.map((player) => loadPlayerReport(player.id)));
     const sortField = state.predictorSort;
@@ -524,8 +534,10 @@ async function renderPredictor() {
             const pb = findPlayer(b.id) || { id: b.id, info: b.info };
             const rowA = state.trainingRows.find((r) => Number(r.id) === Number(a.id));
             const rowB = state.trainingRows.find((r) => Number(r.id) === Number(b.id));
-            const skillA = rowA?.report?.type?.name || 'pace';
-            const skillB = rowB?.report?.type?.name || 'pace';
+            const fa = rowA?.report?.formation?.name || a.formation?.name;
+            const fb = rowB?.report?.formation?.name || b.formation?.name;
+            const skillA = (state.formationSkills && fa && state.formationSkills[fa]) || rowA?.report?.type?.name || 'pace';
+            const skillB = (state.formationSkills && fb && state.formationSkills[fb]) || rowB?.report?.type?.name || 'pace';
             const repA = state.playerReports.get(Number(a.id)) || [];
             const repB = state.playerReports.get(Number(b.id)) || [];
             const predA = predictSkill(pa, repA, skillA, 'DT');
@@ -565,8 +577,9 @@ async function renderPredictor() {
         const focusedPlayer = advanced.find((p) => Number(p.id) === Number(state.focusedPredictorPlayerId));
         if (focusedPlayer) {
             const row = state.trainingRows.find((item) => Number(item.id) === Number(focusedPlayer.id));
-            const dtSkill = row?.report?.type?.name || 'pace';
-            setTimeout(() => renderSkillTrace(focusedPlayer.id, dtSkill), 50);
+            const formationName = row?.report?.formation?.name || focusedPlayer.formation?.name;
+            const dtSkill = (state.formationSkills && formationName && state.formationSkills[formationName]) || row?.report?.type?.name || 'pace';
+            setTimeout(() => renderSkillTrace(focusedPlayer.id, dtSkill, false), 50);
         }
     }
 }
@@ -744,7 +757,8 @@ function alumniRow(player) {
 function predictorListItem(trainingPlayer) {
     const row = state.trainingRows.find((item) => Number(item.id) === Number(trainingPlayer.id));
     const currentReport = row?.report || {};
-    const trainedSkill = currentReport.type?.name || 'pace';
+    const formationName = currentReport.formation?.name || trainingPlayer.formation?.name;
+    const trainedSkill = (state.formationSkills && formationName && state.formationSkills[formationName]) || currentReport.type?.name || 'pace';
     const player = findPlayer(trainingPlayer.id) || { id: trainingPlayer.id, info: trainingPlayer.info };
     const reports = state.playerReports.get(trainingPlayer.id) || [];
     const mainPrediction = predictSkill(player, reports, trainedSkill, 'DT');
@@ -754,7 +768,7 @@ function predictorListItem(trainingPlayer) {
         <button class="predictor-list-item" data-focus-player="${player.id}">
             <span>
                 <strong>${escapeHtml(fullName(player))}</strong>
-                <small>Age ${age(player)} | ${escapeHtml(currentReport.formation?.name || trainingPlayer.formation?.name || '-')} | ${currentReport.intensity ?? trainingPlayer.intensity ?? '-'}%</small>
+                <small>Age ${age(player)} | ${escapeHtml(formationName || '-')} | ${currentReport.intensity ?? trainingPlayer.intensity ?? '-'}%</small>
             </span>
             <span class="training-badge">DT ${escapeHtml(skillNames[trainedSkill] || trainedSkill)}</span>
             <span class="predictor-list-prob">${probLabel}</span>
@@ -765,6 +779,7 @@ function predictorListItem(trainingPlayer) {
 function bindPredictorRefresh() {
     predictorView.querySelector('#refresh-predictor')?.addEventListener('click', async () => {
         state.trainingSetup = null;
+        state.formationSkills = null;
         state.playerReports.clear();
         await loadData();
         renderShell();
@@ -798,12 +813,12 @@ function bindTraceButtons() {
         button.addEventListener('click', () => {
             const playerId = Number(button.dataset.tracePlayer);
             const skill = button.dataset.traceSkill;
-            renderSkillTrace(playerId, skill);
+            renderSkillTrace(playerId, skill, true);
         });
     });
 }
 
-function renderSkillTrace(playerId, skill) {
+function renderSkillTrace(playerId, skill, shouldScroll = false) {
     const player = findPlayer(playerId) || { id: playerId, info: {} };
     const reports = state.playerReports.get(playerId) || [];
     const trace = buildSkillTrace(reports, skill);
@@ -829,6 +844,10 @@ function renderSkillTrace(playerId, skill) {
             ${trace.current.weeksList.map(traceWeek).join('')}
         </div>
     `;
+    if (shouldScroll) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        window.scrollBy(0, -80);
+    }
 }
 
 function traceInterval(interval) {
@@ -862,14 +881,45 @@ async function loadPlayerReport(playerId) {
 function predictorCard(trainingPlayer) {
     const row = state.trainingRows.find((item) => Number(item.id) === Number(trainingPlayer.id));
     const currentReport = row?.report || {};
-    const trainedSkill = currentReport.type?.name || 'pace';
+    const formationName = currentReport.formation?.name || trainingPlayer.formation?.name;
+    const defaultDtSkill = (state.formationSkills && formationName && state.formationSkills[formationName]) || currentReport.type?.name || 'pace';
     const player = findPlayer(trainingPlayer.id) || { id: trainingPlayer.id, info: trainingPlayer.info };
     const reports = state.playerReports.get(trainingPlayer.id) || [];
-    const mainPrediction = predictSkill(player, reports, trainedSkill, 'DT');
-    const gtPredictions = predictorSkills
-        .filter((skill) => skill !== trainedSkill)
-        .map((skill) => predictSkill(player, reports, skill, 'GT'))
-        .sort((a, b) => b.nextProbability - a.nextProbability);
+
+    const skillsHtml = predictorSkills.map((skill) => {
+        const dtPred = predictSkill(player, reports, skill, 'DT');
+        const gtPred = predictSkill(player, reports, skill, 'GT');
+        const isDefault = skill === defaultDtSkill;
+        return `
+                <div class="predictor-skill-row ${isDefault ? 'dt-active' : ''}">
+                    <div class="predictor-skill-head" role="button" tabindex="0" data-trace-player="${player.id}" data-trace-skill="${skill}" title="View training history for ${skill}">
+                        <span class="predictor-skill-name">${escapeHtml(skillNames[skill] || skill)} ${dtPred.level} -> ${dtPred.level + 1}</span>
+                        <div>
+                            ${isDefault ? '<span class="training-badge small">DT</span>' : ''}
+                            <span class="trace-hint">&#x1F550; History</span>
+                        </div>
+                    </div>
+                <div class="predictor-modes">
+                    <div class="predictor-mode">
+                        <span class="mode-label">DT</span>
+                        ${dtPred.maxed ? '<strong>MAX</strong>' : `
+                            <span class="mode-prob">${dtPred.nextProbability}%</span>
+                            <div class="probability-bar mini"><div class="probability-fill" style="--probability:${dtPred.nextProbability}%"></div></div>
+                            <span class="mode-detail">${dtPred.accumulated.toFixed(2)}/${dtPred.target.toFixed(2)} ~${dtPred.remainingTrainings} DT</span>
+                        `}
+                    </div>
+                    <div class="predictor-mode">
+                        <span class="mode-label">GT</span>
+                        ${gtPred.maxed ? '<strong>MAX</strong>' : `
+                            <span class="mode-prob">${gtPred.nextProbability}%</span>
+                            <div class="probability-bar mini"><div class="probability-fill" style="--probability:${gtPred.nextProbability}%"></div></div>
+                            <span class="mode-detail">${gtPred.accumulated.toFixed(2)}/${gtPred.target.toFixed(2)} ~${gtPred.remainingTrainings} GT</span>
+                        `}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
 
     return `
         <article class="predictor-card">
@@ -878,59 +928,15 @@ function predictorCard(trainingPlayer) {
                     <button class="predictor-player-button" data-focus-player="${player.id}">
                         <h3>${escapeHtml(fullName(player))}</h3>
                     </button>
-                    <div class="small-muted">Age ${age(player)} | ${escapeHtml(currentReport.formation?.name || trainingPlayer.formation?.name || '-')} | ${currentReport.intensity ?? trainingPlayer.intensity ?? '-'}%</div>
+                    <div class="small-muted">Age ${age(player)} | ${escapeHtml(formationName || '-')} | ${currentReport.intensity ?? trainingPlayer.intensity ?? '-'}%</div>
                 </div>
-                <div class="training-badge">DT ${escapeHtml(skillNames[trainedSkill] || trainedSkill)}</div>
+                <div class="training-badge">DT ${escapeHtml(skillNames[defaultDtSkill] || defaultDtSkill)}</div>
             </div>
-            ${predictionMain(mainPrediction, player.id)}
-            <div class="gt-list">
-                ${gtPredictions.map((prediction) => gtItem(prediction, player.id)).join('')}
+            <div class="predictor-skills">
+                ${skillsHtml}
             </div>
             <div class="skill-trace" id="trace-${player.id}"></div>
         </article>
-    `;
-}
-
-function predictionMain(prediction, playerId) {
-    if (prediction.maxed) {
-        return `
-            <div class="prediction-main maxed">
-                <div class="prediction-row">
-                    <span>${escapeHtml(skillNames[prediction.skill] || prediction.skill)} ${prediction.level}</span>
-                    <strong>MAX</strong>
-                </div>
-            </div>
-        `;
-    }
-    return `
-        <button class="prediction-main prediction-trigger" data-trace-player="${playerId}" data-trace-skill="${prediction.skill}">
-            <div class="prediction-row">
-                <span>${escapeHtml(skillNames[prediction.skill] || prediction.skill)} ${prediction.level} -> ${prediction.level + 1}</span>
-                <strong>${prediction.nextProbability}%</strong>
-            </div>
-            <div class="probability-bar"><div class="probability-fill" style="--probability:${prediction.nextProbability}%"></div></div>
-            <div class="prediction-row">
-                <span>Credit ${prediction.accumulated.toFixed(2)} / ${prediction.target.toFixed(2)}</span>
-                <span>~${prediction.remainingTrainings} ${prediction.mode}</span>
-            </div>
-        </button>
-    `;
-}
-
-function gtItem(prediction, playerId) {
-    if (prediction.maxed) {
-        return `
-            <div class="gt-item maxed">
-                <span>GT ${escapeHtml(skillNames[prediction.skill] || prediction.skill)} ${prediction.level}</span>
-                <strong>MAX</strong>
-            </div>
-        `;
-    }
-    return `
-        <button class="gt-item prediction-trigger" data-trace-player="${playerId}" data-trace-skill="${prediction.skill}">
-            <span>GT ${escapeHtml(skillNames[prediction.skill] || prediction.skill)} ${prediction.level}->${prediction.level + 1}</span>
-            <strong>${prediction.nextProbability}% | ~${prediction.remainingTrainings} GT</strong>
-        </button>
     `;
 }
 
@@ -1195,6 +1201,102 @@ function formatDate(dateStr) {
     return dateStr;
 }
 
+function playerTrainingStats(reports, player) {
+    const skillKeys = ['stamina', 'pace', 'technique', 'passing', 'keeper', 'defending', 'playmaking', 'striker'];
+    const perSkill = {};
+    for (const key of skillKeys) {
+        perSkill[key] = { dtWeeks: 0, gtWeeks: 0, injuryWeeks: 0, jumps: 0, totalCredit: 0 };
+    }
+    let firstReport = null;
+    for (const report of reports.slice().reverse()) {
+        const dtSkill = report.type?.name || '';
+        const changes = report.skillsChange || {};
+        const intensity = report.intensity ?? 100;
+        if (intensity <= 0) {
+            const injuredKey = skillKeys.find(k => k === dtSkill);
+            if (injuredKey) perSkill[injuredKey].injuryWeeks++;
+        } else {
+            for (const key of skillKeys) {
+                if (key === dtSkill) {
+                    perSkill[key].dtWeeks++;
+                    perSkill[key].totalCredit += 1;
+                } else {
+                    perSkill[key].gtWeeks++;
+                    perSkill[key].totalCredit += 1 / gtRatio;
+                }
+                if ((changes[key] || 0) > 0) {
+                    perSkill[key].jumps++;
+                }
+            }
+        }
+        if (!firstReport) firstReport = report;
+    }
+
+    // Age at first training = current age - seasons elapsed
+    let ageAtFirst = null;
+    if (firstReport && reports.length > 0) {
+        const currentAge = Math.floor(player.info?.characteristics?.age || 0);
+        const last = reports[0];
+        const currentSeason = last.day?.season || 0;
+        const firstSeason = firstReport.day?.season || 0;
+        ageAtFirst = currentAge - (currentSeason - firstSeason);
+    }
+    return { perSkill, firstReport, ageAtFirst };
+}
+
+function renderTrainingStats(stats, player) {
+    if (!stats.firstReport) return '';
+    const r = stats.firstReport;
+    const dateStr = formatDate(r.day?.date?.value || r.date?.value);
+    const ageStr = stats.ageAtFirst != null ? stats.ageAtFirst : '?';
+    const firstSkills = r.skills || {};
+    const firstSkillsHtml = skillGrid(firstSkills);
+    const skillRows = Object.entries(stats.perSkill).map(([key, s]) => `
+        <div class="stat-line">
+            <span class="stat-label">${escapeHtml(skillNames[key] || key)}</span>
+            <span class="stat-digits">
+                <span class="stat-dt" title="DT trainings">${s.dtWeeks}</span>
+                <span class="stat-gt" title="GT trainings">${s.gtWeeks}</span>
+                <span class="stat-injury" title="Injury (intensity 0)">${s.injuryWeeks}</span>
+                <strong class="stat-jumps" title="Skill jumps">${s.jumps}</strong>
+                <span class="stat-avg" title="Avg credit per jump">${s.jumps > 0 ? (s.totalCredit / s.jumps).toFixed(2) : '-'}</span>
+            </span>
+        </div>
+    `).join('');
+    const totalDt = Object.values(stats.perSkill).reduce((sum, s) => sum + s.dtWeeks, 0);
+    const totalInjury = Object.values(stats.perSkill).reduce((sum, s) => sum + s.injuryWeeks, 0);
+    const totalJumps = Object.values(stats.perSkill).reduce((sum, s) => sum + s.jumps, 0);
+    return `
+        <div class="training-stats-section">
+            <div class="small-muted">First week: S${r.day?.season || '?'}/${r.day?.seasonWeek || '?'} ${dateStr} | Age ${ageStr}</div>
+            <div class="skill-grid first-week-grid">${firstSkillsHtml}</div>
+            <div class="stat-grid">
+                <div class="stat-header">
+                    <span class="stat-label">Skill</span>
+                    <span class="stat-digits">
+                        <span class="stat-dt">DT</span>
+                        <span class="stat-gt">GT</span>
+                        <span class="stat-injury">Inj</span>
+                        <strong class="stat-jumps" title="Skill jumps">Jmp</strong>
+                        <span class="stat-avg" title="Avg credit per jump">Avg</span>
+                    </span>
+                </div>
+                ${skillRows}
+                <div class="stat-line stat-total">
+                    <span class="stat-label">Total</span>
+                    <span class="stat-digits">
+                        <span class="stat-dt">${totalDt}</span>
+                        <span class="stat-gt"></span>
+                        <span class="stat-injury">${totalInjury}</span>
+                        <strong class="stat-jumps">${totalJumps}</strong>
+                        <span class="stat-avg"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
 async function openPlayerDetail(playerId) {
     const player = findPlayer(playerId) || { id: playerId, info: {} };
     playerDetailView.innerHTML = `<div class="player-detail-shell"><div class="empty-state">Loading training history...</div></div>`;
@@ -1223,6 +1325,7 @@ function renderPlayerDetail(player, reports) {
                     <h2>${escapeHtml(fullName(player))}</h2>
                     <p class="small-muted">Age ${age(player)} | ID ${player.id}</p>
                     <div class="skill-grid">${skillGrid(player.info?.skills || {})}</div>
+                    ${renderTrainingStats(playerTrainingStats(reports, player), player)}
                 </section>
                 <section class="detail-card">
                     <h3>Training History</h3>

@@ -75,6 +75,10 @@ public class SokkerApiService {
         return get("/training/summary", phpSessionId);
     }
 
+    public JsonNode trainingFormations(String phpSessionId) {
+        return get("/training/formations", phpSessionId);
+    }
+
     public JsonNode trainingReportWithFallback(long playerId, String phpSessionId) {
         Optional<JsonNode> report = getSafe("/training/" + playerId + "/report", phpSessionId);
         if (report.isPresent()) {

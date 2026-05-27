@@ -80,6 +80,11 @@ public class SokkerWebController {
         return sokkerApiService.trainingSummary(sessionCookie(session));
     }
 
+    @GetMapping("/training/formations")
+    public JsonNode trainingFormations(HttpSession session) {
+        return sokkerApiService.trainingFormations(sessionCookie(session));
+    }
+
     @GetMapping("/players/{playerId}/training")
     public JsonNode playerTraining(@PathVariable long playerId, HttpSession session) {
         JsonNode report = sokkerApiService.trainingReportWithFallback(playerId, sessionCookie(session));
