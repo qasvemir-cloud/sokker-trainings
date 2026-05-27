@@ -704,13 +704,16 @@ input {
     justify-content: space-between;
     align-items: center;
     gap: 8px;
+}
+
+.predictor-skill-row {
     cursor: pointer;
-    padding: 4px 0;
-    border-radius: 3px;
+    padding: 6px 6px;
+    border-radius: 4px;
     transition: background 0.15s;
 }
 
-.predictor-skill-head:hover {
+.predictor-skill-row:hover {
     background: rgba(255, 255, 255, 0.04);
 }
 

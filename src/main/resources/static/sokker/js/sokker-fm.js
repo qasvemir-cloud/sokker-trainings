@@ -845,8 +845,7 @@ function renderSkillTrace(playerId, skill, shouldScroll = false) {
         </div>
     `;
     if (shouldScroll) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        window.scrollBy(0, -80);
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 }
 
@@ -891,8 +890,8 @@ function predictorCard(trainingPlayer) {
         const gtPred = predictSkill(player, reports, skill, 'GT');
         const isDefault = skill === defaultDtSkill;
         return `
-                <div class="predictor-skill-row ${isDefault ? 'dt-active' : ''}">
-                    <div class="predictor-skill-head" role="button" tabindex="0" data-trace-player="${player.id}" data-trace-skill="${skill}" title="View training history for ${skill}">
+                <div class="predictor-skill-row ${isDefault ? 'dt-active' : ''}" role="button" tabindex="0" data-trace-player="${player.id}" data-trace-skill="${skill}" title="View training history for ${skill}">
+                    <div class="predictor-skill-head">
                         <span class="predictor-skill-name">${escapeHtml(skillNames[skill] || skill)} ${dtPred.level} -> ${dtPred.level + 1}</span>
                         <div>
                             ${isDefault ? '<span class="training-badge small">DT</span>' : ''}
