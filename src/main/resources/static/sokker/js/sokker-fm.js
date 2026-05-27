@@ -839,7 +839,7 @@ function renderSkillTrace(playerId, skill, shouldScroll = false) {
         </div>
         <div class="trace-section">
             <div class="small-muted">Previous jumps</div>
-            ${trace.intervals.length ? trace.intervals.map(traceInterval).join('') : '<div class="small-muted">No complete intervals; using global fallback.</div>'}
+            ${trace.intervals.length ? trace.intervals.map(traceInterval).join('') : trace.jumps.length ? trace.jumps.map(traceJump).join('') : '<div class="small-muted">No complete intervals; using global fallback.</div>'}
         </div>
         <div class="trace-section">
             <div class="small-muted">Current since last jump</div>
@@ -860,6 +860,15 @@ function traceInterval(interval) {
         <div class="trace-line">
             <span>${interval.from} -> ${interval.to}: ${interval.credits.toFixed(2)} credit = ${interval.dtWeeks} DT + ${interval.gtWeeks} GT + ${interval.skipWeeks} skip</span>
             <strong>S${interval.season}/${interval.seasonWeek}</strong>
+        </div>
+    `;
+}
+
+function traceJump(jump) {
+    return `
+        <div class="trace-line">
+            <span>${jump.from} -> ${jump.to}</span>
+            <strong>S${jump.season}/${jump.seasonWeek}</strong>
         </div>
     `;
 }
@@ -1058,6 +1067,7 @@ function buildSkillTrace(reports, skill) {
     let weeks = 0;
     let weeksList = [];
     let currentLevel = 0;
+    const jumps = [];
 
     for (const report of sorted) {
         const change = report.skillsChange?.[skill] || 0;
@@ -1086,6 +1096,7 @@ function buildSkillTrace(reports, skill) {
             });
         }
         if (change > 0) {
+            jumps.push({ from: before, to: before + change, season: report.day?.season, seasonWeek: report.day?.seasonWeek });
             if (seenFirstJump && credit > 0) {
                 intervals.push({
                     from: before,
@@ -1110,6 +1121,7 @@ function buildSkillTrace(reports, skill) {
 
     return {
         intervals,
+        jumps,
         current: {
             level: currentLevel,
             credit,
