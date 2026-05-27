@@ -444,6 +444,67 @@ input {
     color: #ff6b6b;
 }
 
+.delta-up {
+    font-size: 0.65rem;
+    color: #4fd36c;
+    margin-left: 2px;
+    font-weight: 700;
+}
+
+.delta-down {
+    font-size: 0.65rem;
+    color: #ff6b6b;
+    margin-left: 2px;
+    font-weight: 700;
+}
+
+.training-pct {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #8ab4f8;
+}
+
+.training-summary-table td {
+    text-align: center;
+    padding: 4px 6px;
+    white-space: nowrap;
+}
+
+.training-summary-table td:first-child {
+    text-align: left;
+}
+
+.training-summary-table th {
+    text-align: center;
+    padding: 6px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+}
+
+.training-summary-table th:first-child {
+    text-align: left;
+}
+
+.order-legend {
+    display: flex;
+    gap: 12px;
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    color: #aaa;
+    flex-wrap: wrap;
+}
+
+.order-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.order-legend-item .training-badge {
+    font-size: 0.65rem;
+    padding: 1px 5px;
+}
+
 .data-table {
     width: 100%;
     border-collapse: collapse;

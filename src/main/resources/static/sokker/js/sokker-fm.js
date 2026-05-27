@@ -75,6 +75,7 @@ const loginForm = document.querySelector('#login-form');
 const loginError = document.querySelector('#login-error');
 const playersView = document.querySelector('#players-view');
 const trainingView = document.querySelector('#training-view');
+const lastTrainingView = document.querySelector('#last-training-view');
 const predictorView = document.querySelector('#predictor-view');
 const juniorsView = document.querySelector('#juniors-view');
 const summaryView = document.querySelector('#summary-view');
@@ -189,6 +190,10 @@ function showView(view) {
     if (view === 'training') {
         document.querySelector('#page-title').textContent = 'Training Reports';
         trainingView.classList.remove('hidden');
+    } else if (view === 'last-training') {
+        document.querySelector('#page-title').textContent = 'Last Training';
+        lastTrainingView.classList.remove('hidden');
+        renderLastTraining();
     } else if (view === 'predictor') {
         document.querySelector('#page-title').textContent = 'Training Predictor';
         predictorView.classList.remove('hidden');
@@ -295,44 +300,83 @@ function renderTraining() {
     });
 }
 
-async function renderJuniors() {
-    juniorsView.innerHTML = loadingPanel('Junior Academy', 'Loading juniors and talent assessments...');
-    try {
-        if (!state.juniors) {
-            state.juniors = await getJson(api.juniors);
-        }
-        const juniors = state.juniors.sokker?.juniors || [];
-        await Promise.all(juniors.map((junior) => loadJuniorGraph(junior.id)));
-        const reportById = new Map((state.juniors.report?.juniors || []).map((junior) => [Number(junior.id), junior]));
-        const sktablesById = new Map((state.juniors.sktables?.juniors || []).map((junior) => [Number(junior.id), junior]));
-        const rows = juniors
-            .map((junior) => ({ ...junior, report: reportById.get(Number(junior.id)), sktables: sktablesById.get(Number(junior.id)) }))
-            .sort((a, b) => (a.weeksLeft ?? 99) - (b.weeksLeft ?? 99));
-
-        const isMobile = window.innerWidth < 768;
-        const content = isMobile && rows.length
-            ? `<div class="juniors-cards">${rows.map(juniorCard).join('')}</div>`
-            : `<div class="table-scroll"><table class="data-table"><thead><tr><th>Junior</th><th>Age</th><th>Lvl</th><th>Talent</th><th>Weeks</th><th>Projection</th><th>Potential</th><th>Graph</th></tr></thead><tbody>${rows.length ? rows.map(juniorRow).join('') : `<tr><td colspan="8" class="empty-state">No juniors.</td></tr>`}</tbody></table></div>`;
-
-        juniorsView.innerHTML = `
-            <div class="view-panel">
-                <div class="toolbar">
-                    <h2>Junior Academy</h2>
-                    <button id="refresh-juniors" class="action-button">Refresh</button>
-                </div>
-                ${content}
+function renderLastTraining() {
+    const orderNames = { GK: 'GK', DEF: 'DEF', MID: 'MID', ATT: 'ATT' };
+    const orderSkills = { GK: 'Pace', DEF: 'Defending', MID: 'Playmaking', ATT: 'Striker' };
+    const skillOrder = ['stamina', 'keeper', 'pace', 'defending', 'technique', 'playmaking', 'passing', 'striker'];
+    const skillHeaders = ['Sta', 'Gk', 'Pac', 'Def', 'Tec', 'Pla', 'Pas', 'Str'];
+    const nonStaminaSkills = ['keeper', 'pace', 'defending', 'technique', 'playmaking', 'passing', 'striker'];
+    let rows = state.trainingRows.map((row) => {
+        const player = row.player ? { id: row.id, info: row.player } : findPlayer(row.id);
+        const report = row.report || {};
+        const skills = report.skills || player?.info?.skills || {};
+        const changes = report.skillsChange || player?.info?.skillsChange || {};
+        const hasChange = nonStaminaSkills.some(key => (changes[key] || 0) !== 0);
+        return {
+            id: row.id, player, report, skills, changes, hasChange,
+            ord: report.formation?.name || player?.info?.formation?.name || '-',
+            trPct: report.intensity ?? '-',
+            pAge: report.age ?? age(player)
+        };
+    });
+    rows.sort((a, b) => {
+        if (a.hasChange !== b.hasChange) return a.hasChange ? -1 : 1;
+        return Number(a.pAge) - Number(b.pAge);
+    });
+    const orderLegend = Object.entries(orderSkills).map(([ord, skill]) => `<span class="order-legend-item"><span class="training-badge">${ord}</span> → ${skill}</span>`).join('');
+    lastTrainingView.innerHTML = `
+        <div class="view-panel">
+            <div class="toolbar">
+                <h2>Last Training</h2>
+                <button id="refresh-last-training" class="action-button">Refresh</button>
             </div>
-        `;
-        const juniorsTable = juniorsView.querySelector('.data-table');
-        if (juniorsTable) makeSortable(juniorsTable);
-        juniorsView.querySelector('#refresh-juniors').addEventListener('click', () => {
-            state.juniors = null;
-            state.juniorGraphs.clear();
-            renderJuniors();
-        });
-    } catch (error) {
-        juniorsView.innerHTML = errorPanel('Junior Academy', error.message);
-    }
+            <div class="order-legend">${orderLegend}</div>
+            <div class="table-scroll">
+                <table class="data-table training-summary-table">
+                    <thead>
+                    <tr>
+                        <th data-sort>Name</th>
+                        <th data-sort>Age</th>
+                        <th data-sort>Ord</th>
+                        ${skillHeaders.map(h => `<th data-sort>${h}</th>`).join('')}
+                        <th data-sort>Tr%</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    ${rows.length ? rows.map(r => {
+                        const ord = r.ord;
+                        const trPct = r.trPct;
+                        const pAge = r.pAge;
+                        const skills = r.skills;
+                        const changes = r.changes;
+                        return `<tr data-player-id="${r.id}">
+                            <td><strong>${escapeHtml(fullName(r.player))}</strong><div class="small-muted">ID ${r.id}</div></td>
+                            <td>${pAge}</td>
+                            <td><span class="training-badge">${escapeHtml(orderNames[ord] || ord)}</span></td>
+                            ${skillOrder.map(key => {
+                                const val = skills[key];
+                                const change = changes[key];
+                                if (val == null) return '<td class="small-muted">-</td>';
+                                const klass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
+                                return `<td class="${klass}">${val}${change ? (change > 0 ? `<span class="delta-up">+${change}</span>` : `<span class="delta-down">${change}</span>`) : ''}</td>`;
+                            }).join('')}
+                            <td>${trPct !== '-' ? `<span class="training-pct">${trPct}%</span>` : '-'}</td>
+                        </tr>`;
+                    }).join('') : '<tr><td colspan="12" class="empty-state">No training data available.</td></tr>'}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+    makeSortable(lastTrainingView.querySelector('.training-summary-table'));
+    lastTrainingView.querySelector('#refresh-last-training')?.addEventListener('click', async () => {
+        await loadData();
+        renderShell();
+        showView('last-training');
+    });
+    lastTrainingView.querySelectorAll('[data-player-id]').forEach((row) => {
+        row.addEventListener('click', () => openPlayerDetail(Number(row.dataset.playerId)));
+    });
 }
 
 async function renderTrainingSummary() {
