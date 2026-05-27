@@ -300,7 +300,9 @@ public class SktablesService {
             junior.put("age", firstInt(text(rowCells.get(1)), 0));
             junior.put("skill", firstInt(text(rowCells.get(2)), 0));
             junior.put("change", academySkillChange(rowCells.get(2)));
-            junior.put("talent", academyCellNumber(rowCells.get(3), "data-sort=\"([^\"]+)\"", 0));
+            String talentText = text(rowCells.get(3));
+            junior.put("talent", academyCellNumber(rowCells.get(3), null, 0));
+            junior.put("talentUncertain", talentText.contains("?"));
             junior.put("weeksLeft", firstInt(text(rowCells.get(4)), 0));
             junior.put("ageOut", academyCellNumber(rowCells.get(5), null, 0));
             junior.put("finalLevel", firstInt(text(rowCells.get(6)), 0));

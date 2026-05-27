@@ -610,12 +610,16 @@ function juniorRow(junior) {
     const graph = state.juniorGraphs.get(junior.id)?.values || [];
     const sktables = junior.sktables || {};
     const change = junior.report?.change ?? sktables.change ?? 0;
+    const tVal = sktables.talent;
+    const talentHtml = tVal
+        ? `<strong>${Number(tVal).toFixed(1)}${sktables.talentUncertain ? '?' : ''}</strong>`
+        : '<span class="small-muted">-</span>';
     return `
         <tr>
             <td><strong>${escapeHtml(junior.fullName?.full || junior.name)}</strong><div class="small-muted">ID ${junior.id}</div></td>
             <td>${junior.age}</td>
             <td><strong class="${skillChangeClass(change)}">${junior.skill}</strong> ${change ? deltaInline(change) : ''}</td>
-            <td>${sktables.talent ? `<strong>${Number(sktables.talent).toFixed(1)}</strong>` : '<span class="small-muted">-</span>'}</td>
+            <td>${talentHtml}</td>
             <td>${junior.weeksLeft ?? sktables.weeksLeft ?? '-'}</td>
             <td>${sktables.finalLevel ? `${Number(sktables.ageOut).toFixed(1)}y | lvl ${sktables.finalLevel}` : '<span class="small-muted">Sokker only</span>'}</td>
             <td>${sktables.potential ? potentialTag(sktables.potential) : '<span class="small-muted">-</span>'}</td>
@@ -628,6 +632,8 @@ function juniorCard(junior) {
     const graph = state.juniorGraphs.get(junior.id)?.values || [];
     const sktables = junior.sktables || {};
     const change = junior.report?.change ?? sktables.change ?? 0;
+    const tVal = sktables.talent;
+    const talentHtml = tVal ? `${Number(tVal).toFixed(1)}${sktables.talentUncertain ? '?' : ''}` : '-';
     return `
         <div class="junior-card">
             <div>
@@ -644,7 +650,7 @@ function juniorCard(junior) {
             </div>
             <div>
                 <span>Talent:</span>
-                <strong>${sktables.talent ? Number(sktables.talent).toFixed(1) : '-'}</strong>
+                <strong>${talentHtml}</strong>
             </div>
             <div>
                 <span>Weeks left:</span>
