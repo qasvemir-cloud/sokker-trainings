@@ -1150,7 +1150,8 @@ function completedIntervals(reports, skill) {
                     gtWeeks,
                     skipWeeks,
                     season: report.day?.season,
-                    seasonWeek: report.day?.seasonWeek
+                    seasonWeek: report.day?.seasonWeek,
+                    age: report.age
                 });
             }
             seenFirstJump = true;
@@ -1277,7 +1278,10 @@ function targetCredit(skill, level, intervals, age) {
         const previous = intervals[intervals.length - 2];
         const base = previous ? recent.credits * 0.8 + previous.credits * 0.2 : recent.credits;
         const scale = clamp(globalLevelCredit(level) / globalLevelCredit(recent.from), 0.92, 1.22);
-        return base * scale * highSkillDrag(skill, level);
+        const ageScale = age != null && recent.age != null
+            ? Math.max(1, ageFactor(age) / ageFactor(recent.age))
+            : 1;
+        return base * scale * highSkillDrag(skill, level) * ageScale;
     }
     const af = age != null ? ageFactor(age) : 1;
     return globalLevelCredit(level) * (skillFactor[skill] || 1) * highSkillDrag(skill, level) * af;
