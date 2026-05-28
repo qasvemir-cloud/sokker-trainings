@@ -1016,6 +1016,7 @@ function predictorCard(trainingPlayer) {
                         <span class="mode-label">DT</span>
                         ${dtPred.maxed ? '<strong>MAX</strong>' : `
                             <span class="mode-prob">${dtPred.nextProbability}%</span>
+                            ${dtPred.decreaseRisk ? `<span class="mode-dec-badge" title="Risk of skill decrease due to age">&#x26A0; ${Math.round(dtPred.decreaseRisk * 100)}% dec</span>` : ''}
                             <div class="probability-bar mini"><div class="probability-fill" style="--probability:${dtPred.nextProbability}%"></div></div>
                             <span class="mode-detail">${dtPred.accumulated.toFixed(2)}/${dtPred.target.toFixed(2)} ~${dtPred.remainingTrainings} DT</span>
                         `}
@@ -1024,6 +1025,7 @@ function predictorCard(trainingPlayer) {
                         <span class="mode-label">GT</span>
                         ${gtPred.maxed ? '<strong>MAX</strong>' : `
                             <span class="mode-prob">${gtPred.nextProbability}%</span>
+                            ${gtPred.decreaseRisk ? `<span class="mode-dec-badge" title="Risk of skill decrease due to age">&#x26A0; ${Math.round(gtPred.decreaseRisk * 100)}% dec</span>` : ''}
                             <div class="probability-bar mini"><div class="probability-fill" style="--probability:${gtPred.nextProbability}%"></div></div>
                             <span class="mode-detail">${gtPred.accumulated.toFixed(2)}/${gtPred.target.toFixed(2)} ~${gtPred.remainingTrainings} GT</span>
                         `}
@@ -1073,9 +1075,13 @@ function predictSkill(player, reports, skill, mode, isAdv) {
     const nextRatio = (accumulated + nextCredit) / target;
     const currentRatio = accumulated / target;
     const hasHistory = intervals.length > 0;
+    const decreaseRisk = age >= 29 ? Math.min(0.45, (age - 28) * 0.07) : 0;
     const nextProbability = nextRatio >= 1
         ? Math.min(99, Math.max(92, Math.round(92 + Math.min(1, currentRatio) * 7)))
         : Math.min(91, Math.max(3, Math.round(nextRatio * 100)));
+    const adjProbability = decreaseRisk > 0
+        ? Math.round(nextProbability * (1 - decreaseRisk))
+        : nextProbability;
     const remaining = Math.max(0, target - accumulated);
     return {
         skill,
@@ -1085,7 +1091,8 @@ function predictSkill(player, reports, skill, mode, isAdv) {
         target,
         source: hasHistory ? 'player-history' : 'global-fallback',
         hasHistory,
-        nextProbability,
+        nextProbability: adjProbability,
+        decreaseRisk,
         remainingTrainings: Math.ceil(remaining / nextCredit)
     };
 }
@@ -1281,7 +1288,7 @@ function globalLevelCredit(level) {
 }
 
 function highSkillDrag(skill, level) {
-    let drag = 1 + Math.max(0, level - 14) * 0.08;
+    let drag = 1 + Math.max(0, level - 13) * 0.10;
     if (skill === 'pace') {
         if (level >= 15) drag += Math.max(0, level - 14) * 0.05;
         if (level >= 17) drag += Math.max(0, level - 16) * 0.08;
@@ -1293,9 +1300,12 @@ function ageFactor(age) {
     if (age <= 17) return 0.70;
     if (age === 18) return 0.82;
     if (age === 19) return 0.92;
-    if (age <= 27) return 1.0;
-    if (age <= 29) return 1.08;
-    return 1.20;
+    if (age <= 25) return 1.0;
+    if (age === 26) return 1.03;
+    if (age === 27) return 1.07;
+    if (age === 28) return 1.14;
+    if (age <= 30) return 1.22;
+    return 1.35;
 }
 
 function clamp(value, min, max) {

@@ -834,6 +834,13 @@ input {
     color: #f4f8ff;
 }
 
+.mode-dec-badge {
+    font-size: 0.65rem;
+    color: #ff6b6b;
+    margin-left: 4px;
+    white-space: nowrap;
+}
+
 .predictor-mode .mode-detail {
     font-size: 0.74rem;
     color: #8a9aa8;
