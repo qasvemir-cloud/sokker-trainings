@@ -610,8 +610,8 @@ async function renderPredictor() {
             const pb = findPlayer(b.id) || { id: b.id, info: b.info };
             const rowA = state.trainingRows.find((r) => Number(r.id) === Number(a.id));
             const rowB = state.trainingRows.find((r) => Number(r.id) === Number(b.id));
-            const fa = rowA?.report?.formation?.name || a.formation?.name;
-            const fb = rowB?.report?.formation?.name || b.formation?.name;
+            const fa = playerFormation(a) || rowA?.report?.formation?.name;
+            const fb = playerFormation(b) || rowB?.report?.formation?.name;
             const skillA = (state.formationSkills && fa && state.formationSkills[fa]) || rowA?.report?.type?.name || 'pace';
             const skillB = (state.formationSkills && fb && state.formationSkills[fb]) || rowB?.report?.type?.name || 'pace';
             const repA = state.playerReports.get(Number(a.id)) || [];
@@ -658,7 +658,7 @@ async function renderPredictor() {
         const focusedPlayer = allPlayers.find((p) => Number(p.id) === Number(state.focusedPredictorPlayerId));
         if (focusedPlayer) {
             const row = state.trainingRows.find((item) => Number(item.id) === Number(focusedPlayer.id));
-            const formationName = row?.report?.formation?.name || focusedPlayer.formation?.name;
+            const formationName = playerFormation(focusedPlayer) || row?.report?.formation?.name;
             const dtSkill = (state.formationSkills && formationName && state.formationSkills[formationName]) || row?.report?.type?.name || 'pace';
             setTimeout(() => renderSkillTrace(focusedPlayer.id, dtSkill, false), 50);
         }
@@ -845,7 +845,7 @@ function predictorListItem(trainingPlayer) {
     const row = state.trainingRows.find((item) => Number(item.id) === Number(trainingPlayer.id));
     const currentReport = row?.report || {};
     const isAdv = currentReport.kind?.name === 'individual';
-    const formationName = currentReport.formation?.name || trainingPlayer.formation?.name;
+    const formationName = playerFormation(trainingPlayer) || currentReport.formation?.name;
     const trainedSkill = (state.formationSkills && formationName && state.formationSkills[formationName]) || currentReport.type?.name || 'pace';
     const player = findPlayer(trainingPlayer.id) || { id: trainingPlayer.id, info: trainingPlayer.info };
     const reports = state.playerReports.get(trainingPlayer.id) || [];
@@ -993,7 +993,7 @@ function predictorCard(trainingPlayer) {
     const row = state.trainingRows.find((item) => Number(item.id) === Number(trainingPlayer.id));
     const currentReport = row?.report || {};
     const isAdv = currentReport.kind?.name === 'individual';
-    const formationName = currentReport.formation?.name || trainingPlayer.formation?.name;
+    const formationName = playerFormation(trainingPlayer) || currentReport.formation?.name;
     const defaultDtSkill = (state.formationSkills && formationName && state.formationSkills[formationName]) || currentReport.type?.name || 'pace';
     const player = findPlayer(trainingPlayer.id) || { id: trainingPlayer.id, info: trainingPlayer.info };
     const reports = state.playerReports.get(trainingPlayer.id) || [];
@@ -1316,6 +1316,26 @@ function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
 }
 
+function lookupFormation(data) {
+    if (!data) return undefined;
+    return data?.report?.formation?.name
+        || data?.formation?.name
+        || data?.player?.formation?.name
+        || data?.player?.info?.formation?.name;
+}
+
+function playerFormation(data) {
+    if (!data) return undefined;
+    const id = data?.id || data?.player?.id;
+    if (id && state.trainingSetup) {
+        const setupRows = [...(state.trainingSetup.advanced || []), ...(state.trainingSetup.general || [])];
+        const match = setupRows.find(r => Number(r.id) === Number(id));
+        const fromSetup = lookupFormation(match);
+        if (fromSetup) return fromSetup;
+    }
+    return lookupFormation(data);
+}
+
 function reportWeek(report) {
     if (report.day?.season && report.day?.seasonWeek) {
         return report.day.season * 100 + report.day.seasonWeek;
@@ -1566,11 +1586,14 @@ function trainingRow(row) {
 
 function historyRow(report, index) {
     const kind = report.kind?.name;
-    const badge = kind === 'individual'
-        ? '<span class="training-badge advanced-badge">★</span> '
-        : kind === 'formation'
-            ? '<span class="training-badge formation-badge">FT</span> '
-            : '';
+    const intensity = report.intensity ?? 100;
+    const badge = intensity <= 0
+        ? '<span class="training-badge injury-badge" title="Injured / no training">&#x2716;</span> '
+        : kind === 'individual'
+            ? '<span class="training-badge advanced-badge" title="Advanced training">★</span> '
+            : kind === 'formation'
+                ? '<span class="training-badge formation-badge" title="Formation training">FT</span> '
+                : '';
     return `
         <tr class="clickable-row" data-report-index="${index}">
             <td>${report.day?.season ?? '-'}</td>
@@ -1792,7 +1815,7 @@ async function renderPlanner() {
     const posSkills = { GK:'keeper', DEF:'defending', MID:'playmaking', ATT:'striker' };
     const formations = ['GK','DEF','MID','ATT'];
     const sLabel = { stamina:'Sta', keeper:'GK', pace:'Pac', defending:'Def', technique:'Tec', playmaking:'Pla', passing:'Pas', striker:'Str' };
-    const allSkills = ['stamina','keeper','pace','defending','technique','playmaking','passing','striker'];
+    const allSkills = ['keeper','pace','defending','technique','playmaking','passing','striker'];
     const sColor = { stamina:'#8ab4f8', keeper:'#f0c040', pace:'#4fd36c', defending:'#ff6b6b', technique:'#c084fc', playmaking:'#f0c040', passing:'#4fd36c', striker:'#ff6b6b' };
     const trainableSkills = ['pace','defending','technique','playmaking','passing','striker'];
 
@@ -1803,13 +1826,16 @@ async function renderPlanner() {
         </div>
     `;
 
+    if (!state.trainingSetup) {
+        state.trainingSetup = await getJson(api.trainingPlayers);
+    }
     await Promise.all(state.trainingRows.map(r => loadPlayerReport(r.id).catch(() => {})));
 
     let players = state.trainingRows.map(row => {
         const player = row.player ? { id: row.id, info: row.player } : findPlayer(row.id);
         const report = row.report || {};
         const skills = report.skills || player?.info?.skills || {};
-        const fm = report.formation?.name || player?.info?.formation?.name || 'MID';
+        const fm = playerFormation(row) || 'MID';
             const isAdv = report.kind?.name === 'individual';
             const pAge = report.age ?? age(player);
             const reports = state.playerReports.get(row.id) || [];
@@ -1884,7 +1910,7 @@ async function renderPlanner() {
                             <td>${advMarker}</td>
                             <td><strong>${escapeHtml(fullName(p.player))}</strong><div class="small-muted">ID ${p.id}</div></td>
                             <td>${p.age}</td>
-                            <td><span class="training-badge">${(state.trainingRows.find(r => Number(r.id) === Number(p.id))?.report?.formation?.name) || p.player?.info?.formation?.name || 'MID'}</span></td>
+                            <td><span class="training-badge">${playerFormation(state.trainingRows.find(r => Number(r.id) === Number(p.id))) || playerFormation(p) || 'MID'}</span></td>
                             ${allSkills.map(sk => {
                                 const sd = p.skillData[sk];
                                 if (!sd) return '<td class="small-muted">-</td>';
@@ -1912,7 +1938,7 @@ async function renderPlanner() {
             ${players.length ? players.map(p => {
                 const advClass = p.isAdv ? 'planner-adv-row' : '';
                 const advMarker = p.isAdv ? '<span class="planner-adv-marker">★</span>' : '';
-                const fm = (state.trainingRows.find(r => Number(r.id) === Number(p.id))?.report?.formation?.name) || p.player?.info?.formation?.name || 'MID';
+                const fm = playerFormation(state.trainingRows.find(r => Number(r.id) === Number(p.id))) || playerFormation(p) || 'MID';
                 const bestEntry = Object.entries(p.skillData).filter(([_, sd]) => sd && !sd.maxed).sort((a, b) => b[1].remaining - a[1].remaining)[0];
                 const bestKey = bestEntry ? bestEntry[0] : null;
                 const bestData = bestEntry ? bestEntry[1] : null;
@@ -1982,6 +2008,8 @@ async function renderPlanner() {
     `;
     makeSortable(plannerView.querySelector('.planner-table'));
     plannerView.querySelector('#refresh-planner')?.addEventListener('click', async () => {
+        state.trainingSetup = null;
+        state.formationSkills = null;
         await loadData();
         renderShell();
         showView('planner');

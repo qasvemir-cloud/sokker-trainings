@@ -912,6 +912,14 @@ input {
     border-color: rgba(205, 70, 70, 0.45);
 }
 
+.injury-badge {
+    color: #ffb0b0 !important;
+    background: rgba(180, 40, 40, 0.35) !important;
+    border-color: rgba(180, 40, 40, 0.5) !important;
+    font-size: 1.1rem;
+    padding: 2px 6px;
+}
+
 .summary-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
