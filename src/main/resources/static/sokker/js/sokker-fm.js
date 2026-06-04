@@ -678,6 +678,46 @@ function renderFocusedPredictor(players) {
     return player ? `<div class="predictor-single">${predictorCard(player)}</div>` : `<div class="empty-state">Player not found.</div>`;
 }
 
+async function renderJuniors() {
+    juniorsView.innerHTML = loadingPanel('Junior Academy', 'Loading juniors and talent assessments...');
+    try {
+        if (!state.juniors) {
+            state.juniors = await getJson(api.juniors);
+        }
+        const juniors = state.juniors.sokker?.juniors || [];
+        await Promise.all(juniors.map((junior) => loadJuniorGraph(junior.id).catch(() => {})));
+        const reportById = new Map((state.juniors.report?.juniors || []).map((junior) => [Number(junior.id), junior]));
+        const sktablesById = new Map((state.juniors.sktables?.juniors || []).map((junior) => [Number(junior.id), junior]));
+        const rows = juniors
+            .map((junior) => ({ ...junior, report: reportById.get(Number(junior.id)), sktables: sktablesById.get(Number(junior.id)) }))
+            .sort((a, b) => (a.weeksLeft ?? 99) - (b.weeksLeft ?? 99));
+
+        const isMobile = window.innerWidth < 768;
+        const content = isMobile && rows.length
+            ? `<div class="juniors-cards">${rows.map(juniorCard).join('')}</div>`
+            : `<div class="table-scroll"><table class="data-table"><thead><tr><th>Junior</th><th>Age</th><th>Lvl</th><th>Talent</th><th>Weeks</th><th>Projection</th><th>Potential</th><th>Graph</th></tr></thead><tbody>${rows.length ? rows.map(juniorRow).join('') : `<tr><td colspan="8" class="empty-state">No juniors.</td></tr>`}</tbody></table></div>`;
+
+        juniorsView.innerHTML = `
+            <div class="view-panel">
+                <div class="toolbar">
+                    <h2>Junior Academy</h2>
+                    <button id="refresh-juniors" class="action-button">Refresh</button>
+                </div>
+                ${content}
+            </div>
+        `;
+        const juniorsTable = juniorsView.querySelector('.data-table');
+        if (juniorsTable) makeSortable(juniorsTable);
+        juniorsView.querySelector('#refresh-juniors').addEventListener('click', () => {
+            state.juniors = null;
+            state.juniorGraphs.clear();
+            renderJuniors();
+        });
+    } catch (error) {
+        juniorsView.innerHTML = errorPanel('Junior Academy', error.message);
+    }
+}
+
 async function loadJuniorGraph(juniorId) {
     if (state.juniorGraphs.has(juniorId)) {
         return state.juniorGraphs.get(juniorId);
