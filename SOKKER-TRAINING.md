@@ -10,65 +10,71 @@ Sokker formation‑training API for the player's current DT skill.
 
 ## Sokker Training Mechanics (DT vs GT)
 
-### Direct Training (DT)
+### Slotovi i direktni trening (DT)
 
-When a player trains a skill that **matches his formation position**, the report counts
-as **direct training (DT)**. A midfielder training *playmaking* is DT; a defender training
-*playmaking* is not.
+Na Sokkeru igrači **nemaju fiksne pozicije** — imaju **slotove** koji se postavljaju
+svake nedelje (A, B, C, D, itd.). Svakom slotu je dodeljena jedna veština koja se
+trenira. Ta veština je **direktni trening (DT)** za igrača u tom slotu. **Sve ostale
+veštine su generalni trening (GT).**
 
-On Sokker, each training report has:
-- a **type** — which skill was trained (e.g. `pace`, `defending`, `technique`, `passing`,
-  `playmaking`, `striker`)
-- a **formation** — the position the player was assigned to in that week (e.g. DEF, MID, ATT)
-- a **kind** — `individual` (AT) or `formation` (FT)
-- an **intensity** — the amount of training received (0.0–1.0)
+Primer: Ako je igrač u slotu D, a slot D je podešen da trenira `pace`, onda je
+pace njegov DT te nedelje. Ako je sledeće nedelje slot D podešen na `technique`,
+onda je technique DT.
 
-| Position | DT Skills |
-|----------|-----------|
+Formacija igrača (DEF, MID, ATT, GK) određuje **koji slot** mu je dodeljen, ali
+**ne određuje koja je veština DT**. DT je isključivo ona veština koja je podešena
+na tom slotu.
+
+Na Sokkeru svaki trening report sadrži:
+- **type** — koja je veština trenirana te nedelje (npr. `pace`, `defending`, ...)
+- **formation** — formacija/slot igrača (npr. DEF, MID, ATT)
+- **kind** — `individual` (AT) ili `formation` (FT)
+- **intensity** — jačina treninga (0.0–1.0)
+
+| Slot | Uobičajena DT veština |
+|------|----------------------|
 | GK | `keeper` |
 | DEF | `defending` |
 | MID | `playmaking` |
 | ATT | `striker` |
+| ostali (E, F...) | `pace`, `technique`, `passing` |
 
-Skills `pace`, `technique`, and `passing` are **general** — they never count as DT
-from the formation itself; only through **individual training (AT)**.
+Ovo su samo uobičajene dodele — menadžer može da promeni koju veštinu slot trenira.
 
 ### AT (Advanced Training) / Individual
 
-- AT (`kind: "individual"`) targets **all 6 trainable skills** equally
-- When AT trains a skill that matches the player's formation, it is counted as DT
-  (full intensity counts)
-- When AT trains a skill that does **not** match the player's formation, it still
-  contributes but at a reduced rate: `intensity / 6` (the GT rate)
+- AT (`kind: "individual"`) znači da je igrač na **naprednom treningu**
+- Veština dodeljena njegovom slotu u toj nedelji je DT → pun kredit (`intensity × 1.0`)
+- Sve ostale veštine su GT → kredit `intensity ÷ 6`
 
 ### FT (Formation Training)
 
-- FT (`kind: "formation"`) always contributes at the **GT rate**: `intensity / 6`
-- Even if the formation matches the skill being trained, FT is never DT — it
-  always counts as general training
+- FT (`kind: "formation"`) znači da igrač **nije na advanced treningu**
+- Isti koncept DT/GT važi: veština dodeljena slotu je DT, ostalo je GT
+- **Razlika**: FT trenira **2–3 puta sporije** od AT
+- U kodu se FT brzina modeluje kao dodatni delitelj `3.5` u `nextCredit` projekciji
 
-### The GT ratio
+### GT ration
 
-The GT ratio is **6** (constant `gtRatio` in code). This means a non‑DT week
-contributes `1/6` of the intensity towards the skill's accumulated credit.
+GT ratio je **6** (konstanta `gtRatio` u kodu). To znači da GT trening doprinosi
+`samo 1/6` intenziteta ka akumuliranom kreditu za datu veštinu.
 
-### Training reports timeline
+### Tok treninga po nedeljama
 
-Each weekly report captures the player's skill level **before** that week's training.
-When a skill change (jump) is detected:
-1. The jump is recorded as a **completed interval** with the accumulated credits
-   that triggered it
-2. The credit counter resets to 0
-3. All subsequent reports accumulate toward the next jump
+Svaki report prikazuje nivo veštine **pre** treninga te nedelje.
+Kada se desi skok (change > 0):
+1. Skok se snima kao **completed interval** sa kreditima koji su ga izazvali
+2. Brojač kredita se resetuje na 0
+3. Svi naredni reporti akumuliraju ka sledećem skoku
 
 ### Credit rates summary
 
-| Kind | Formation matches skill? | Rate |
-|------|--------------------------|------|
-| AT (individual) | Yes (DT) | `intensity × 1.0` |
-| AT (individual) | No (GT) | `intensity ÷ 6` |
-| FT (formation) | Yes | `intensity ÷ 6` |
-| FT (formation) | No | `intensity ÷ 6` |
+| Kind | Da li je DT? | Rate |
+|------|-------------|------|
+| AT (individual) | Da (DT — poklapa se sa slotom) | `intensity × 1.0` |
+| AT (individual) | Ne (GT) | `intensity ÷ 6` |
+| FT (formation) | Da (DT) | `intensity ÷ 6` (isto kao GT — FT nema DT bonus) |
+| FT (formation) | Ne (GT) | `intensity ÷ 6` |
 
 ---
 
