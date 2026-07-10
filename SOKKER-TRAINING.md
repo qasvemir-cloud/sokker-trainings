@@ -10,71 +10,71 @@ Sokker formation‑training API for the player's current DT skill.
 
 ## Sokker Training Mechanics (DT vs GT)
 
-### Slotovi i direktni trening (DT)
+### Slots and Direct Training (DT)
 
-Na Sokkeru igrači **nemaju fiksne pozicije** — imaju **slotove** koji se postavljaju
-svake nedelje (A, B, C, D, itd.). Svakom slotu je dodeljena jedna veština koja se
-trenira. Ta veština je **direktni trening (DT)** za igrača u tom slotu. **Sve ostale
-veštine su generalni trening (GT).**
+On Sokker, players **do not have fixed positions** — they have **slots** that are
+set every week (A, B, C, D, etc.). Each slot is assigned one skill to train. That
+skill is the **direct training (DT)** for the player in that slot. **All other skills
+are general training (GT).**
 
-Primer: Ako je igrač u slotu D, a slot D je podešen da trenira `pace`, onda je
-pace njegov DT te nedelje. Ako je sledeće nedelje slot D podešen na `technique`,
-onda je technique DT.
+Example: if a player is in slot D and slot D is set to train `pace`, then pace is
+his DT that week. If the next week slot D is set to `technique`, then technique is DT.
 
-Formacija igrača (DEF, MID, ATT, GK) određuje **koji slot** mu je dodeljen, ali
-**ne određuje koja je veština DT**. DT je isključivo ona veština koja je podešena
-na tom slotu.
+The player's formation (DEF, MID, ATT, GK) determines **which slot** they are assigned
+to, but **does not determine which skill is DT**. DT is exclusively the skill set on
+that slot.
 
-Na Sokkeru svaki trening report sadrži:
-- **type** — koja je veština trenirana te nedelje (npr. `pace`, `defending`, ...)
-- **formation** — formacija/slot igrača (npr. DEF, MID, ATT)
-- **kind** — `individual` (AT) ili `formation` (FT)
-- **intensity** — jačina treninga (0.0–1.0)
+Each Sokker training report contains:
+- **type** — which skill was trained that week (e.g. `pace`, `defending`, ...)
+- **formation** — the player's formation/slot (e.g. DEF, MID, ATT)
+- **kind** — `individual` (AT) or `formation` (FT)
+- **intensity** — training intensity (0.0–1.0)
 
-| Slot | Uobičajena DT veština |
-|------|----------------------|
+| Slot | Typical DT skill |
+|------|-----------------|
 | GK | `keeper` |
 | DEF | `defending` |
 | MID | `playmaking` |
 | ATT | `striker` |
-| ostali (E, F...) | `pace`, `technique`, `passing` |
+| other (E, F...) | `pace`, `technique`, `passing` |
 
-Ovo su samo uobičajene dodele — menadžer može da promeni koju veštinu slot trenira.
+These are only typical defaults — the manager can change which skill a slot trains.
 
 ### AT (Advanced Training) / Individual
 
-- AT (`kind: "individual"`) znači da je igrač na **naprednom treningu**
-- Veština dodeljena njegovom slotu u toj nedelji je DT → pun kredit (`intensity × 1.0`)
-- Sve ostale veštine su GT → kredit `intensity ÷ 6`
+- AT (`kind: "individual"`) means the player is on **advanced training**
+- The skill assigned to their slot that week is DT → full credit (`intensity × 1.0`)
+- All other skills are GT → `intensity ÷ 6`
 
 ### FT (Formation Training)
 
-- FT (`kind: "formation"`) znači da igrač **nije na advanced treningu**
-- Isti koncept DT/GT važi: veština dodeljena slotu je DT, ostalo je GT
-- **Razlika**: FT trenira **2–3 puta sporije** od AT
-- U kodu se FT brzina modeluje kao dodatni delitelj `3.5` u `nextCredit` projekciji
+- FT (`kind: "formation"`) means the player is **not on advanced training**
+- Still has a slot with an assigned skill, but **no DT bonus** — every skill is
+  trained at the GT rate (`intensity ÷ 6`)
+- **Difference**: FT trains **2–3 times slower** than AT (in code: an extra `3.5` divisor)
+- Total FT rate: `intensity ÷ 6 ÷ 3.5`
 
-### GT ration
+### The GT ratio
 
-GT ratio je **6** (konstanta `gtRatio` u kodu). To znači da GT trening doprinosi
-`samo 1/6` intenziteta ka akumuliranom kreditu za datu veštinu.
+The GT ratio is **6** (constant `gtRatio` in code). A non-DT week contributes only
+`1/6` of the intensity toward the accumulated credit for that skill.
 
-### Tok treninga po nedeljama
+### Training report timeline
 
-Svaki report prikazuje nivo veštine **pre** treninga te nedelje.
-Kada se desi skok (change > 0):
-1. Skok se snima kao **completed interval** sa kreditima koji su ga izazvali
-2. Brojač kredita se resetuje na 0
-3. Svi naredni reporti akumuliraju ka sledećem skoku
+Each weekly report shows the player's skill level **before** that week's training.
+When a skill change (jump) is detected:
+1. The jump is recorded as a **completed interval** with the credits that triggered it
+2. The credit counter resets to 0
+3. All subsequent reports accumulate toward the next jump
 
 ### Credit rates summary
 
-| Kind | Da li je DT? | Rate |
-|------|-------------|------|
-| AT (individual) | Da (DT — poklapa se sa slotom) | `intensity × 1.0` |
-| AT (individual) | Ne (GT) | `intensity ÷ 6` |
-| FT (formation) | Da (DT) | `intensity ÷ 6` (isto kao GT — FT nema DT bonus) |
-| FT (formation) | Ne (GT) | `intensity ÷ 6` |
+| Kind | Is DT? | Rate |
+|------|--------|------|
+| AT (individual) | Yes (matches slot) | `intensity × 1.0` |
+| AT (individual) | No (GT) | `intensity ÷ 6` |
+| FT (formation) | Yes (DT) | `intensity ÷ 6` (same as GT — no DT bonus for FT) |
+| FT (formation) | No (GT) | `intensity ÷ 6` |
 
 ---
 
@@ -106,13 +106,13 @@ targetCredit(skill, level, intervals, age)
 The target credit is the amount of training needed to go from the current level
 to the next.
 
-#### When the player has previous intervals (history)
+#### With previous intervals (history)
 
 ```
-base = recent.credits * 0.8 + previous.credits * 0.2
+base = recent.credits × 0.8 + previous.credits × 0.2
 ```
 
-A weighted average of the most recent two completed intervals (80% latest, 20%
+Weighted average of the most recent two completed intervals (80% latest, 20%
 one before). If only one interval exists, just that one is used.
 
 ```
@@ -133,7 +133,7 @@ If the player is older now than during the previous interval, the target increas
 target = base × scale × highSkillDrag(skill, level) × ageScale
 ```
 
-#### When the player has no history (first interval)
+#### Without history (first interval)
 
 ```
 target = globalLevelCredit(level) × skillFactor[skill] × highSkillDrag(skill, level) × ageFactor(age)
@@ -169,7 +169,7 @@ Each skill has a base difficulty multiplier:
 | Playmaking | 0.98 |
 | Striker | 1.00 |
 
-### 5. High‑skill drag
+### 5. High-skill drag
 
 Starting at level 13, each additional level adds 10% more target credit:
 
@@ -304,7 +304,7 @@ the player needs to reach any target level. It simulates:
 2. **Interval‑based target with weighted average**: Target is based on the player's
    own previous jump difficulty (80% latest, 20% one before), scaled by level and age.
 
-3. **Age‑scale never reduces target**: `Math.max(1, ...)` ensures a younger player's
+3. **Age‑scale never reduces target**: `max(1, ...)` ensures a younger player's
    target is never increased because they were older during a previous interval.
 
 4. **Three‑tier probability system**: High/mid/low tiers avoid both 0% false negatives
@@ -322,9 +322,9 @@ the player needs to reach any target level. It simulates:
 
 ---
 
-## Histories
+## Historical Validation
 
-### Empirical validation (29 jumps, 4 players)
+### 29 jumps, 4 players
 
 | Player | Skill | Jump | Ratio | Probability |
 |--------|-------|------|-------|-------------|
@@ -361,7 +361,7 @@ the player needs to reach any target level. It simulates:
 **Minimum ratio observed: 0.682** (Ljupče STRI 15→16). Threshold at 0.65 captures
 all cases. Minimum probability: **78%**.
 
-### False positive examples (no jump, still shows probability)
+### False positive examples (no jump, but shows probability)
 
 These are acceptable — the predictor correctly shows that the player is accumulating
 credit, even though the jump hasn't happened yet. All are ≤82%.
