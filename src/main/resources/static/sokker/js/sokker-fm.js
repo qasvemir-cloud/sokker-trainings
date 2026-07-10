@@ -586,15 +586,22 @@ async function renderPredictor() {
     }
     let advanced = state.trainingSetup.advanced || [];
     let allPlayers = advanced.slice();
+    const advIds = advancedIds();
 
     if (state.predictorShowAll) {
-        const nonAdvRows = state.trainingRows.filter(r => r.report?.kind?.name !== 'individual');
-        for (const r of nonAdvRows) {
+        const general = state.trainingSetup.general || [];
+        for (const r of general) {
+            if (!allPlayers.some(p => Number(p.id) === Number(r.id))) {
+                allPlayers.push(r);
+            }
+        }
+        const trainingRowsExtra = state.trainingRows.filter(r => !allPlayers.some(p => Number(p.id) === Number(r.id)));
+        for (const r of trainingRowsExtra) {
             if (!allPlayers.some(p => Number(p.id) === Number(r.id))) {
                 allPlayers.push({
                     id: r.id,
                     info: r.player,
-                    formation: r.report?.formation ? { name: r.report.formation.name } : r.player?.formation,
+                    formation: r.report?.formation || r.player?.formation,
                     intensity: r.report?.intensity
                 });
             }
@@ -616,8 +623,8 @@ async function renderPredictor() {
             const skillB = (state.formationSkills && fb && state.formationSkills[fb]) || rowB?.report?.type?.name || 'pace';
             const repA = state.playerReports.get(Number(a.id)) || [];
             const repB = state.playerReports.get(Number(b.id)) || [];
-            const isAdvA = rowA?.report?.kind?.name === 'individual';
-            const isAdvB = rowB?.report?.kind?.name === 'individual';
+            const isAdvA = advIds.has(Number(a.id));
+            const isAdvB = advIds.has(Number(b.id));
             const predA = predictSkill(pa, repA, skillA, 'DT', isAdvA);
             const predB = predictSkill(pb, repB, skillB, 'DT', isAdvB);
             return (predB.nextProbability || 0) - (predA.nextProbability || 0);
@@ -657,9 +664,8 @@ async function renderPredictor() {
     if (state.focusedPredictorPlayerId) {
         const focusedPlayer = allPlayers.find((p) => Number(p.id) === Number(state.focusedPredictorPlayerId));
         if (focusedPlayer) {
-            const row = state.trainingRows.find((item) => Number(item.id) === Number(focusedPlayer.id));
-            const formationName = playerFormation(focusedPlayer) || row?.report?.formation?.name;
-            const dtSkill = (state.formationSkills && formationName && state.formationSkills[formationName]) || row?.report?.type?.name || 'pace';
+            const formationName = setupPlayerFormation(focusedPlayer.id) || playerFormation(focusedPlayer);
+            const dtSkill = (state.formationSkills && formationName && state.formationSkills[formationName]) || 'pace';
             setTimeout(() => renderSkillTrace(focusedPlayer.id, dtSkill, false), 50);
         }
     }
@@ -882,13 +888,16 @@ function alumniRow(player) {
 }
 
 function predictorListItem(trainingPlayer) {
-    const row = state.trainingRows.find((item) => Number(item.id) === Number(trainingPlayer.id));
-    const currentReport = row?.report || {};
-    const isAdv = currentReport.kind?.name === 'individual';
-    const formationName = playerFormation(trainingPlayer) || currentReport.formation?.name;
-    const trainedSkill = (state.formationSkills && formationName && state.formationSkills[formationName]) || currentReport.type?.name || 'pace';
-    const player = findPlayer(trainingPlayer.id) || { id: trainingPlayer.id, info: trainingPlayer.info };
-    const reports = state.playerReports.get(trainingPlayer.id) || [];
+    const advIdSet = advancedIds();
+    const tid = Number(trainingPlayer.id);
+    const isAdv = advIdSet.has(tid);
+    const formationName = setupPlayerFormation(tid) || playerFormation(trainingPlayer);
+    const trainedSkill = (state.formationSkills && formationName && state.formationSkills[formationName]) || 'pace';
+    const setupPlayer = (state.trainingSetup?.advanced || []).find(p => Number(p.id) === tid)
+        || (state.trainingSetup?.general || []).find(p => Number(p.id) === tid);
+    const intensity = setupPlayer?.intensity;
+    const player = findPlayer(trainingPlayer.id) || { id: tid, info: trainingPlayer.info };
+    const reports = state.playerReports.get(tid) || [];
     const mainPrediction = predictSkill(player, reports, trainedSkill, 'DT', isAdv);
 
     const probLabel = mainPrediction.maxed ? 'MAX' : `${mainPrediction.nextProbability}%`;
@@ -897,7 +906,7 @@ function predictorListItem(trainingPlayer) {
         <button class="predictor-list-item ${isAdv ? '' : 'predictor-nonadv'}" data-focus-player="${player.id}">
             <span>
                 <strong>${escapeHtml(fullName(player))}</strong>
-                <small>${advLabel} Age ${age(player)} | ${escapeHtml(formationName || '-')} | ${currentReport.intensity ?? trainingPlayer.intensity ?? '-'}%</small>
+                <small>${advLabel} Age ${age(player)} | ${escapeHtml(formationName || '-')} | ${intensity ?? '-'}%</small>
             </span>
             <span class="training-badge">DT ${escapeHtml(skillNames[trainedSkill] || trainedSkill)}</span>
             <span class="predictor-list-prob">${probLabel}</span>
@@ -1030,12 +1039,15 @@ async function loadPlayerReport(playerId) {
 }
 
 function predictorCard(trainingPlayer) {
-    const row = state.trainingRows.find((item) => Number(item.id) === Number(trainingPlayer.id));
-    const currentReport = row?.report || {};
-    const isAdv = currentReport.kind?.name === 'individual';
-    const formationName = playerFormation(trainingPlayer) || currentReport.formation?.name;
-    const defaultDtSkill = (state.formationSkills && formationName && state.formationSkills[formationName]) || currentReport.type?.name || 'pace';
-    const player = findPlayer(trainingPlayer.id) || { id: trainingPlayer.id, info: trainingPlayer.info };
+    const tid = Number(trainingPlayer.id);
+    const advIdSet = advancedIds();
+    const isAdv = advIdSet.has(tid);
+    const formationName = setupPlayerFormation(tid) || playerFormation(trainingPlayer);
+    const defaultDtSkill = (state.formationSkills && formationName && state.formationSkills[formationName]) || 'pace';
+    const setupPlayer = (state.trainingSetup?.advanced || []).find(p => Number(p.id) === tid)
+        || (state.trainingSetup?.general || []).find(p => Number(p.id) === tid);
+    const intensity = setupPlayer?.intensity;
+    const player = findPlayer(trainingPlayer.id) || { id: tid, info: trainingPlayer.info };
     const reports = state.playerReports.get(trainingPlayer.id) || [];
 
     const skillsHtml = predictorSkills.map((skill) => {
@@ -1082,7 +1094,7 @@ function predictorCard(trainingPlayer) {
                     <button class="predictor-player-button" data-focus-player="${player.id}">
                         <h3>${escapeHtml(fullName(player))}</h3>
                     </button>
-                    <div class="small-muted">Age ${age(player)} | ${escapeHtml(formationName || '-')} | ${currentReport.intensity ?? trainingPlayer.intensity ?? '-'}%</div>
+                    <div class="small-muted">Age ${age(player)} | ${escapeHtml(formationName || '-')} | ${intensity ?? '-'}%</div>
                 </div>
                 <div class="training-badge">DT ${escapeHtml(skillNames[defaultDtSkill] || defaultDtSkill)}</div>
             </div>
@@ -1112,13 +1124,15 @@ function predictSkill(player, reports, skill, mode, isAdv) {
     const age = player.info?.characteristics?.age;
     const target = targetCredit(skill, level, intervals, age);
     const nextCredit = (mode === 'DT' ? 1 : 1 / gtRatio) / (isAdv ? 1 : 3.5);
-    const nextRatio = (accumulated + nextCredit) / target;
     const currentRatio = accumulated / target;
     const hasHistory = intervals.length > 0;
     const decreaseRisk = age >= 29 ? Math.min(0.45, (age - 28) * 0.07) : 0;
-    const nextProbability = nextRatio >= 1
+    const nextRatio = (accumulated + nextCredit) / target;
+    const nextProbability = currentRatio >= 0.88
         ? Math.min(99, Math.max(92, Math.round(92 + Math.min(1, currentRatio) * 7)))
-        : Math.min(91, Math.max(3, Math.round(nextRatio * 100)));
+        : nextRatio >= 1.15
+            ? Math.min(91, Math.max(80, Math.round(80 + currentRatio * 11)))
+            : Math.min(79, Math.max(3, Math.round(nextRatio / 1.15 * 79)));
     const adjProbability = decreaseRisk > 0
         ? Math.round(nextProbability * (1 - decreaseRisk))
         : nextProbability;
@@ -1141,9 +1155,10 @@ function accumulatedCredit(reports, skill) {
     const sorted = [...reports].sort((a, b) => reportWeek(a) - reportWeek(b));
     let seenFirstJump = false;
     let credit = 0;
+    let result = 0;
     for (const report of sorted) {
         const isAtReport = report.kind?.name === 'individual';
-        const perWeek = reportCredit(report, skill) / (isAtReport ? 1 : 3.5);
+        const perWeek = reportCredit(report, skill);
         const change = report.skillsChange?.[skill] || 0;
         if (seenFirstJump || !isAtReport) {
             credit += perWeek;
@@ -1152,10 +1167,13 @@ function accumulatedCredit(reports, skill) {
             if (!seenFirstJump) {
                 seenFirstJump = true;
             }
+            result = credit;
             credit = 0;
+        } else {
+            result = credit;
         }
     }
-    return credit;
+    return result;
 }
 
 function completedIntervals(reports, skill) {
@@ -1354,6 +1372,21 @@ function ageFactor(age) {
 
 function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
+}
+
+function advancedIds() {
+    return new Set((state.trainingSetup?.advanced || []).map(p => Number(p.id)));
+}
+
+function isAdvanced(playerId) {
+    return advancedIds().has(Number(playerId));
+}
+
+function setupPlayerFormation(playerId) {
+    if (!state.trainingSetup) return undefined;
+    const all = [...(state.trainingSetup.advanced || []), ...(state.trainingSetup.general || [])];
+    const match = all.find(r => Number(r.id) === Number(playerId));
+    return match?.formation?.name;
 }
 
 function lookupFormation(data) {
@@ -1869,26 +1902,33 @@ async function renderPlanner() {
     if (!state.trainingSetup) {
         state.trainingSetup = await getJson(api.trainingPlayers);
     }
+    const advIdSet = advancedIds();
+    const setupById = {};
+    for (const p of [...(state.trainingSetup?.advanced || []), ...(state.trainingSetup?.general || [])]) {
+        setupById[Number(p.id)] = p;
+    }
     await Promise.all(state.trainingRows.map(r => loadPlayerReport(r.id).catch(() => {})));
 
-    let players = state.trainingRows.map(row => {
-        const player = row.player ? { id: row.id, info: row.player } : findPlayer(row.id);
-        const report = row.report || {};
-        const skills = report.skills || player?.info?.skills || {};
-        const fm = playerFormation(row) || 'MID';
-            const isAdv = report.kind?.name === 'individual';
-            const pAge = report.age ?? age(player);
-            const reports = state.playerReports.get(row.id) || [];
-            const skillData = {};
-            for (const sk of allSkills) {
-                const cur = skills[sk] ?? 0;
-                if (cur >= 18) { skillData[sk] = { cur, maxed: true, accumulated: 0, target: 0, remaining: 0 }; continue; }
-                const intervals = completedIntervals(reports, sk);
-                const target = targetCredit(sk, cur, intervals, pAge);
-                const accumulated = accumulatedCredit(reports, sk);
-                const remaining = Math.max(0, target - accumulated);
-                skillData[sk] = { cur, maxed: false, accumulated, target, remaining };
-            }
+    let players = state.players.map(player => {
+        const pid = Number(player.id);
+        const setupRow = setupById[pid];
+        const row = state.trainingRows.find(r => Number(r.id) === pid);
+        const report = row?.report || {};
+        const skills = player.info?.skills || report.skills || {};
+        const fm = setupRow?.formation?.name || playerFormation(row) || 'MID';
+        const isAdv = advIdSet.has(pid);
+        const pAge = report.age ?? age(player);
+        const reports = state.playerReports.get(pid) || [];
+        const skillData = {};
+        for (const sk of allSkills) {
+            const cur = skills[sk] ?? 0;
+            if (cur >= 18) { skillData[sk] = { cur, maxed: true, accumulated: 0, target: 0, remaining: 0 }; continue; }
+            const intervals = completedIntervals(reports, sk);
+            const target = targetCredit(sk, cur, intervals, pAge);
+            const accumulated = accumulatedCredit(reports, sk);
+            const remaining = Math.max(0, target - accumulated);
+            skillData[sk] = { cur, maxed: false, accumulated, target, remaining };
+        }
         let bestScore = -1, bestFm = fm, bestSkill = 'pace';
         const validFms = fm === 'GK' ? formations : formations.filter(f => f !== 'GK');
         for (const f of validFms) {
@@ -1899,7 +1939,7 @@ async function renderPlanner() {
                 if (nd.remaining > bestScore) { bestScore = nd.remaining; bestFm = f; bestSkill = sk; }
             }
         }
-        return { id: row.id, player, age: pAge, skillData, isAdv, bestFm, bestSkill, bestScore };
+        return { id: pid, player, age: pAge, skillData, isAdv, bestFm, bestSkill, bestScore };
     });
 
     const advancedCount = players.filter(p => p.isAdv).length;
@@ -1950,7 +1990,7 @@ async function renderPlanner() {
                             <td>${advMarker}</td>
                             <td><strong>${escapeHtml(fullName(p.player))}</strong><div class="small-muted">ID ${p.id}</div></td>
                             <td>${p.age}</td>
-                            <td><span class="training-badge">${playerFormation(state.trainingRows.find(r => Number(r.id) === Number(p.id))) || playerFormation(p) || 'MID'}</span></td>
+                            <td><span class="training-badge">${setupPlayerFormation(p.id) || playerFormation(p) || 'MID'}</span></td>
                             ${allSkills.map(sk => {
                                 const sd = p.skillData[sk];
                                 if (!sd) return '<td class="small-muted">-</td>';
@@ -1978,7 +2018,7 @@ async function renderPlanner() {
             ${players.length ? players.map(p => {
                 const advClass = p.isAdv ? 'planner-adv-row' : '';
                 const advMarker = p.isAdv ? '<span class="planner-adv-marker">★</span>' : '';
-                const fm = playerFormation(state.trainingRows.find(r => Number(r.id) === Number(p.id))) || playerFormation(p) || 'MID';
+                const fm = setupPlayerFormation(p.id) || playerFormation(p) || 'MID';
                 const bestEntry = Object.entries(p.skillData).filter(([_, sd]) => sd && !sd.maxed).sort((a, b) => b[1].remaining - a[1].remaining)[0];
                 const bestKey = bestEntry ? bestEntry[0] : null;
                 const bestData = bestEntry ? bestEntry[1] : null;
