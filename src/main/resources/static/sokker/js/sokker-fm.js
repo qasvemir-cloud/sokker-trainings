@@ -1136,7 +1136,7 @@ function predictSkill(player, reports, skill, mode, isAdv) {
     const hasHistory = intervals.length > 0;
     const decreaseRisk = age >= 29 ? Math.min(0.45, (age - 28) * 0.07) : 0;
     const nextRatio = (accumulated + nextCredit) / target;
-    const nextProbability = currentRatio >= 0.96
+    const nextProbability = currentRatio >= 0.94
         ? Math.min(99, Math.max(92, Math.round(92 + Math.min(1, currentRatio) * 7)))
         : nextRatio >= 1.15
             ? Math.min(91, Math.max(80, Math.round(80 + currentRatio * 11)))
