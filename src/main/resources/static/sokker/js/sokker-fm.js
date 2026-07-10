@@ -40,14 +40,6 @@ const levelCredits = {
     1: 1.6, 2: 1.75, 3: 1.87, 4: 2.2, 5: 2.26, 6: 2.27, 7: 2.4, 8: 2.49,
     9: 2.67, 10: 3.04, 11: 4.09, 12: 4.57, 13: 5.43, 14: 6.03, 15: 7.19, 16: 9.23
 };
-const empiricalTarget = {
-    defending: { 1:1.73, 2:1.86, 3:2.19, 4:2.52, 5:3.23, 6:3.49, 7:3.42, 8:2.95, 9:3.48, 10:4.66, 11:6.49 },
-    pace:       { 2:1.70, 3:1.70, 4:1.83, 5:2.00, 6:2.00, 7:2.66, 8:3.65, 9:3.38, 10:4.21, 11:4.06, 12:4.34, 13:5.25, 14:5.88, 15:6.56, 16:9.23 },
-    passing:    { 2:1.33, 3:1.67, 4:1.91, 5:2.17, 6:2.53, 7:2.85, 8:2.96, 9:3.79, 10:2.11, 11:4.08, 12:4.41, 13:4.39, 14:5.40, 15:7.66, 16:7.98 },
-    playmaking: { 1:1.52, 2:1.75, 3:1.98, 4:2.46, 5:2.58, 6:2.50, 7:2.46, 8:2.51, 9:2.13, 10:3.21, 11:3.40, 12:4.66, 13:5.48, 14:6.97 },
-    striker:    { 1:1.89, 2:1.92, 3:2.40, 4:3.05, 5:2.99, 6:3.83, 7:3.49, 8:2.50, 9:3.07, 10:3.58, 11:4.31, 12:5.49, 13:5.21, 14:6.66 },
-    technique:  { 1:1.21, 2:1.81, 3:1.70, 4:2.19, 5:2.18, 6:2.15, 7:2.26, 8:2.64, 9:2.73, 10:3.55, 11:3.64, 12:4.33, 13:6.48, 14:6.16, 15:7.99, 16:10.49 }
-};
 const skillFactor = {
     pace: 1.18,
     defending: 0.96,
@@ -1136,11 +1128,13 @@ function predictSkill(player, reports, skill, mode, isAdv) {
     const hasHistory = intervals.length > 0;
     const decreaseRisk = age >= 29 ? Math.min(0.45, (age - 28) * 0.07) : 0;
     const nextRatio = (accumulated + nextCredit) / target;
-    const nextProbability = currentRatio >= 0.94
-        ? Math.min(99, Math.max(92, Math.round(92 + Math.min(1, currentRatio) * 7)))
+    const nextProbability = currentRatio >= 1.00
+        ? currentRatio >= 2.00
+            ? 95
+            : Math.round(80 + (currentRatio - 1.00) / 1.00 * 15)
         : nextRatio >= 1.15
-            ? Math.min(91, Math.max(80, Math.round(80 + currentRatio * 11)))
-            : Math.min(79, Math.max(3, Math.round(nextRatio / 1.15 * 79)));
+            ? Math.min(79, Math.max(70, Math.round(70 + currentRatio * 9)))
+            : Math.min(59, Math.max(3, Math.round(nextRatio / 1.15 * 59)));
     const adjProbability = decreaseRisk > 0
         ? Math.round(nextProbability * (1 - decreaseRisk))
         : nextProbability;
@@ -1338,47 +1332,19 @@ function isDirectTraining(report, skill) {
     return ['GK', 'DEF', 'MID', 'ATT'].includes(formation);
 }
 
-function globalCredit(skill, level) {
-    const emp = empiricalTarget[skill]?.[level];
-    if (emp) return emp;
-    const cross = crossSkillLevelAvg(level);
-    if (cross) return cross;
-    return globalLevelCredit(level) * (skillFactor[skill] || 1);
-}
-
-function crossSkillLevelAvg(level) {
-    let sum = 0, count = 0;
-    for (const [sk, lvls] of Object.entries(empiricalTarget)) {
-        const val = lvls[level];
-        if (val) { sum += val; count++; }
-    }
-    return count ? sum / count : null;
-}
-
 function targetCredit(skill, level, intervals, age) {
     if (intervals.length) {
-        const byFromLevel = {};
-        for (const iv of intervals) {
-            if (!byFromLevel[iv.from]) byFromLevel[iv.from] = [];
-            byFromLevel[iv.from].push(iv.credits);
-        }
-        const levelAvgs = {};
-        for (const [lvl, credits] of Object.entries(byFromLevel)) {
-            levelAvgs[lvl] = credits.reduce((a, b) => a + b, 0) / credits.length;
-        }
-        if (levelAvgs[level]) {
-            return levelAvgs[level];
-        }
         const recent = intervals[intervals.length - 1];
-        const fromAvg = levelAvgs[recent.from] || recent.credits;
-        const scale = clamp(globalCredit(skill, level) / globalCredit(skill, recent.from), 0.88, 1.26);
+        const previous = intervals[intervals.length - 2];
+        const base = previous ? recent.credits * 0.8 + previous.credits * 0.2 : recent.credits;
+        const scale = clamp(globalLevelCredit(level) / globalLevelCredit(recent.from), 0.92, 1.22);
         const ageScale = age != null && recent.age != null
             ? Math.max(1, ageFactor(age) / ageFactor(recent.age))
             : 1;
-        return fromAvg * scale * highSkillDrag(skill, level) * ageScale;
+        return base * scale * highSkillDrag(skill, level) * ageScale;
     }
     const af = age != null ? ageFactor(age) : 1;
-    return globalCredit(skill, level) * highSkillDrag(skill, level) * af;
+    return globalLevelCredit(level) * (skillFactor[skill] || 1) * highSkillDrag(skill, level) * af;
 }
 
 function globalLevelCredit(level) {
