@@ -25,7 +25,8 @@ const gtRatio = 6;
 const state = {
     current: null,
     players: [],
-    activeTab: 'history'
+    activeTab: 'history',
+    playerSort: 'age'
 };
 
 const loginScreen = document.querySelector('#login-screen');
@@ -66,6 +67,16 @@ async function loadLogin() {
     });
 
     document.querySelector('#back-button').addEventListener('click', () => showPlayers());
+
+    document.querySelectorAll('.sort-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            state.playerSort = btn.dataset.sort;
+            document.querySelectorAll('.sort-btn').forEach((el) => {
+                el.classList.toggle('active', el === btn);
+            });
+            renderPlayers();
+        });
+    });
 
     document.querySelectorAll('.tab').forEach((tab) => {
         tab.addEventListener('click', () => switchTab(tab.dataset.tab));
@@ -111,6 +122,9 @@ function renderPlayers() {
         return;
     }
     const sorted = [...state.players].sort((a, b) => {
+        if (state.playerSort === 'age') {
+            return Number(age(a)) - Number(age(b));
+        }
         const n1 = fullName(a), n2 = fullName(b);
         return (n1 || '').localeCompare(n2 || '');
     });
@@ -130,8 +144,8 @@ function playerCard(player) {
                 <span class="player-age">${age(player)} y</span>
             </div>
             <div class="skill-grid">
-                ${skillRows(skills, changes, leftSkills)}
-                ${skillRows(skills, changes, rightSkills)}
+                <div class="skill-column">${skillRows(skills, changes, leftSkills)}</div>
+                <div class="skill-column">${skillRows(skills, changes, rightSkills)}</div>
             </div>
             <div class="delta-strip">${deltaPills(changes)}</div>
         </button>
@@ -150,8 +164,8 @@ function skillRows(skills, changes, keys) {
 function skillGrid(skills) {
     return `
         <div class="skill-grid">
-            ${skillRows(skills, {}, leftSkills)}
-            ${skillRows(skills, {}, rightSkills)}
+            <div class="skill-column">${skillRows(skills, {}, leftSkills)}</div>
+            <div class="skill-column">${skillRows(skills, {}, rightSkills)}</div>
         </div>
     `;
 }

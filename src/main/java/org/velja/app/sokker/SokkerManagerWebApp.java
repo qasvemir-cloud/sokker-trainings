@@ -12,7 +12,7 @@ import java.net.URI;
 
 @SpringBootApplication
 public class SokkerManagerWebApp {
-    private static final String APP_URL = "http://localhost:8090/sokker/index.html";
+    private static final String APP_URL = "http://localhost:8090/sokker/mobile.html";
 
     @Value("${sokker.open-browser:true}")
     private boolean openBrowser;
