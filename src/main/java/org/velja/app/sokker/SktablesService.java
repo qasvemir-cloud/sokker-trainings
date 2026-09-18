@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -98,6 +99,11 @@ public class SktablesService {
         if (sktablesReports.isEmpty()) {
             return sokkerReport;
         }
+        OptionalInt seasonOffset = seasonOffset(sokkerReport, playerId);
+        if (seasonOffset.isEmpty()) {
+            return sokkerReport;
+        }
+        assignSeasons(sktablesReports, seasonOffset.getAsInt());
 
         ObjectNode merged = sokkerReport.deepCopy();
         ArrayNode sokkerReports = sokkerReport.withArray("reports");
@@ -128,6 +134,34 @@ public class SktablesService {
         fillMissingDates(reports);
         merged.set("reports", reports);
         return merged;
+    }
+
+    private static OptionalInt seasonOffset(JsonNode sokkerReport, long playerId) {
+        for (JsonNode report : sokkerReport.path("reports")) {
+            int season = report.path("day").path("season").asInt(0);
+            int age = report.path("age").asInt(0);
+            if (season > 0 && age > 0) {
+                return OptionalInt.of(season - age);
+            }
+        }
+        return OptionalInt.empty();
+    }
+
+    private void assignSeasons(ArrayNode reports, int offset) {
+        for (JsonNode node : reports) {
+            ObjectNode report = (ObjectNode) node;
+            ObjectNode day = (ObjectNode) report.path("day");
+            int age = day.path("age").asInt(0);
+            int seasonWeek = day.path("seasonWeek").asInt(0);
+            if (age <= 0 || seasonWeek <= 0) {
+                continue;
+            }
+            int season = age + offset;
+            day.put("season", season);
+            day.put("week", season * 100 + seasonWeek);
+            day.put("seasonWeek", seasonWeek);
+            report.put("week", season * 100 + seasonWeek);
+        }
     }
 
     private void fillMissingDates(ArrayNode reports) {
@@ -314,9 +348,9 @@ public class SktablesService {
     }
 
     private ObjectNode reportFromCells(List<String> cells) {
-        int season = firstInt(text(cells.get(0)), -1);
+        int age = firstInt(text(cells.get(0)), -1);
         int seasonWeek = firstInt(text(cells.get(1)), -1);
-        if (season < 0 || seasonWeek < 0) {
+        if (age < 0 || seasonWeek < 0) {
             return null;
         }
 
@@ -326,12 +360,11 @@ public class SktablesService {
         boolean missing = intensity <= 0 || hasClass(cells, "bg-gray");
 
         ObjectNode report = objectMapper.createObjectNode();
-        report.put("week", season * 100 + seasonWeek);
+        report.put("week", 0);
         report.put("source", "sktables");
 
         ObjectNode day = report.putObject("day");
-        day.put("season", season);
-        day.put("week", season * 100 + seasonWeek);
+        day.put("age", age);
         day.put("seasonWeek", seasonWeek);
         day.put("day", 5);
 
