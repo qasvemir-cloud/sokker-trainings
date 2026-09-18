@@ -77,6 +77,7 @@ async function bootstrap() {
     appScreen.classList.remove('hidden');
     await loadData();
     renderTeam();
+    renderPlayers();
     showPlayers();
 }
 
