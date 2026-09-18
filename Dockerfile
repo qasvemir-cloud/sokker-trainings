@@ -12,6 +12,6 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/target/uiApplications-1.0-SNAPSHOT.jar app.jar
 
-EXPOSE 8080
+EXPOSE 8090
 
-CMD ["java", "-Dserver.address=0.0.0.0", "-Dserver.port=${PORT:-8080}", "-Dsokker.open-browser=false", "-jar", "app.jar"]
+CMD ["java", "-Dserver.address=0.0.0.0", "-Dserver.port=${PORT:-8090}", "-Dsokker.open-browser=false", "-jar", "app.jar"]
