@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#111111">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Sokker Mobile</title>
+    <link rel="stylesheet" href="/sokker/css/sokker-mobile.css">
+</head>
+<body>
+<main id="login-screen" class="screen login-screen">
+    <section class="login-panel">
+        <div class="brand-mark">
+            <img src="/sokker/images/omladinacLogo.png" alt="Club emblem">
+            <div>
+                <span>Sokker</span>
+                <strong>Mobile Manager</strong>
+            </div>
+        </div>
+        <form id="login-form" class="login-form">
+            <label>
+                Username
+                <input id="login" name="login" autocomplete="username" required>
+            </label>
+            <label>
+                Password
+                <input id="password" name="password" type="password" autocomplete="current-password" required>
+            </label>
+            <button type="submit">Login</button>
+            <p id="login-error" class="error-text" aria-live="polite"></p>
+        </form>
+        <a class="desktop-link" href="/sokker/index.html">Full web app &#8599;</a>
+    </section>
+</main>
+
+<main id="app-screen" class="screen app-screen hidden">
+    <header class="team-header">
+        <img id="team-emblem" class="team-emblem" src="/sokker/images/omladinacLogo.png" alt="Club emblem">
+        <div class="team-title">
+            <h1 id="team-name">Club</h1>
+            <p id="team-country" class="team-subtitle">-</p>
+        </div>
+        <div class="team-metrics">
+            <div class="metric">
+                <span class="metric-value" id="team-rank">-</span>
+                <span class="metric-label">Rank</span>
+            </div>
+            <div class="metric">
+                <span class="metric-value" id="team-position">-</span>
+                <span class="metric-label">Position</span>
+            </div>
+        </div>
+    </header>
+
+    <section id="players-view" class="view">
+        <div class="list-head">
+            <span>First Team</span>
+            <button id="logout-button" class="logout-button">Logout</button>
+        </div>
+        <div id="player-list" class="player-list">
+            <div class="placeholder">Loading players...</div>
+        </div>
+    </section>
+
+    <section id="detail-view" class="view hidden">
+        <div class="detail-head">
+            <button id="back-button" class="back-button">&larr; Back</button>
+            <h2 id="detail-name">Player</h2>
+            <div class="tabbar">
+                <button class="tab active" data-tab="history">Training History</button>
+                <button class="tab" data-tab="player">Player History</button>
+            </div>
+        </div>
+        <div id="detail-content" class="detail-content"></div>
+    </section>
+</main>
+
+<script src="/sokker/js/sokker-mobile.js?v=1"></script>
+</body>
+</html>
