@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+    >
+
+    <title>Sokker Report Browser</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <div class="topbar-inner">
+
+        <div>
+
+            <div class="title">
+                Sokker Report Browser
+            </div>
+
+            <div class="subtitle">
+                Club financial & activity report
+            </div>
+
+        </div>
+
+        <div
+                id="connection"
+                class="connection"
+        >
+            Not connected
+        </div>
+
+    </div>
+
+</header>
+
+
+<main>
+
+    <!-- LOGIN -->
+
+    <section class="card">
+
+        <div class="card-header">
+            Sokker Login
+        </div>
+
+        <div class="card-body">
+
+            <div class="grid">
+
+                <div class="field">
+
+                    <label>
+                        Username
+                    </label>
+
+                    <input
+                            id="username"
+                            autocomplete="username"
+                    >
+
+                </div>
+
+                <div class="field">
+
+                    <label>
+                        Password
+                    </label>
+
+                    <input
+                            id="password"
+                            type="password"
+                            autocomplete="current-password"
+                    >
+
+                </div>
+
+            </div>
+
+            <div class="buttons">
+
+                <button
+                        id="loginButton"
+                        class="primary"
+                        onclick="login()"
+                >
+                    Login
+                </button>
+
+            </div>
+
+            <div
+                    id="loginStatus"
+                    class="status"
+            ></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- REPORT -->
+
+    <section class="card">
+
+        <div class="card-header">
+            Data
+        </div>
+
+        <div class="card-body">
+
+            <div class="grid">
+
+                <div class="field">
+
+                    <label>
+                        Team ID
+                    </label>
+
+                    <div id="teamIdDisplay" class="value-display">-</div>
+                    <input id="teamId" type="hidden">
+
+                </div>
+
+                <div class="field">
+
+                    <label>
+                        Season
+                    </label>
+
+                    <select
+                            id="season"
+                            disabled
+                    >
+
+                        <option value="">
+                            Login first
+                        </option>
+
+                    </select>
+
+                    <div
+                            id="seasonInfo"
+                            class="season-info"
+                    ></div>
+
+                </div>
+
+            </div>
+
+            <div class="buttons">
+
+                <button
+                        id="loadReportButton"
+                        class="primary"
+                        onclick="loadReport()"
+                        disabled
+                >
+                    Load data
+                </button>
+
+            </div>
+
+            <div
+                    id="loadStatus"
+                    class="status"
+            ></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- STATS -->
+
+    <section class="stats">
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Total events
+            </div>
+
+            <div
+                    id="totalEvents"
+                    class="stat-value"
+            >
+                0
+            </div>
+
+        </div>
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Filtered
+            </div>
+
+            <div
+                    id="filteredEvents"
+                    class="stat-value"
+            >
+                0
+            </div>
+
+        </div>
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Current page
+            </div>
+
+            <div
+                    id="currentPage"
+                    class="stat-value"
+            >
+                0
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <br>
+
+    <div class="tab-bar">
+        <button id="tabEvents" class="tab-button active" onclick="switchTab('events')">Events</button>
+        <button id="tabMatches" class="tab-button" onclick="switchTab('matches')">Matches</button>
+    </div>
+
+    <!-- EVENTS -->
+
+    <section class="card tab-panel active" id="panelEvents">
+
+        <div class="card-header">
+            Events
+        </div>
+
+        <div class="card-body">
+            <div class="grid">
+                <div class="field" style="display:none">
+                    <label>Date from</label>
+                    <input id="dateFrom" type="date">
+                </div>
+                <div class="field" style="display:none">
+                    <label>Date to</label>
+                    <input id="dateTo" type="date">
+                </div>
+                <div class="field" style="display:none">
+                    <label>Week from</label>
+                    <input id="weekFrom" type="number">
+                </div>
+                <div class="field" style="display:none">
+                    <label>Week to</label>
+                    <input id="weekTo" type="number">
+                </div>
+                <div class="field" style="display:none">
+                    <label>Type</label>
+                    <select id="type">
+                        <option value="">All types</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Key</label>
+                    <div class="multiselect" id="keyMultiselect">
+                        <button type="button" class="multiselect-toggle" id="keyToggle">All keys ▾</button>
+                        <div class="multiselect-dropdown" id="keyDropdown"></div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Date</label>
+                    <div class="multiselect" id="dateMultiselect">
+                        <button type="button" class="multiselect-toggle" id="dateToggle">All dates ▾</button>
+                        <div class="multiselect-dropdown" id="dateDropdown"></div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Rows per page</label>
+                    <select id="pageSize">
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                <tr>
+
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Week</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Amount</th>
+                    <th>Event</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody id="rows"></tbody>
+
+            </table>
+
+        </div>
+
+        <div class="pager">
+
+            <button
+                    id="previous"
+                    class="secondary"
+                    onclick="changePage(-1)"
+            >
+                ← Previous
+            </button>
+
+            <div
+                    id="pageButtons"
+                    class="pager-buttons"
+            ></div>
+
+            <button
+                    id="next"
+                    class="secondary"
+                    onclick="changePage(1)"
+            >
+                Next →
+            </button>
+
+        </div>
+
+    </section>
+
+    <!-- MATCHES -->
+
+    <section class="card tab-panel" id="panelMatches">
+        <div class="card-header">
+            Matches
+        </div>
+        <div class="card-body">
+            <div class="grid">
+                <div class="field">
+                    <label>League Name</label>
+                    <select id="matchLeagueName">
+                        <option value="">All leagues</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>League Type</label>
+                    <select id="matchLeagueType">
+                        <option value="">All types</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Arena</label>
+                    <select id="matchArena">
+                        <option value="">All arenas</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>Season</th>
+                    <th>Week</th>
+                    <th>Season Week</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Opponent</th>
+                    <th>Result</th>
+                    <th>League</th>
+                    <th>League Type</th>
+                    <th>Arena</th>
+                    <th>Supporters</th>
+                    <th>Capacity</th>
+                    <th>Arena Income</th>
+                </tr>
+                </thead>
+                <tbody id="matchRows"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card" id="logPanel">
+        <div class="card-header">App Log</div>
+        <div class="card-body">
+            <pre id="appLog" style="white-space: pre-wrap; font-family: monospace; font-size: 12px; max-height: 200px; overflow:auto; background:#0b1020; color:#cfe3ff; padding:10px; border-radius:6px;"></pre>
+        </div>
+    </section>
+
+</main>
+
+
+<script>
+
+    let allEvents = [];
+
+    let filteredEvents = [];
+
+    let allMatches = [];
+
+    let currentPageNumber = 1;
+
+    let seasons = [];
+
+    let currentTab = 'matches';
+
+let teamArenaSeats = 0;
+let teamArenaName = '';
+
+// Event type mapping from key to display string
+const eventTypeMap = {
+    IN_ARENA: 'STADIUM_INCOME',
+    IN_PRIZES: 'PRIZES',
+    IN_SPONSORS: 'SPONSORS_WEEKLY',
+    IN_SPONSORS_YEAR: 'SPONSOR_YEARLY_BONUS',
+    IN_SUPPORTERS: 'SUPPORTERS_INCOME_WEEKLY',
+    IN_TRANSFER: 'TRANSFER_INCOME',
+    IN_YOUTH: 'YOUTH_COMMISIONS',
+    OUT_ARENA: 'ARENA_MAINTENANCE',
+    OUT_TRANSFER: 'TRANSFER_PAID',
+    OUT_TRLIST: 'TRANSFER_LIST_COST',
+    OUT_WAGES_HUMAN: 'PLAYERS_WAGE',
+    OUT_WAGES_TRAINER: 'TRAINERS_WAGE',
+    OUT_YOUTH: 'ACADEMY_EXPENSES',
+    PITCH_MAINTENANCE: 'PITCH_MAINTENANCE',
+    PITCH_RESIZE: 'PITCH_RESIZE',
+    RPT_OUT_WAGES_JUNIOR_TRAINER: 'JUNIOR_TRAINERS_WAGE',
+    SUPPORTERS_JOIN: 'SUPPORTERS_JOIN',
+    SUPPORTERS_YEAR: 'SUPPORTERS_YEAR',
+    YOUTH_JOIN: 'YOUTH_JOIN',
+    YOUTH_NEW: 'YOUTH_NEW',
+    YOUTH_PLAYER: 'YOUTH_PLAYER_JOINED'
+};
+// Reverse mapping from display string to key
+const reverseEventTypeMap = Object.entries(eventTypeMap).reduce((acc, [key, value]) => {
+    acc[value] = key;
+    return acc;
+}, {});
+
+function parseEventAmount(event) {
+    const text = event.text || '';
+    const match = text.match(/([\d\s]+)\s*din/i);
+    if (!match) return 0;
+    const num = parseInt(match[1].replace(/\s/g, ''), 10);
+    return isNaN(num) ? 0 : num;
+}
+
+// Event types where amount is relevant
+const amountEventTypes = new Set([
+    'PLAYERS_WAGE',
+    'STADIUM_INCOME',
+    'PRIZES',
+    'TRANSFER_INCOME',
+    'YOUTH_COMMISIONS',
+    'TRAINERS_WAGE',
+    'JUNIOR_TRAINERS_WAGE'
+]);
+
+    function logApi(action, data) {
+        const ts = new Date().toLocaleTimeString();
+        const line = `[${ts}] [SOKKER API] ${action} ${JSON.stringify(data)}`;
+        console.log(line, data);
+        const logEl = document.getElementById('appLog');
+        if (logEl) {
+            logEl.textContent += line + '\n';
+            logEl.textContent += `[${ts}] [STATE] teamId=${document.getElementById('teamId')?.value} teamArenaName=${teamArenaName} teamArenaSeats=${teamArenaSeats} allEvents=${allEvents?.length} allMatches=${allMatches?.length}\n\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+    }
+
+    async function checkSession() {
+        try {
+            const resp = await fetch('/api/local/current');
+            if (resp.ok) {
+                const text = await resp.text();
+                let cur;
+                try { cur = JSON.parse(text); } catch { cur = {}; }
+                const teamId = cur?.team?.id ?? cur?.teamId ?? cur?.id;
+                if (teamId) {
+                    const teamInput = document.getElementById('teamId');
+                    const teamDisplay = document.getElementById('teamIdDisplay');
+                    if (teamInput) teamInput.value = teamId;
+                    if (teamDisplay) teamDisplay.textContent = teamId;
+                    // Update UI to logged in state
+                    const button = document.getElementById('loginButton');
+                    const status = document.getElementById('loginStatus');
+                    const connection = document.getElementById('connection');
+                    if (button) {
+                        button.textContent = 'Logout';
+                        button.onclick = logout;
+                    }
+                    if (connection) {
+                        connection.textContent = '✓ Connected';
+                        connection.classList.add('connected');
+                    }
+                    if (status) status.textContent = 'Logged in';
+                    // Load arena for capacity
+                    try {
+                        const arenaResp = await fetch(`/api/local/arena?teamId=${teamId}`);
+                        if (arenaResp.ok) {
+                            const arenaText = await arenaResp.text();
+                            let arena;
+                            try { arena = JSON.parse(arenaText); } catch { arena = {}; }
+                            teamArenaName = arena?.name || '';
+                            teamArenaSeats = Number(arena?.seats) || 0;
+                        }
+                    } catch {}
+                }
+            }
+        } catch {}
+    }
+
+
+    /*
+     * LOGIN
+     */
+
+    async function login() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const status = document.getElementById("loginStatus");
+        const button = document.getElementById("loginButton");
+        status.textContent = "Logging in...";
+        button.disabled = true;
+        try {
+            const response = await fetch("/api/local/login", {
+                method: "POST",
+                headers: {"Content-Type":"application/json"},
+                body: JSON.stringify({username, password})
+            });
+            if (!response.ok) throw new Error(await response.text());
+            document.getElementById("connection").textContent = "✓ Connected";
+            document.getElementById("connection").classList.add("connected");
+            status.textContent = "Successfully authenticated. Loading seasons...";
+            document.getElementById("password").value = "";
+            try {
+                const curResp = await fetch('/api/local/current');
+                if (curResp.ok) {
+                    const curText = await curResp.text();
+                    let cur = {};
+                    try { cur = JSON.parse(curText); } catch {}
+                    const teamId = cur?.team?.id ?? cur?.teamId ?? cur?.id;
+                    if (teamId) {
+                        const teamInput = document.getElementById('teamId');
+                        const teamDisplay = document.getElementById('teamIdDisplay');
+                        if (teamInput) teamInput.value = teamId;
+                        if (teamDisplay) teamDisplay.textContent = teamId;
+                        teamInput?.dispatchEvent(new Event('input',{bubbles:true}));
+                        try {
+                            const arenaResp = await fetch(`/api/local/arena?teamId=${teamId}`);
+                            if (arenaResp.ok) {
+                                const arenaText = await arenaResp.text();
+                                let arena = {};
+                                try { arena = JSON.parse(arenaText); } catch {}
+                                teamArenaName = arena?.name || '';
+                                teamArenaSeats = Number(arena?.seats) || 0;
+                                const arenaSelect = document.getElementById('matchArena');
+                                if (arenaSelect && teamArenaName) arenaSelect.value = teamArenaName;
+                            }
+                        } catch {}
+                    }
+                }
+            } catch {}
+            await loadSeasons();
+            button.textContent = "Logout";
+            button.onclick = logout;
+            status.textContent = "Logged in";
+        } catch (error) {
+            status.textContent = "Login failed: " + error.message;
+        } finally {
+            button.disabled = false;
+        }
+    }
+    async function logout() {
+        const status = document.getElementById('loginStatus');
+        const button = document.getElementById('loginButton');
+        status.textContent = 'Logging out...';
+        button.disabled = true;
+        try {
+            const response = await fetch('/api/local/logout', {method:'POST', headers:{'Content-Type':'application/json'}});
+            const text = await response.text();
+            if (!response.ok) throw new Error(text);
+        } catch (error) {
+            status.textContent = 'Logout failed: ' + error.message;
+        } finally {
+            button.textContent = 'Login';
+            button.onclick = login;
+            status.textContent = '';
+            const conn = document.getElementById('connection');
+            if (conn) { conn.textContent = ''; conn.classList.remove('connected'); }
+            const teamIdInput = document.getElementById('teamId');
+            if (teamIdInput) teamIdInput.value = '';
+            const teamIdDisplay = document.getElementById('teamIdDisplay');
+            if (teamIdDisplay) teamIdDisplay.textContent = '-';
+            allEvents = [];
+            allMatches = [];
+            teamArenaSeats = 0;
+            teamArenaName = '';
+            const arenaSelect = document.getElementById('matchArena');
+            if (arenaSelect) arenaSelect.value = '';
+            button.disabled = false;
+        }
+    }
+
+    async function loadSeasons() {
+
+        const seasonSelect =
+            document.getElementById("season");
+
+        try {
+
+            const response =
+                await fetch("/api/local/seasons");
+
+            if (!response.ok) {
+
+                throw new Error(
+                    await response.text()
+                );
+            }
+
+            const data =
+                await response.json();
+
+            seasons =
+                Array.isArray(data)
+                    ? data
+                    : [];
+
+            if (seasons.length === 0) {
+
+                throw new Error(
+                    "Sokker returned no seasons."
+                );
+            }
+
+            /*
+             * Newest season first.
+             *
+             * API already appears to return this order,
+             * but sorting here makes the UI deterministic.
+             */
+
+            seasons.sort(
+                (a, b) =>
+                    Number(b.season) -
+                    Number(a.season)
+            );
+
+            seasonSelect.innerHTML = "";
+
+            seasons.forEach(
+                season => {
+
+                    const option =
+                        document.createElement("option");
+
+                    option.value =
+                        String(season.season);
+
+                    option.textContent =
+                        `Season ${season.season} ` +
+                        `(${season.start.week} - ${season.end.week})`;
+
+                    seasonSelect.appendChild(option);
+                }
+            );
+
+            /*
+             * Automatically select newest season.
+             */
+
+            seasonSelect.value =
+                String(seasons[0].season);
+
+            seasonSelect.disabled = false;
+
+            document
+                .getElementById("loadReportButton")
+                .disabled = false;
+
+            updateSeasonInfo();
+
+            document
+                .getElementById("loginStatus")
+                .textContent =
+                `Loaded ${seasons.length} seasons. ` +
+                `Season ${seasons[0].season} selected.`;
+
+        } catch (error) {
+
+            seasonSelect.innerHTML =
+                `<option value="">
+                    Failed to load seasons
+                 </option>`;
+
+            seasonSelect.disabled = true;
+
+            document
+                .getElementById("loadReportButton")
+                .disabled = true;
+
+            document
+                .getElementById("loginStatus")
+                .textContent =
+                "Season loading failed: " +
+                error.message;
+        }
+    }
+
+
+    /*
+     * SEASON CHANGED
+     */
+
+    document
+        .getElementById("season")
+        .addEventListener(
+            "change",
+            updateSeasonInfo
+        );
+
+
+    function updateSeasonInfo() {
+
+        const selectedSeason =
+            getSelectedSeason();
+
+        const info =
+            document.getElementById("seasonInfo");
+
+        if (!selectedSeason) {
+
+            info.textContent = "";
+
+            return;
+        }
+
+        info.textContent =
+            `Game weeks ${selectedSeason.start.week} ` +
+            `to ${selectedSeason.end.week}`;
+    }
+
+
+    function getSelectedSeason() {
+
+        const value =
+            document.getElementById("season").value;
+
+        return seasons.find(
+            season =>
+                String(season.season) === value
+        );
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.getElementById('tabEvents').classList.toggle('active', tab === 'events');
+        document.getElementById('tabMatches').classList.toggle('active', tab === 'matches');
+        document.getElementById('panelEvents').classList.toggle('active', tab === 'events');
+        document.getElementById('panelMatches').classList.toggle('active', tab === 'matches');
+        if (tab === 'matches') {
+            renderMatches();
+        }
+    }
+
+    /*
+     * LOAD COMPLETE SELECTED SEASON
+     *
+     * The backend handles splitting the season
+     * into multiple /report requests.
+     */
+
+    async function loadReport() {
+
+        const selectedSeason =
+            getSelectedSeason();
+
+        if (!selectedSeason) {
+
+            document
+                .getElementById("loadStatus")
+                .textContent =
+                "Please select a season.";
+
+            return;
+        }
+
+        const teamId =
+            document.getElementById("teamId").value;
+
+        const status =
+            document.getElementById("loadStatus");
+
+        const button =
+            document.getElementById("loadReportButton");
+
+        const fromWeek =
+            Number(selectedSeason.start.week);
+
+        const toWeek =
+            Number(selectedSeason.end.week);
+
+        status.textContent =
+            `Downloading season ${selectedSeason.season} ` +
+            `(${fromWeek}-${toWeek})...`;
+
+        button.disabled = true;
+
+        try {
+
+            const url =
+                `/api/local/report` +
+                `?teamId=${encodeURIComponent(teamId)}` +
+                `&fromWeek=${encodeURIComponent(fromWeek)}` +
+                `&toWeek=${encodeURIComponent(toWeek)}`;
+
+            const response =
+                await fetch(url);
+
+            if (!response.ok) {
+
+                throw new Error(
+                    await response.text()
+                );
+            }
+
+            const data =
+                await response.json();
+
+            allEvents =
+                data.events || [];
+
+            logApi('report loaded', {teamId, fromWeek, toWeek, count: allEvents.length});
+
+            document
+                .getElementById("totalEvents")
+                .textContent =
+                allEvents.length;
+
+            populateFiltersFromData();
+
+            applyFilters();
+
+            await loadMatches(teamId, Number(selectedSeason.season));
+            renderMatches();
+
+            const ranges =
+                data.requestedRanges || [];
+
+            status.textContent =
+                `Loaded ${allEvents.length} events ` +
+                `from season ${selectedSeason.season}. ` +
+                `API requests: ${ranges.join(", ")}.`;
+
+        } catch (error) {
+
+            status.textContent =
+                "Report loading failed: " +
+                error.message;
+
+        } finally {
+
+            button.disabled = false;
+        }
+    }
+
+
+    async function loadMatches(teamId, season) {
+        try {
+            const url = `/api/local/matches?teamId=${encodeURIComponent(teamId)}&season=${encodeURIComponent(season)}`;
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(await response.text());
+            }
+            const data = await response.json();
+            allMatches = data.matches || [];
+            logApi('matches loaded', {teamId, season, count: allMatches.length});
+            populateMatchFilters();
+        } catch (e) {
+            console.error('Failed to load matches', e);
+            allMatches = [];
+        }
+    }
+
+    function populateMatchFilters() {
+        const leagueNameSelect = document.getElementById('matchLeagueName');
+        const leagueTypeSelect = document.getElementById('matchLeagueType');
+        const arenaSelect = document.getElementById('matchArena');
+        if (!leagueNameSelect) return;
+        const leagues = new Set();
+        const types = new Set();
+        const arenas = new Set();
+        for (const m of allMatches) {
+            const league = m.league?.name;
+            if (league) leagues.add(league);
+            const type = m.league?.type?.name;
+            if (type) types.add(type);
+            const arena = m.arena?.name;
+            if (arena) arenas.add(arena);
+        }
+        leagueNameSelect.innerHTML = '<option value="">All leagues</option>' + [...leagues].sort().map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+        leagueTypeSelect.innerHTML = '<option value="">All types</option>' + [...types].sort().map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+        arenaSelect.innerHTML = '<option value="">All arenas</option>' + [...arenas].sort().map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+        // default league type to 'league' if present
+        const typeArray = [...types];
+        const found = typeArray.find(t => t.toLowerCase() === 'league');
+        if (found) {
+            leagueTypeSelect.value = found;
+        }
+        // default arena from team arena
+        if (teamArenaName && [...arenas].includes(teamArenaName)) {
+            arenaSelect.value = teamArenaName;
+        }
+        leagueNameSelect.onchange = renderMatches;
+        leagueTypeSelect.onchange = renderMatches;
+        arenaSelect.onchange = renderMatches;
+        renderMatches();
+    }
+
+    /*
+     * Populate filters from returned data.
+     *
+     * IMPORTANT:
+     * These filters NEVER trigger Sokker API calls.
+     */
+
+    function populateFiltersFromData() {
+
+        const typeSelect =
+            document.getElementById("type");
+
+        const keyDropdown =
+            document.getElementById("keyDropdown");
+        const keyToggle =
+            document.getElementById("keyToggle");
+        const dateDropdown =
+            document.getElementById("dateDropdown");
+        const dateToggle =
+            document.getElementById("dateToggle");
+
+        const types = new Map();
+
+        const keys = new Set();
+
+        for (const event of allEvents) {
+
+            if (event.type) {
+
+                if (
+                    event.type.value !== undefined &&
+                    event.type.key
+                ) {
+
+                    types.set(
+                        event.type.value,
+                        event.type.key
+                    );
+                }
+
+                if (event.type.key) {
+                    keys.add(event.type.key);
+                }
+            }
+        }
+
+        if (typeSelect) {
+            typeSelect.innerHTML = '<option value="">All types</option>';
+            [...types.entries()]
+                .sort((a,b)=>Number(a[0])-Number(b[0]))
+                .forEach(([id,key])=>{
+                    typeSelect.insertAdjacentHTML('beforeend',
+                        `<option value="${escapeHtml(id)}">${escapeHtml(id)} - ${escapeHtml(key)}</option>`);
+                });
+        }
+
+        if (keyDropdown) {
+            keyDropdown.innerHTML = '';
+            [...keys]
+                .sort()
+                .forEach(key => {
+                    const display = eventTypeMap[key] || key;
+                    keyDropdown.insertAdjacentHTML('beforeend',
+                        `<label><input type="checkbox" data-key="${escapeHtml(key)}"> ${escapeHtml(display)}</label>`
+                    );
+                });
+            keyToggle.onclick = () => {
+                keyDropdown.style.display = keyDropdown.style.display === 'none' ? 'block' : 'none';
+                dateDropdown.style.display = 'none';
+            };
+            keyDropdown.addEventListener('change', () => {
+                const checked = keyDropdown.querySelectorAll('input[type=checkbox]:checked');
+                keyToggle.textContent = checked.length === 0 ? 'All keys ▾' : `${checked.length} selected ▾`;
+                applyFilters();
+            });
+        }
+
+        // Populate date multiselect
+        if (dateDropdown && dateToggle) {
+            const dates = new Set();
+            for (const ev of allEvents) {
+                const d = ev.date?.value;
+                if (d) dates.add(d);
+            }
+            dateDropdown.innerHTML = '';
+            [...dates].sort().reverse().forEach(d => {
+                dateDropdown.insertAdjacentHTML('beforeend',
+                    `<label><input type="checkbox" data-date="${escapeHtml(d)}"> ${escapeHtml(d)}</label>`
+                );
+            });
+            dateToggle.onclick = (e) => {
+                e.stopPropagation();
+                dateDropdown.style.display = dateDropdown.style.display === 'none' ? 'block' : 'none';
+                keyDropdown.style.display = 'none';
+            };
+            dateDropdown.addEventListener('change', () => {
+                const checked = dateDropdown.querySelectorAll('input[type=checkbox]:checked');
+                dateToggle.textContent = checked.length === 0 ? 'All dates ▾' : `${checked.length} selected ▾`;
+                applyFilters();
+            });
+        }
+
+        // Close dropdowns on outside click
+        document.addEventListener('click', () => {
+            if (keyDropdown) keyDropdown.style.display = 'none';
+            if (dateDropdown) dateDropdown.style.display = 'none';
+        });
+        document.getElementById('keyMultiselect')?.addEventListener('click', e => e.stopPropagation());
+        document.getElementById('dateMultiselect')?.addEventListener('click', e => e.stopPropagation());
+
+        // auto-apply filters on change
+        const autoIds = ["dateFrom","dateTo","weekFrom","weekTo","type","pageSize"];
+        autoIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('change', applyFilters);
+                el.addEventListener('input', () => {
+                    if (id === 'pageSize') return; // pageSize handled separately
+                    applyFilters();
+                });
+            }
+        });
+    }
+
+
+    /*
+     * LOCAL FILTERING ONLY
+     */
+
+    function applyFilters() {
+
+        const getVal = id => document.getElementById(id)?.value ?? '';
+        const dateFrom = getVal('dateFrom');
+        const dateTo = getVal('dateTo');
+        const weekFrom = getVal('weekFrom');
+        const weekTo = getVal('weekTo');
+        const type = getVal('type');
+        const keyDropdown = document.getElementById('keyDropdown');
+        const checkedKeyBoxes = keyDropdown ? Array.from(keyDropdown.querySelectorAll('input[type=checkbox]:checked')) : [];
+        const keyFilters = checkedKeyBoxes.map(cb => cb.dataset.key).filter(v => v);
+        const dateDropdown = document.getElementById('dateDropdown');
+        const checkedDateBoxes = dateDropdown ? Array.from(dateDropdown.querySelectorAll('input[type=checkbox]:checked')) : [];
+        const dateFilters = checkedDateBoxes.map(cb => cb.dataset.date).filter(v => v);
+
+
+        filteredEvents =
+            allEvents.filter(
+                event => {
+
+                    const date =
+                        event.date?.value || "";
+
+                    const week =
+                        Number(event.week);
+
+                    const eventType =
+                        String(
+                            event.type?.value ?? ""
+                        );
+
+                    const eventKey =
+                        event.type?.key ?? "";
+
+
+                    if (
+                        dateFrom &&
+                        date < dateFrom
+                    ) {
+                        return false;
+                    }
+
+                    if (
+                        dateTo &&
+                        date > dateTo
+                    ) {
+                        return false;
+                    }
+
+                    if (
+                        weekFrom &&
+                        week < Number(weekFrom)
+                    ) {
+                        return false;
+                    }
+
+                    if (
+                        weekTo &&
+                        week > Number(weekTo)
+                    ) {
+                        return false;
+                    }
+
+                    if (
+                        type &&
+                        eventType !== type
+                    ) {
+                        return false;
+                    }
+
+                    if (
+                        keyFilters.length > 0 &&
+                        !keyFilters.includes(eventKey)
+                    ) {
+                        return false;
+                    }
+
+                    if (
+                        dateFilters.length > 0 &&
+                        !dateFilters.includes(date)
+                    ) {
+                        return false;
+                    }
+
+                    return true;
+                }
+            );
+
+        filteredEvents.sort((a, b) => {
+            const weekA = Number(a.week ?? 0);
+            const weekB = Number(b.week ?? 0);
+
+            return weekB - weekA;
+        });
+
+        currentPageNumber = 1;
+
+        render();
+    }
+
+
+    /*
+     * RESET LOCAL FILTERS
+     */
+
+    function clearFilters() {
+        const clear = id => { const el = document.getElementById(id); if (el) el.value = ''; };
+        ['key','pageSize'].forEach(clear);
+        applyFilters();
+    }
+
+
+    /*
+     * RENDER TABLE
+     */
+
+    function render() {
+
+        const pageSize =
+            Number(
+                document.getElementById("pageSize").value
+            );
+
+        const totalPages =
+            Math.max(
+                1,
+                Math.ceil(
+                    filteredEvents.length /
+                    pageSize
+                )
+            );
+
+
+        if (
+            currentPageNumber > totalPages
+        ) {
+            currentPageNumber =
+                totalPages;
+        }
+
+
+        const start =
+            (currentPageNumber - 1) *
+            pageSize;
+
+
+        const pageEvents =
+            filteredEvents.slice(
+                start,
+                start + pageSize
+            );
+
+
+        const rows =
+            document.getElementById("rows");
+
+        // Compute totals for filtered events
+        let sumAmount = 0;
+        let amountCount = 0;
+        for (const ev of filteredEvents) {
+            const typeKey = ev.type?.key ?? "";
+            const displayType = eventTypeMap[typeKey] || typeKey;
+            if (amountEventTypes.has(displayType)) {
+                const amt = parseEventAmount(ev);
+                sumAmount += amt;
+                amountCount++;
+            }
+        }
+        const avgAmount = amountCount ? sumAmount / amountCount : 0;
+        const fmt = n => n.toLocaleString('de-DE');
+
+
+        if (
+            pageEvents.length === 0
+        ) {
+
+            rows.innerHTML = `
+                <tr>
+                    <td
+                        colspan="7"
+                        class="empty"
+                    >
+                        No events match the selected filters.
+                    </td>
+                </tr>
+            `;
+
+        } else {
+            const rowsHtml = pageEvents
+                .map(
+                    (event, index) =>
+                        renderEvent(
+                            event,
+                            start + index + 1
+                        )
+                )
+                .join("");
+
+            const footer = filteredEvents.length ? `
+                <tr style="font-weight:700;background:#f0f4f8;">
+                    <td colspan="5">Total</td>
+                    <td colspan="2">${fmt(sumAmount)} din</td>
+                </tr>
+                <tr style="font-weight:700;background:#f7f9fb;">
+                    <td colspan="5">Average</td>
+                    <td colspan="2">${fmt(Math.round(avgAmount))} din</td>
+                </tr>
+            ` : '';
+
+            rows.innerHTML = rowsHtml + footer;
+        }
+
+
+        document
+            .getElementById("filteredEvents")
+            .textContent =
+            filteredEvents.length;
+
+
+        document
+            .getElementById("currentPage")
+            .textContent =
+            `${currentPageNumber} / ${totalPages}`;
+
+
+        renderPager(totalPages);
+    }
+
+    function renderMatches() {
+        const tbody = document.getElementById('matchRows');
+        if (!tbody) return;
+        if (!allMatches || allMatches.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="13" class="empty">No matches loaded.</td></tr>`;
+            return;
+        }
+        const leagueNameFilter = document.getElementById('matchLeagueName')?.value || '';
+        const leagueTypeFilter = document.getElementById('matchLeagueType')?.value || '';
+        const arenaFilter = document.getElementById('matchArena')?.value || '';
+        // Build map of IN_ARENA events by date
+        const arenaByDate = new Map();
+        for (const ev of allEvents) {
+            if (ev.type?.key === 'IN_ARENA') {
+                const d = ev.date?.value;
+                if (d) {
+                    arenaByDate.set(d, ev.text || '');
+                }
+            }
+        }
+        const teamId = Number(document.getElementById('teamId').value);
+        const filtered = allMatches.filter(m => {
+            const leagueName = m.league?.name || '';
+            const leagueType = m.league?.type?.name || '';
+            const arenaName = m.arena?.name || '';
+            if (leagueNameFilter && leagueName !== leagueNameFilter) return false;
+            if (leagueTypeFilter && leagueType !== leagueTypeFilter) return false;
+            if (arenaFilter && arenaName !== arenaFilter) return false;
+            return true;
+        });
+        const parseIncome = (text) => {
+            if (!text) return 0;
+            // Find number after "Income from tickets was"
+            const m = text.match(/Income from tickets was[^0-9]*([\d\s\u00A0]+)\s*din/i);
+            if (m && m[1]) {
+                const num = m[1].replace(/[\s\u00A0]/g, '');
+                const val = parseInt(num, 10);
+                return isNaN(val) ? 0 : val;
+            }
+            // fallback: first number in text
+            const m2 = text.match(/([\d\s\u00A0]{6,})/);
+            if (m2) {
+                const num = m2[1].replace(/[\s\u00A0]/g, '');
+                const val = parseInt(num, 10);
+                if (!isNaN(val) && val > 0) return val;
+            }
+            return 0;
+        };
+        let sumSupporters = 0;
+        let sumIncome = 0;
+        let sumCapacity = 0;
+        const rows = filtered.map(m => {
+            const gameDay = m.time?.gameDay || {};
+            const date = gameDay.date?.value || '';
+            const week = gameDay.week ?? '';
+            const seasonWeek = gameDay.seasonWeek ?? '';
+            const season = gameDay.season ?? '';
+            const timeVal = m.time?.time?.value || '';
+            const home = m.home || {};
+            const away = m.away || {};
+            const isHome = home.id === teamId;
+            const opponent = isHome ? away : home;
+            const opponentName = opponent?.name || '';
+            const scoreHome = m.score?.home ?? '';
+            const scoreAway = m.score?.away ?? '';
+            const result = `${scoreHome} - ${scoreAway}`;
+            const supporters = Number(m.supporters) || 0;
+            const leagueName = m.league?.name || '';
+            const leagueType = m.league?.type?.name || '';
+            const arenaName = m.arena?.name || '';
+            const arenaText = arenaByDate.get(date) || '';
+            const incomeVal = parseIncome(arenaText);
+            const capacityPct = teamArenaSeats > 0 ? (supporters / teamArenaSeats * 100) : 0;
+            sumSupporters += supporters;
+            sumIncome += incomeVal;
+            sumCapacity += capacityPct;
+            return `
+                <tr>
+                    <td>${escapeHtml(String(season))}</td>
+                    <td>${escapeHtml(String(week))}</td>
+                    <td>${escapeHtml(String(seasonWeek))}</td>
+                    <td>${escapeHtml(date)}</td>
+                    <td>${escapeHtml(timeVal)}</td>
+                    <td>${escapeHtml(opponentName)}</td>
+                    <td>${escapeHtml(result)}</td>
+                    <td>${escapeHtml(leagueName)}</td>
+                    <td>${escapeHtml(leagueType)}</td>
+                    <td>${escapeHtml(arenaName)}</td>
+                    <td>${escapeHtml(String(supporters))}</td>
+                    <td>${teamArenaSeats > 0 ? capacityPct.toFixed(1) + '%' : ''}</td>
+                    <td class="event-text">${sanitizeEventHtml(arenaText)}</td>
+                </tr>
+            `;
+        }).join('');
+        const count = filtered.length || 1;
+        const avgSupporters = Math.round(sumSupporters / count);
+        const avgIncome = Math.round(sumIncome / count);
+        const avgCapacity = Math.round(sumCapacity / count);
+        const fmt = n => n.toLocaleString('de-DE');
+        const footer = filtered.length ? `
+            <tr style="font-weight:700;background:#f0f4f8;">
+                <td colspan="10">Total</td>
+                <td>${fmt(sumSupporters)}</td>
+                <td></td>
+                <td>${fmt(sumIncome)} din</td>
+            </tr>
+            <tr style="font-weight:700;background:#f7f9fb;">
+                <td colspan="10">Average</td>
+                <td>${fmt(avgSupporters)}</td>
+                <td>${avgCapacity.toFixed(1)}%</td>
+                <td>${fmt(avgIncome)} din</td>
+            </tr>
+        ` : '';
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="13" class="empty">No matches match filters.</td></tr>`;
+        } else {
+            tbody.innerHTML = rows + footer;
+        }
+    }
+
+    /*
+     * EVENT ROW
+     */
+
+    function renderEvent(
+        event,
+        number
+    ) {
+
+        const date =
+            event.date?.value || "";
+
+        const week =
+            event.week ?? "";
+
+        const typeKey =
+            event.type?.key ?? "";
+        const displayType = eventTypeMap[typeKey] || typeKey;
+
+        const text =
+            event.text || "";
+
+        const amount = amountEventTypes.has(displayType) ? parseEventAmount(event) : 0;
+
+        return `
+            <tr>
+
+                <td>
+                    ${number}
+                </td>
+
+                <td class="date">
+                    ${escapeHtml(date)}
+                </td>
+
+                <td class="week">
+                    ${escapeHtml(String(week))}
+                </td>
+
+                <td class="type">
+                    ${escapeHtml(displayType)}
+                </td>
+
+                <td>
+                    ${escapeHtml(typeKey)}
+                </td>
+
+                <td class="amount">
+                    ${amount ? escapeHtml(amount.toLocaleString('de-DE')) + ' din' : ''}
+                </td>
+
+                <td class="event-text">
+                    ${sanitizeEventHtml(text)}
+                </td>
+
+            </tr>
+        `;
+    }
+
+
+    /*
+     * PAGINATION
+     */
+
+    function renderPager(totalPages) {
+
+        const container =
+            document.getElementById("pageButtons");
+
+        container.innerHTML = "";
+
+
+        for (
+            let page = 1;
+            page <= totalPages;
+            page++
+        ) {
+
+            if (
+                totalPages > 8 &&
+                page !== 1 &&
+                page !== totalPages &&
+                Math.abs(
+                    page - currentPageNumber
+                ) > 2
+            ) {
+
+                if (
+                    !container.innerHTML.endsWith("…")
+                ) {
+
+                    container.insertAdjacentHTML(
+                        "beforeend",
+                        "<span>…</span>"
+                    );
+                }
+
+                continue;
+            }
+
+
+            const button =
+                document.createElement("button");
+
+            button.className =
+                "page-button" +
+                (
+                    page === currentPageNumber
+                        ? " active"
+                        : ""
+                );
+
+            button.textContent =
+                page;
+
+            button.onclick =
+                () => {
+
+                    currentPageNumber =
+                        page;
+
+                    render();
+                };
+
+            container.appendChild(button);
+        }
+
+
+        document
+            .getElementById("previous")
+            .disabled =
+            currentPageNumber === 1;
+
+
+        document
+            .getElementById("next")
+            .disabled =
+            currentPageNumber === totalPages;
+    }
+
+
+    /*
+     * PREVIOUS / NEXT
+     */
+
+    function changePage(delta) {
+
+        const pageSize =
+            Number(
+                document.getElementById("pageSize").value
+            );
+
+        const totalPages =
+            Math.max(
+                1,
+                Math.ceil(
+                    filteredEvents.length /
+                    pageSize
+                )
+            );
+
+
+        currentPageNumber =
+            Math.min(
+                totalPages,
+                Math.max(
+                    1,
+                    currentPageNumber + delta
+                )
+            );
+
+
+        render();
+    }
+
+
+    /*
+     * Escape text inserted into HTML.
+     */
+
+    function escapeHtml(value) {
+
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+
+    /*
+     * Keep Sokker player links and basic formatting,
+     * remove dangerous elements.
+     */
+
+    function sanitizeEventHtml(html) {
+
+        const template =
+            document.createElement("template");
+
+        template.innerHTML = html;
+
+
+        template.content
+            .querySelectorAll(
+                "script, iframe, object, embed"
+            )
+            .forEach(
+                element =>
+                    element.remove()
+            );
+
+
+        template.content
+            .querySelectorAll("a")
+            .forEach(
+                link => {
+
+                    const href =
+                        link.getAttribute("href");
+
+                    if (
+                        !href ||
+                        !href.startsWith(
+                            "/player.php?PID="
+                        )
+                    ) {
+
+                        link.replaceWith(
+                            document.createTextNode(
+                                link.textContent
+                            )
+                        );
+
+                        return;
+                    }
+
+
+                    link.target = "_blank";
+
+                    link.rel =
+                        "noopener noreferrer";
+                }
+            );
+
+
+        return template.innerHTML;
+    }
+
+
+    /*
+     * Changing rows/page only affects local rendering.
+     */
+
+    document
+        .getElementById("pageSize")
+        .addEventListener(
+            "change",
+            () => {
+
+                currentPageNumber = 1;
+
+                render();
+            }
+        );
+
+    // Initialize tab and session check
+    switchTab(currentTab);
+
+</script>
+
+</body>
+
+</html>

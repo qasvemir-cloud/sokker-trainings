@@ -38,7 +38,9 @@
         <input type="checkbox" id="menu-toggle" class="menu-toggle">
         <label for="menu-toggle" class="hamburger" title="Menu">&#x2630;</label>
         <div class="menu-items">
-            <button class="menu-button active" data-view="players">Club</button>
+            <button class="menu-button active" data-view="matches-report">Matches</button>
+            <button class="menu-button" data-view="events-report">Events</button>
+            <button class="menu-button" data-view="players">Club</button>
             <button class="menu-button" data-view="training">Training</button>
             <button class="menu-button" data-view="last-training">Last Training</button>
             <button class="menu-button" data-view="planner">Planner</button>
@@ -58,6 +60,8 @@
     <aside class="sidebar">
         <div class="sidebar-content">
             <h3 id="team-name">Club</h3>
+            <div class="sidebar-link" data-view="matches-report">Matches Report</div>
+            <div class="sidebar-link" data-view="events-report">Events Report</div>
             <div class="sidebar-link active" data-view="players">First Team</div>
             <div class="sidebar-link" data-view="training">Training Reports</div>
             <div class="sidebar-link" data-view="last-training">Last Training</div>
@@ -101,6 +105,8 @@
         </header>
 
         <section id="players-view" class="view"></section>
+        <section id="matches-report-view" class="view hidden"></section>
+        <section id="events-report-view" class="view hidden"></section>
         <section id="training-view" class="view hidden"></section>
         <section id="last-training-view" class="view hidden"></section>
         <section id="planner-view" class="view hidden"></section>

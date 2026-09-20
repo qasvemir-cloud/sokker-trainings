@@ -1,24 +1,34 @@
-package org.velja.app.sokker;
+package org.velja.app.sokker.sokkerreport;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 
-import java.awt.Desktop;
+import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 
 @SpringBootApplication
-public class SokkerManagerWebApp {
-    private static final String APP_URL = "http://localhost:8090/sokker/index.html";
+public class SokkerReportApplication {
+    private static final String APP_URL = "http://localhost:7071/index.html";
 
     @Value("${sokker.open-browser:true}")
     private boolean openBrowser;
-
     public static void main(String[] args) {
-        SpringApplication.run(SokkerManagerWebApp.class, args);
+        freePortIfInUse(7071);
+        SpringApplication.run(SokkerReportApplication.class, args);
+    }
+
+    private static void freePortIfInUse(int port) {
+        try {
+            // Try to free the port by killing processes listening on it
+            Process p = new ProcessBuilder("sh", "-c", "lsof -ti:" + port + " | xargs -r kill -9").start();
+            p.waitFor();
+            Thread.sleep(500);
+        } catch (Exception ignored) {
+        }
     }
 
     @EventListener(ApplicationReadyEvent.class)

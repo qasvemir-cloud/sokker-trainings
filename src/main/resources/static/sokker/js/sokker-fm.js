@@ -229,6 +229,14 @@ async function showView(view) {
         document.querySelector('#page-title').textContent = 'Alumni';
         alumniView.classList.remove('hidden');
         renderAlumni();
+    } else if (view === 'matches-report') {
+        document.querySelector('#page-title').textContent = 'Matches Report';
+        document.querySelector('#matches-report-view').classList.remove('hidden');
+        document.querySelector('#matches-report-view').innerHTML = '<iframe src="/sokker/report.html" style="width:100%;height:80vh;border:none;"></iframe>';
+    } else if (view === 'events-report') {
+        document.querySelector('#page-title').textContent = 'Events Report';
+        document.querySelector('#events-report-view').classList.remove('hidden');
+        document.querySelector('#events-report-view').innerHTML = '<iframe src="/sokker/report.html" style="width:100%;height:80vh;border:none;"></iframe>';
     } else {
         document.querySelector('#page-title').textContent = state.current?.team?.name || 'Sokker Club';
         playersView.classList.remove('hidden');
