@@ -15,6 +15,9 @@ import org.velja.app.sokker.SokkerWebController;
 @RequestMapping("/sokker/api/report")
 public class ReportApiController {
 
+    private static final String SESSION_COOKIE = "sokkerPhpSessionId";
+    private static final String TEAM_ID = "sokkerTeamId";
+
     private final SokkerApiService sokkerApiService;
     private final ObjectMapper objectMapper;
 
@@ -24,7 +27,7 @@ public class ReportApiController {
     }
 
     private String sessionCookie(HttpSession session) {
-        Object phpSessionId = session.getAttribute(SokkerWebController.SESSION_COOKIE);
+        Object phpSessionId = session.getAttribute(SESSION_COOKIE);
         if (!(phpSessionId instanceof String value) || value.isBlank()) {
             throw new IllegalStateException("You are not logged in.");
         }
@@ -32,7 +35,7 @@ public class ReportApiController {
     }
 
     private int teamId(HttpSession session) {
-        Object teamId = session.getAttribute(SokkerWebController.TEAM_ID);
+        Object teamId = session.getAttribute(TEAM_ID);
         if (teamId instanceof Integer value) {
             return value;
         }
@@ -46,7 +49,11 @@ public class ReportApiController {
 
     @GetMapping("/seasons")
     public JsonNode seasons(HttpSession session) {
-        return sokkerApiService.getSafe("/seasons", sessionCookie(session)).orElse(null);
+        try {
+            return sokkerApiService.getSafe("/seasons", sessionCookie(session)).orElse(null);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @GetMapping("/team-matches")

@@ -127,7 +127,7 @@ public class SokkerApiService {
         return get("/team/" + teamId + "/alumni", phpSessionId);
     }
 
-    private JsonNode get(String path, String phpSessionId) {
+    JsonNode get(String path, String phpSessionId) {
         HttpRequest request = HttpRequest.newBuilder(URI.create(BASE_URL + path))
                 .timeout(Duration.ofSeconds(25))
                 .header(HttpHeaders.ACCEPT, "application/json")
@@ -149,7 +149,7 @@ public class SokkerApiService {
         }
     }
 
-    private Optional<JsonNode> getSafe(String path, String phpSessionId) {
+    Optional<JsonNode> getSafe(String path, String phpSessionId) {
         HttpRequest request = HttpRequest.newBuilder(URI.create(BASE_URL + path))
                 .timeout(Duration.ofSeconds(25))
                 .header(HttpHeaders.ACCEPT, "application/json")
