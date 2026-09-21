@@ -131,7 +131,7 @@ async function bootstrap() {
     appScreen.classList.remove('hidden');
     await loadData();
     renderShell();
-    showView('players');
+    showView('matches-report');
 }
 
 async function loadData() {
@@ -232,11 +232,11 @@ async function showView(view) {
     } else if (view === 'matches-report') {
         document.querySelector('#page-title').textContent = 'Matches Report';
         document.querySelector('#matches-report-view').classList.remove('hidden');
-        document.querySelector('#matches-report-view').innerHTML = '<iframe src="/sokker/report.html" style="width:100%;height:80vh;border:none;"></iframe>';
+        loadReportView('matches');
     } else if (view === 'events-report') {
         document.querySelector('#page-title').textContent = 'Events Report';
         document.querySelector('#events-report-view').classList.remove('hidden');
-        document.querySelector('#events-report-view').innerHTML = '<iframe src="/sokker/report.html" style="width:100%;height:80vh;border:none;"></iframe>';
+        loadReportView('events');
     } else {
         document.querySelector('#page-title').textContent = state.current?.team?.name || 'Sokker Club';
         playersView.classList.remove('hidden');
@@ -2119,4 +2119,538 @@ async function renderPlanner() {
             if (arrow) arrow.innerHTML = expanded ? '&#x25B6;' : '&#x25BC;';
         });
     });
+}
+
+// Report integration
+const eventTypeMap = {
+    IN_ARENA: 'STADIUM_INCOME', IN_PRIZES: 'PRIZES', IN_SPONSORS: 'SPONSORS_WEEKLY',
+    IN_SPONSORS_YEAR: 'SPONSOR_YEARLY_BONUS', IN_SUPPORTERS: 'SUPPORTERS_INCOME_WEEKLY',
+    IN_TRANSFER: 'TRANSFER_INCOME', IN_YOUTH: 'YOUTH_COMMISIONS', OUT_ARENA: 'ARENA_MAINTENANCE',
+    OUT_TRANSFER: 'TRANSFER_PAID', OUT_TRLIST: 'TRANSFER_LIST_COST',
+    OUT_WAGES_HUMAN: 'PLAYERS_WAGE', OUT_WAGES_TRAINER: 'TRAINERS_WAGE',
+    OUT_YOUTH: 'ACADEMY_EXPENSES', PITCH_MAINTENANCE: 'PITCH_MAINTENANCE',
+    PITCH_RESIZE: 'PITCH_RESIZE', RPT_OUT_WAGES_JUNIOR_TRAINER: 'JUNIOR_TRAINERS_WAGE',
+    SUPPORTERS_JOIN: 'SUPPORTERS_JOIN', SUPPORTERS_YEAR: 'SUPPORTERS_YEAR',
+    YOUTH_JOIN: 'YOUTH_JOIN', YOUTH_NEW: 'YOUTH_NEW', YOUTH_PLAYER: 'YOUTH_PLAYER_JOINED'
+};
+const reverseEventTypeMap = Object.entries(eventTypeMap).reduce((acc, [k, v]) => { acc[v] = k; return acc; }, {});
+
+function parseEventAmount(event) {
+    const text = event.text || '';
+    const match = text.match(/([\d\s]+)\s*din/i);
+    if (!match) return 0;
+    const num = parseInt(match[1].replace(/\s/g, ''), 10);
+    return isNaN(num) ? 0 : num;
+}
+const amountEventTypes = new Set(['PLAYERS_WAGE', 'STADIUM_INCOME', 'PRIZES', 'TRANSFER_INCOME', 'YOUTH_COMMISIONS', 'TRAINERS_WAGE', 'JUNIOR_TRAINERS_WAGE']);
+
+let reportAllEvents = [];
+let reportAllMatches = [];
+let reportCurrentPage = 1;
+let reportPageSize = 20;
+let reportSeasons = [];
+let matchesCurrentPage = 1;
+let matchesPageSize = 20;
+
+async function loadReportView(type) {
+    console.log('[Report] loadReportView called with type:', type);
+    const viewId = type === 'matches' ? 'matches-report-view' : 'events-report-view';
+    const view = document.getElementById(viewId);
+    const teamId = state.current?.team?.id || 0;
+    
+    if (type === 'matches') {
+        view.innerHTML = `
+            <div class="view-panel">
+                <div class="toolbar">
+                    <h2>Matches Report</h2>
+                    <div class="toolbar-actions">
+                        <div class="stat-card"><div class="stat-value">${teamId}</div><div class="stat-label">Team ID</div></div>
+                        <select id="matches-report-season"></select>
+                        <button id="matches-report-load" class="action-button">Load data</button>
+                    </div>
+                </div>
+                <div id="matches-report-toolbar">
+                    <label>League Name <select id="matchLeagueName"><option value="">All leagues</option></select></label>
+                    <label style="margin-left:12px;">League Type <select id="matchLeagueType"><option value="">All types</option></select></label>
+                    <label style="margin-left:12px;">Arena <select id="matchArena"><option value="">All arenas</option></select></label>
+                    <label style="margin-left:12px;">Rows per page 
+                        <select id="matches-page-size" onchange="changeMatchesPageSize(this.value)">
+                            <option value="10" ${matchesPageSize === 10 ? 'selected' : ''}>10</option>
+                            <option value="20" ${matchesPageSize === 20 ? 'selected' : ''}>20</option>
+                            <option value="50" ${matchesPageSize === 50 ? 'selected' : ''}>50</option>
+                            <option value="100" ${matchesPageSize === 100 ? 'selected' : ''}>100</option>
+                        </select>
+                    </label>
+                </div>
+                <div id="matches-report-table" class="table-scroll"></div>
+            </div>
+        `;
+    } else {
+        view.innerHTML = `
+            <div class="view-panel">
+                <div class="toolbar">
+                    <h2>Events Report</h2>
+                    <div class="toolbar-actions">
+                        <div class="stat-card"><div class="stat-value">${teamId}</div><div class="stat-label">Team ID</div></div>
+                        <select id="events-report-season"></select>
+                        <button id="events-report-load" class="action-button">Load data</button>
+                    </div>
+                </div>
+                <div id="events-report-toolbar">
+                    <label>Key 
+                        <div class="multiselect" id="events-report-key-multiselect">
+                            <button class="multiselect-toggle" id="events-report-key-toggle">All keys ▾</button>
+                            <div class="multiselect-dropdown" id="events-report-key-dropdown"></div>
+                        </div>
+                    </label>
+                    <label style="margin-left:12px;">Date 
+                        <div class="multiselect" id="events-report-date-multiselect">
+                            <button class="multiselect-toggle" id="events-report-date-toggle">All dates ▾</button>
+                            <div class="multiselect-dropdown" id="events-report-date-dropdown"></div>
+                        </div>
+                    </label>
+                    <label style="margin-left:12px;">Rows per page 
+                        <select id="events-report-page-size" onchange="changeEventsPageSize(this.value)">
+                            <option value="10" ${reportPageSize === 10 ? 'selected' : ''}>10</option>
+                            <option value="20" ${reportPageSize === 20 ? 'selected' : ''}>20</option>
+                            <option value="50" ${reportPageSize === 50 ? 'selected' : ''}>50</option>
+                            <option value="100" ${reportPageSize === 100 ? 'selected' : ''}>100</option>
+                        </select>
+                    </label>
+                </div>
+                <div id="events-report-stats" class="stats"></div>
+                <div id="events-report-table" class="table-scroll"></div>
+            </div>
+        `;
+    }
+    
+    const v$ = (id) => document.getElementById(id);
+    const seasonSelId = type === 'matches' ? 'matches-report-season' : 'events-report-season';
+    const loadBtnId = type === 'matches' ? 'matches-report-load' : 'events-report-load';
+    
+    // Load seasons
+    try {
+        console.log('[Report] Loading seasons...');
+        const res = await fetch('/sokker/api/report/seasons');
+        const seasons = await res.json();
+        console.log('[Report] Seasons loaded:', seasons);
+        reportSeasons = seasons || [];
+        const sel = document.getElementById(type === 'matches' ? 'matches-report-season' : 'events-report-season');
+        if (Array.isArray(seasons)) {
+            seasons.forEach(s => {
+                const o = document.createElement('option');
+                o.value = s.season; o.textContent = `Season ${s.season} (${s.start.week}-${s.end.week})`;
+                sel.appendChild(o);
+            });
+        }
+        if (seasons.length > 0) sel.value = String(seasons[0].season);
+    } catch (e) { console.error('Seasons load failed', e); }
+    
+    // Load team arena for capacity and name
+    try {
+        const arenaRes = await fetch(`/sokker/api/report/arena?teamId=${teamId}`);
+        const arenaData = await arenaRes.json();
+        if (arenaData) {
+            window.teamArenaName = arenaData.name || '';
+            window.teamArenaSeats = Number(arenaData.seats) || 0;
+        }
+    } catch (e) { console.error('Arena load failed', e); }
+    
+    // Set default arena in matches tab
+    if (type === 'matches' && window.teamArenaName) {
+        const arenaSel = document.getElementById('matchArena');
+        if (arenaSel) arenaSel.value = window.teamArenaName;
+    }
+    
+    document.getElementById(type === 'matches' ? 'matches-report-load' : 'events-report-load').onclick = () => {
+        console.log('[Report] Load button clicked');
+        const season = document.getElementById(type === 'matches' ? 'matches-report-season' : 'events-report-season').value;
+        if (!season) return;
+        if (type === 'matches') loadReportMatches(teamId, Number(season));
+        else loadReportEvents(teamId, Number(season));
+    };
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.multiselect')) {
+            document.querySelectorAll('.multiselect-dropdown.open').forEach(d => d.classList.remove('open'));
+        }
+    });
+}
+
+async function loadReportMatches(teamId, season) {
+    try {
+        const res = await fetch(`/sokker/api/report/team-matches?teamId=${teamId}&season=${season}`);
+        const data = await res.json();
+        reportAllMatches = data.matches || [];
+        populateMatchFilters();
+        renderReportMatches();
+    } catch (e) { console.error('Matches load failed', e); }
+}
+
+function populateMatchFilters() {
+    const leagueNameSelect = document.getElementById('matchLeagueName');
+    const leagueTypeSelect = document.getElementById('matchLeagueType');
+    const arenaSelect = document.getElementById('matchArena');
+    if (!leagueNameSelect) return;
+    const leagues = new Set();
+    const types = new Set();
+    const arenas = new Set();
+    for (const m of reportAllMatches) {
+        const league = m.league?.name;
+        if (league) leagues.add(league);
+        const type = m.league?.type?.name;
+        if (type) types.add(type);
+        const arena = m.arena?.name;
+        if (arena) arenas.add(arena);
+    }
+    document.getElementById('matchLeagueName').innerHTML = '<option value="">All leagues</option>' + [...leagues].sort().map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+    document.getElementById('matchLeagueType').innerHTML = '<option value="">All types</option>' + [...types].sort().map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+    document.getElementById('matchArena').innerHTML = '<option value="">All arenas</option>' + [...arenas].sort().map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+    const typeArray = [...types];
+    const found = typeArray.find(t => t.toLowerCase() === 'league');
+    if (found) document.getElementById('matchLeagueType').value = found;
+    if (window.teamArenaName && [...arenas].includes(window.teamArenaName)) document.getElementById('matchArena').value = window.teamArenaName;
+    document.getElementById('matchLeagueName').onchange = renderReportMatches;
+    document.getElementById('matchLeagueType').onchange = renderReportMatches;
+    document.getElementById('matchArena').onchange = renderReportMatches;
+}
+
+function renderReportMatches() {
+    const leagueNameFilter = document.getElementById('matchLeagueName')?.value || '';
+    const leagueTypeFilter = document.getElementById('matchLeagueType')?.value || '';
+    const arenaFilter = document.getElementById('matchArena')?.value || '';
+
+    const arenaByDate = new Map();
+    for (const ev of reportAllEvents) {
+        if (ev.type?.key === 'IN_ARENA') {
+            const d = ev.date?.value;
+            if (d) arenaByDate.set(d, ev.text || '');
+        }
+    }
+    
+    const teamId = state.current?.team?.id || 0;
+    const filtered = reportAllMatches.filter(m => {
+        const leagueName = m.league?.name || '';
+        const leagueType = m.league?.type?.name || '';
+        const arenaName = m.arena?.name || '';
+        if (leagueNameFilter && leagueName !== leagueNameFilter) return false;
+        if (leagueTypeFilter && leagueType !== leagueTypeFilter) return false;
+        if (arenaFilter && arenaName !== arenaFilter) return false;
+        return true;
+    });
+
+    const parseIncome = (text) => {
+        if (!text) return 0;
+        const m = text.match(/Income from tickets was[^0-9]*([\d\s\u00A0]+)\s*din/i);
+        if (m && m[1]) {
+            const num = m[1].replace(/[\s\u00A0]/g, '');
+            const val = parseInt(num, 10);
+            return isNaN(val) ? 0 : val;
+        }
+        const m2 = text.match(/([\d\s\u00A0]{6,})/);
+        if (m2) {
+            const num = m2[1].replace(/[\s\u00A0]/g, '');
+            const val = parseInt(num, 10);
+            if (!isNaN(val) && val > 0) return val;
+        }
+        return 0;
+    };
+
+    let sumSupporters = 0;
+    let sumIncome = 0;
+    let sumCapacity = 0;
+    
+    // Pagination
+    const totalPages = Math.ceil(filtered.length / matchesPageSize) || 1;
+    if (matchesCurrentPage > totalPages) matchesCurrentPage = 1;
+    const start = (matchesCurrentPage - 1) * matchesPageSize;
+    const pageItems = filtered.slice(start, start + matchesPageSize);
+    
+    const pageRows = pageItems.map(m => {
+        const gameDay = m.time?.gameDay || {};
+        const date = gameDay.date?.value || '';
+        const week = gameDay.week ?? '';
+        const seasonWeek = gameDay.seasonWeek ?? '';
+        const season = gameDay.season ?? '';
+        const timeVal = m.time?.time?.value || '';
+        const home = m.home || {};
+        const away = m.away || {};
+        const isHome = home.id === state.current?.team?.id;
+        const opponent = isHome ? away : home;
+        const opponentName = opponent?.name || '';
+        const scoreHome = m.score?.home ?? '';
+        const scoreAway = m.score?.away ?? '';
+        const result = isHome ? `${scoreHome} - ${scoreAway}` : `${scoreAway} - ${scoreHome}`;
+        const supporters = Number(m.supporters) || 0;
+        const leagueName = m.league?.name || '';
+        const leagueType = m.league?.type?.name || '';
+        const arenaName = m.arena?.name || '';
+        const arenaText = arenaByDate.get(date) || '';
+        const incomeVal = parseIncome(arenaText);
+        const capacityPct = window.teamArenaSeats > 0 ? (supporters / window.teamArenaSeats * 100) : 0;
+        sumSupporters += supporters;
+        sumIncome += parseIncome(arenaByDate.get(date) || '');
+        sumCapacity += capacityPct;
+        return `
+            <tr>
+                <td>${season}</td>
+                <td>${week}</td>
+                <td>${seasonWeek}</td>
+                <td>${date}</td>
+                <td>${timeVal || ''}</td>
+                <td>${opponentName || ''}</td>
+                <td>${result}</td>
+                <td>${leagueName}</td>
+                <td>${leagueType || ''}</td>
+                <td>${arenaName || ''}</td>
+                <td>${supporters}</td>
+                <td>${capacityPct > 0 ? capacityPct.toFixed(1) + '%' : ''}</td>
+                <td class="event-text">${incomeVal} din</td>
+            </tr>
+        `;
+    }).join('');
+    
+    const count = filtered.length || 1;
+    const avgSupporters = Math.round(sumSupporters / count);
+    const avgIncome = Math.round(sumIncome / count);
+    const avgCapacity = Math.round(sumCapacity / count);
+    const fmt = n => n.toLocaleString('de-DE');
+
+    const footer = filtered.length ? `
+        <tr style="font-weight:700;background:#f0f4f8;color:#111;">
+            <td colspan="10">Total</td>
+            <td>${fmt(sumSupporters)}</td>
+            <td>${avgCapacity.toFixed(1)}%</td>
+            <td>${fmt(sumIncome)} din</td>
+        </tr>
+        <tr style="font-weight:700;background:#f7f9fb;color:#111;">
+            <td colspan="10">Average</td>
+            <td>${fmt(avgSupporters)}</td>
+            <td>${avgCapacity.toFixed(1)}%</td>
+            <td>${fmt(sumIncome)} din</td>
+        </tr>
+    ` : '';
+    
+    const html = `
+        <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Season</th><th>Week</th><th>Season Week</th><th>Date</th><th>Time</th><th>Opponent</th><th>Result</th><th>League</th><th>League Type</th><th>Arena</th><th>Supporters</th><th>Capacity</th><th>Arena Income</th></tr>
+                </thead>
+                <tbody>${pageRows + (footer || '')}</tbody>
+            </table>
+        </div>
+    `;
+    document.querySelector('#matches-report-table').innerHTML = html;
+}
+
+async function loadReportEvents(teamId, season) {
+    const seasonObj = reportSeasons.find(s => s.season === season);
+    const fromWeek = seasonObj?.start?.week || 1;
+    const toWeek = seasonObj?.end?.week || 52;
+    
+    try {
+        const res = await fetch(`/sokker/api/report/report?teamId=${teamId}&fromWeek=${fromWeek}&toWeek=${toWeek}`);
+        const data = await res.json();
+        reportAllEvents = data.events || [];
+        populateReportFilters();
+        applyReportFilters();
+    } catch (e) { console.error('Events load failed', e); }
+}
+
+function populateReportFilters() {
+    const keys = new Set();
+    reportAllEvents.forEach(e => { if (e.type?.key) keys.add(e.type.key); });
+    
+    const dropdown = document.getElementById('events-report-key-dropdown');
+    if (dropdown) {
+        dropdown.innerHTML = '';
+        [...keys].sort().forEach(key => {
+            dropdown.insertAdjacentHTML('beforeend', `<label><input type="checkbox" data-key="${key}"> ${eventTypeMap[key] || key}</label>`);
+        });
+        document.getElementById('events-report-key-toggle').onclick = (e) => { e.stopPropagation(); dropdown.classList.toggle('open'); };
+        dropdown.addEventListener('change', () => {
+            const checked = dropdown.querySelectorAll('input[type=checkbox]:checked');
+            document.getElementById('events-report-key-toggle').textContent = checked.length === 0 ? 'All keys ▾' : `${checked.length} selected ▾`;
+            applyReportFilters();
+        });
+    }
+    
+    const dates = [...new Set(reportAllEvents.map(e => e.date?.value).filter(Boolean))].sort().reverse();
+    const dateDropdown = document.getElementById('events-report-date-dropdown');
+    if (dateDropdown) {
+        dateDropdown.innerHTML = '';
+        dates.forEach(d => {
+            dateDropdown.insertAdjacentHTML('beforeend', `<label><input type="checkbox" data-date="${d}"> ${d}</label>`);
+        });
+        document.getElementById('events-report-date-toggle').onclick = (e) => { e.stopPropagation(); dateDropdown.classList.toggle('open'); };
+        dateDropdown.addEventListener('change', () => {
+            const checked = dateDropdown.querySelectorAll('input[type=checkbox]:checked');
+            document.getElementById('events-report-date-toggle').textContent = checked.length === 0 ? 'All dates ▾' : `${checked.length} selected ▾`;
+            applyReportFilters();
+        });
+    }
+    
+    // Close dropdowns on outside click
+    document.addEventListener('click', () => {
+        const keyDrop = document.getElementById('events-report-key-dropdown');
+        const dateDrop = document.getElementById('events-report-date-dropdown');
+        if (keyDrop) keyDrop.classList.remove('open');
+        if (dateDrop) dateDrop.classList.remove('open');
+    });
+    document.getElementById('events-report-key-multiselect')?.addEventListener('click', e => e.stopPropagation());
+    document.getElementById('events-report-date-multiselect')?.addEventListener('click', e => e.stopPropagation());
+}
+
+function applyReportFilters() {
+    const keyDropdown = document.getElementById('events-report-key-dropdown');
+    const checkedKeyBoxes = keyDropdown ? Array.from(keyDropdown.querySelectorAll('input[type=checkbox]:checked')) : [];
+    const keyFilters = checkedKeyBoxes.map(cb => cb.dataset.key).filter(v => v);
+    
+    const dateDropdown = document.getElementById('events-report-date-dropdown');
+    const checkedDateBoxes = dateDropdown ? Array.from(dateDropdown.querySelectorAll('input[type=checkbox]:checked')) : [];
+    const dateFilters = checkedDateBoxes.map(cb => cb.dataset.date).filter(v => v);
+    
+    const filtered = reportAllEvents.filter(e => {
+        const eventKey = e.type?.key || '';
+        if (keyFilters.length > 0 && !keyFilters.includes(e.type?.key || '')) return false;
+        if (dateFilters.length > 0 && !dateFilters.includes(e.date?.value)) return false;
+        return true;
+    });
+    
+    reportCurrentPage = 1;
+    renderReportEvents(filtered);
+}
+
+function renderReportEvents(filtered) {
+    const totalEvents = reportAllEvents.length;
+    const totalAmount = filtered.reduce((sum, e) => sum + parseEventAmount(e), 0);
+    const avgAmount = filtered.length > 0 ? Math.round(totalAmount / filtered.length) : 0;
+    const fmt = n => n.toLocaleString('de-DE');
+    
+    const statsHtml = `
+        <div class="stat-card"><div class="stat-value">${reportAllEvents.length}</div><div class="stat-label">Total events</div></div>
+        <div class="stat-card"><div class="stat-value">${filtered.length}</div><div class="stat-label">Filtered</div></div>
+        <div class="stat-card"><div class="stat-value">${reportCurrentPage}</div><div class="stat-label">Current page</div></div>
+        <div class="stat-card"><div class="stat-value">${fmt(filtered.reduce((sum, e) => sum + parseEventAmount(e), 0))} din</div><div class="stat-label">Total amount</div></div>
+        <div class="stat-card"><div class="stat-value">${filtered.length > 0 ? fmt(Math.round(filtered.reduce((sum, e) => sum + parseEventAmount(e), 0) / filtered.length)) : fmt(0)} din</div><div class="stat-label">Avg amount</div></div>
+    `;
+    document.getElementById('events-report-stats').innerHTML = statsHtml;
+    
+    // Pagination
+    const totalPages = Math.ceil(filtered.length / reportPageSize) || 1;
+    if (reportCurrentPage > totalPages) reportCurrentPage = 1;
+    const start = (reportCurrentPage - 1) * reportPageSize;
+    const pageItems = filtered.slice(start, start + reportPageSize);
+    
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= reportCurrentPage - 1 && i <= reportCurrentPage + 1)) {
+            pageNumbers.push(i);
+        } else if (pageNumbers[pageNumbers.length - 1] !== '...') {
+            pageNumbers.push('...');
+        }
+    }
+    
+    const paginationHtml = totalPages > 1 ? `
+        <div class="pager">
+            <button class="secondary" onclick="changeReportPage(-1)" ${reportCurrentPage === 1 ? 'disabled' : ''}>&#x2190; Previous</button>
+            <div class="page-numbers">
+                ${pageNumbers.map(p => p === '...' ? '<span>...</span>' : `<button class="${p === reportCurrentPage ? 'active' : ''}" onclick="goToReportPage(${p})">${p}</button>`).join('')}
+            </div>
+            <button class="secondary" onclick="changeReportPage(1)" ${reportCurrentPage === totalPages ? 'disabled' : ''}>Next &#x2192;</button>
+            <span style="margin-left:12px;">Rows per page:
+                <select id="events-report-page-size" onchange="changeEventsPageSize(this.value)">
+                    <option value="10" ${reportPageSize === 10 ? 'selected' : ''}>10</option>
+                    <option value="20" ${reportPageSize === 20 ? 'selected' : ''}>20</option>
+                    <option value="50" ${reportPageSize === 50 ? 'selected' : ''}>50</option>
+                    <option value="100" ${reportPageSize === 100 ? 'selected' : ''}>100</option>
+                </select>
+            </span>
+        </div>
+    ` : '';
+    
+    const html = `
+        <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr><th>#</th><th>Date</th><th>Week</th><th>Type</th><th>Key</th><th>Amount</th><th>Event</th></tr>
+                </thead>
+                <tbody>
+                    ${pageItems.map((e, i) => `
+                        <tr><td>${start + i + 1}</td><td>${e.date?.value||''}</td><td>${e.week||''}</td><td>${e.type?.value||''}</td><td>${e.type?.key||''}</td><td>${fmt(parseEventAmount(e))} din</td><td>${e.text||''}</td></tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+        <div class="pager">
+            <button class="secondary" onclick="changeReportPage(-1)" ${reportCurrentPage === 1 ? 'disabled' : ''}>&#x2190; Previous</button>
+            <div class="page-numbers">
+                ${pageNumbers.map(p => p === '...' ? '<span>...</span>' : `<button class="${p === reportCurrentPage ? 'active' : ''}" onclick="goToReportPage(${p})">${p}</button>`).join('')}
+            </div>
+            <button class="secondary" onclick="changeReportPage(1)" ${reportCurrentPage === totalPages ? 'disabled' : ''}>Next &#x2192;</button>
+            <span style="margin-left:12px;">Rows per page:
+                <select id="events-report-page-size" onchange="changeEventsPageSize(this.value)">
+                    <option value="10" ${reportPageSize === 10 ? 'selected' : ''}>10</option>
+                    <option value="20" ${reportPageSize === 20 ? 'selected' : ''}>20</option>
+                    <option value="50" ${reportPageSize === 50 ? 'selected' : ''}>50</option>
+                    <option value="100" ${reportPageSize === 100 ? 'selected' : ''}>100</option>
+                </select>
+            </span>
+        </div>
+    `;
+    document.getElementById('events-report-table').innerHTML = html;
+}
+
+function checkedKeysText() {
+    const dropdown = document.getElementById('events-report-key-dropdown');
+    const checked = dropdown ? dropdown.querySelectorAll('input[type=checkbox]:checked') : [];
+    return checked.length === 0 ? 'All keys ▾' : `${checked.length} selected ▾`;
+}
+
+function changeReportPage(delta) {
+    reportCurrentPage += delta;
+    if (reportCurrentPage < 1) reportCurrentPage = 1;
+    applyReportFilters();
+}
+
+function goToReportPage(page) {
+    reportCurrentPage = page;
+    applyReportFilters();
+}
+
+function changeEventsPageSize(size) {
+    reportPageSize = Number(size);
+    reportCurrentPage = 1;
+    applyReportFilters();
+}
+
+function changeMatchesPageSize(size) {
+    matchesPageSize = Number(size);
+    matchesCurrentPage = 1;
+    renderReportMatches();
+}
+
+function goToMatchesPage(page) {
+    matchesCurrentPage = page;
+    renderReportMatches();
+}
+
+
+
+function sanitizeEventHtml(html) {
+    const template = document.createElement("template");
+    template.innerHTML = html || '';
+    template.content.querySelectorAll("script, iframe, object, embed").forEach(el => el.remove());
+    template.content.querySelectorAll("a").forEach(link => {
+        const href = link.getAttribute("href");
+        if (!href || !href.startsWith("/player.php?PID=")) {
+            link.replaceWith(document.createTextNode(link.textContent));
+            return;
+        }
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+    });
+    return template.innerHTML;
 }
