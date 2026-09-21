@@ -139,6 +139,7 @@ public class ReportApiController {
             result.put("total", allMatches.size());
             result.put("season", season);
             result.put("teamId", teamId);
+            log.info("[REPORT API] team-matches full payload ({} matches): {}", allMatches.size(), result);
             logResponse("team-matches", result);
             return result;
 

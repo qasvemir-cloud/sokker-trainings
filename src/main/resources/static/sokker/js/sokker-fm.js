@@ -2137,6 +2137,13 @@ const reverseEventTypeMap = Object.entries(eventTypeMap).reduce((acc, [k, v]) =>
 
 function parseEventAmount(event) {
     const text = event.text || '';
+    // Try "Income from tickets was X din" pattern first (from API)
+    const incomeMatch = text.match(/Income from tickets was[^0-9]*([\d\s\u00A0]+)\s*din/i);
+    if (incomeMatch) {
+        const num = parseInt(incomeMatch[1].replace(/[\s\u00A0]/g, ''), 10);
+        return isNaN(num) ? 0 : num;
+    }
+    // Fallback: try to find any number followed by "din"
     const match = text.match(/([\d\s]+)\s*din/i);
     if (!match) return 0;
     const num = parseInt(match[1].replace(/\s/g, ''), 10);
@@ -2283,6 +2290,19 @@ async function loadReportMatches(teamId, season) {
         const res = await fetch(`/sokker/api/report/team-matches?teamId=${teamId}&season=${season}`);
         const data = await res.json();
         reportAllMatches = data.matches || [];
+        console.log('[Report][matches] raw team-matches response:', data);
+        console.log('[Report][matches] full match objects:', reportAllMatches);
+
+        // Also load events for the same season so arena income (IN_ARENA) can be computed
+        const seasonObj = reportSeasons.find(s => s.season === season);
+        const fromWeek = seasonObj?.start?.week || 1;
+        const toWeek = seasonObj?.end?.week || 52;
+        const evRes = await fetch(`/sokker/api/report/report?teamId=${teamId}&fromWeek=${fromWeek}&toWeek=${toWeek}`);
+        const evData = await evRes.json();
+        reportAllEvents = evData.events || [];
+        console.log('[Report][matches] raw events response (for arena income):', evData);
+        console.log('[Report][matches] full event objects (for arena income):', reportAllEvents);
+
         populateMatchFilters();
         renderReportMatches();
     } catch (e) { console.error('Matches load failed', e); }
@@ -2342,12 +2362,14 @@ function renderReportMatches() {
 
     const parseIncome = (text) => {
         if (!text) return 0;
+        // Try "Income from tickets was X din" pattern first
         const m = text.match(/Income from tickets was[^0-9]*([\d\s\u00A0]+)\s*din/i);
         if (m && m[1]) {
             const num = m[1].replace(/[\s\u00A0]/g, '');
             const val = parseInt(num, 10);
             return isNaN(val) ? 0 : val;
         }
+        // fallback: first number in text
         const m2 = text.match(/([\d\s\u00A0]{6,})/);
         if (m2) {
             const num = m2[1].replace(/[\s\u00A0]/g, '');
@@ -2357,10 +2379,30 @@ function renderReportMatches() {
         return 0;
     };
 
+    // Derived income + totals over the full filtered set (not just the current page)
+    const incomeDebug = filtered.map(m => {
+        const date = m.time?.gameDay?.date?.value || '';
+        const arenaText = arenaByDate.get(date) || '';
+        return { date, arena: m.arena?.name || '', supporters: m.supporters, arenaText, income: parseIncome(arenaText) };
+    });
+    console.log('[Report][matches] arenaByDate map:', arenaByDate);
+    console.log('[Report][matches] derived income per match:', incomeDebug);
+
     let sumSupporters = 0;
     let sumIncome = 0;
     let sumCapacity = 0;
-    
+    filtered.forEach(m => {
+        const supporters = Number(m.supporters) || 0;
+        const date = m.time?.gameDay?.date?.value || '';
+        sumSupporters += supporters;
+        sumIncome += parseIncome(arenaByDate.get(date) || '');
+        sumCapacity += window.teamArenaSeats > 0 ? (supporters / window.teamArenaSeats * 100) : 0;
+    });
+    console.log('[Report][matches] derived totals:', {
+        count: filtered.length, sumSupporters, sumIncome,
+        avgIncome: Math.round(sumIncome / (filtered.length || 1))
+    });
+
     // Pagination
     const totalPages = Math.ceil(filtered.length / matchesPageSize) || 1;
     if (matchesCurrentPage > totalPages) matchesCurrentPage = 1;
@@ -2387,11 +2429,7 @@ function renderReportMatches() {
         const leagueType = m.league?.type?.name || '';
         const arenaName = m.arena?.name || '';
         const arenaText = arenaByDate.get(date) || '';
-        const incomeVal = parseIncome(arenaText);
         const capacityPct = window.teamArenaSeats > 0 ? (supporters / window.teamArenaSeats * 100) : 0;
-        sumSupporters += supporters;
-        sumIncome += parseIncome(arenaByDate.get(date) || '');
-        sumCapacity += capacityPct;
         return `
             <tr>
                 <td>${season}</td>
@@ -2406,7 +2444,7 @@ function renderReportMatches() {
                 <td>${arenaName || ''}</td>
                 <td>${supporters}</td>
                 <td>${capacityPct > 0 ? capacityPct.toFixed(1) + '%' : ''}</td>
-                <td class="event-text">${incomeVal} din</td>
+                <td class="event-text">${sanitizeEventHtml(arenaText)}</td>
             </tr>
         `;
     }).join('');
@@ -2428,7 +2466,7 @@ function renderReportMatches() {
             <td colspan="10">Average</td>
             <td>${fmt(avgSupporters)}</td>
             <td>${avgCapacity.toFixed(1)}%</td>
-            <td>${fmt(sumIncome)} din</td>
+            <td>${fmt(avgIncome)} din</td>
         </tr>
     ` : '';
     
@@ -2503,7 +2541,7 @@ function populateReportFilters() {
     document.getElementById('events-report-date-multiselect')?.addEventListener('click', e => e.stopPropagation());
 }
 
-function applyReportFilters() {
+function getFilteredReportEvents() {
     const keyDropdown = document.getElementById('events-report-key-dropdown');
     const checkedKeyBoxes = keyDropdown ? Array.from(keyDropdown.querySelectorAll('input[type=checkbox]:checked')) : [];
     const keyFilters = checkedKeyBoxes.map(cb => cb.dataset.key).filter(v => v);
@@ -2512,15 +2550,16 @@ function applyReportFilters() {
     const checkedDateBoxes = dateDropdown ? Array.from(dateDropdown.querySelectorAll('input[type=checkbox]:checked')) : [];
     const dateFilters = checkedDateBoxes.map(cb => cb.dataset.date).filter(v => v);
     
-    const filtered = reportAllEvents.filter(e => {
-        const eventKey = e.type?.key || '';
+    return reportAllEvents.filter(e => {
         if (keyFilters.length > 0 && !keyFilters.includes(e.type?.key || '')) return false;
         if (dateFilters.length > 0 && !dateFilters.includes(e.date?.value)) return false;
         return true;
     });
-    
+}
+
+function applyReportFilters() {
     reportCurrentPage = 1;
-    renderReportEvents(filtered);
+    renderReportEvents(getFilteredReportEvents());
 }
 
 function renderReportEvents(filtered) {
@@ -2612,12 +2651,12 @@ function checkedKeysText() {
 function changeReportPage(delta) {
     reportCurrentPage += delta;
     if (reportCurrentPage < 1) reportCurrentPage = 1;
-    applyReportFilters();
+    renderReportEvents(getFilteredReportEvents());
 }
 
 function goToReportPage(page) {
     reportCurrentPage = page;
-    applyReportFilters();
+    renderReportEvents(getFilteredReportEvents());
 }
 
 function changeEventsPageSize(size) {
@@ -2654,3 +2693,10 @@ function sanitizeEventHtml(html) {
     });
     return template.innerHTML;
 }
+
+// This script is loaded as type="module", so its top-level functions are not global.
+// Inline onchange/onclick handlers in the report views need them on window.
+window.changeMatchesPageSize = changeMatchesPageSize;
+window.changeEventsPageSize = changeEventsPageSize;
+window.changeReportPage = changeReportPage;
+window.goToReportPage = goToReportPage;
