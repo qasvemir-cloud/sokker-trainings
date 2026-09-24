@@ -45,7 +45,7 @@ public class NtPlayersService {
     );
 
     private static final String TABLE_SQL = """
-            CREATE TABLE IF NOT EXISTS nt_players (
+            CREATE TABLE IF NOT EXISTS %s (
                 player_id            BIGINT PRIMARY KEY,
                 name                 VARCHAR(255),
                 age                  INT,
@@ -66,7 +66,7 @@ public class NtPlayersService {
             """;
 
     private static final String INSERT_SQL = """
-            INSERT INTO nt_players (player_id, name, age, form, stamina, pace, keeper,
+            INSERT INTO %s (player_id, name, age, form, stamina, pace, keeper,
                 defending, technique, playmaking, passing, striker, tactical_discipline,
                 experience, teamwork, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -80,23 +80,20 @@ public class NtPlayersService {
         this.objectMapper = objectMapper;
     }
 
-    public ArrayNode load(boolean showAllSkills) {
-        ensureTable();
-        List<ObjectNode> rows = jdbcTemplate.query("""
-                        SELECT player_id, name, age, form, stamina, pace, keeper, defending,
-                               technique, playmaking, passing, striker, tactical_discipline,
-                               experience, teamwork
-                        FROM nt_players
-                        ORDER BY name
-                        """,
+    public ArrayNode load(String table, boolean showAllSkills) {
+        ensureTable(table);
+        String sql = "SELECT player_id, name, age, form, stamina, pace, keeper, defending, "
+                + "technique, playmaking, passing, striker, tactical_discipline, "
+                + "experience, teamwork FROM " + table + " ORDER BY name";
+        List<ObjectNode> rows = jdbcTemplate.query(sql,
                 (rs, rowNum) -> toPlayer(rs, showAllSkills));
         ArrayNode players = objectMapper.createArrayNode();
         rows.forEach(players::add);
         return players;
     }
 
-    public int replaceAll(JsonNode players) {
-        ensureTable();
+    public int replaceAll(String table, JsonNode players) {
+        ensureTable(table);
         List<Object[]> batch = new ArrayList<>();
         for (JsonNode player : players) {
             Object[] row = toRow(player);
@@ -104,11 +101,11 @@ public class NtPlayersService {
                 batch.add(row);
             }
         }
-        jdbcTemplate.update("DELETE FROM nt_players");
+        jdbcTemplate.update("DELETE FROM " + table);
         if (!batch.isEmpty()) {
-            jdbcTemplate.batchUpdate(INSERT_SQL, batch);
+            jdbcTemplate.batchUpdate(INSERT_SQL.formatted(table), batch);
         }
-        log.info("[NT] Updated {} players in nt_players table.", batch.size());
+        log.info("[NT] Updated {} players in {} table.", batch.size(), table);
         return batch.size();
     }
 
@@ -136,8 +133,8 @@ public class NtPlayersService {
         return row;
     }
 
-    private void ensureTable() {
-        jdbcTemplate.execute(TABLE_SQL);
+    private void ensureTable(String table) {
+        jdbcTemplate.execute(TABLE_SQL.formatted(table));
     }
 
     private String apiKeyFor(String column) {

@@ -7,6 +7,9 @@ const api = {
     ntStatus: '/sokker/api/nt/status',
     ntPlayers: '/sokker/api/nt/players',
     ntUpdate: '/sokker/api/nt/update',
+    ntU21Status: '/sokker/api/nt/nt21/status',
+    ntU21Players: '/sokker/api/nt/nt21/players',
+    ntU21Update: '/sokker/api/nt/nt21/update',
     trainingPlayers: '/sokker/api/training/players',
     trainingFormations: '/sokker/api/training/formations',
     trainingSummary: '/sokker/api/training/summary',
@@ -67,6 +70,9 @@ const state = {
     ntPlayers: [],
     ntAccess: false,
     ntCanUpdate: false,
+    ntU21Players: [],
+    ntU21Access: false,
+    ntU21CanUpdate: false,
     playerReports: new Map(),
     formationSkills: null,
     focusedPredictorPlayerId: null,
@@ -82,6 +88,7 @@ const loginForm = document.querySelector('#login-form');
 const loginError = document.querySelector('#login-error');
 const playersView = document.querySelector('#players-view');
 const ntView = document.querySelector('#nt-view');
+const ntU21View = document.querySelector('#nt-u21-view');
 const trainingView = document.querySelector('#training-view');
 const lastTrainingView = document.querySelector('#last-training-view');
 const plannerView = document.querySelector('#planner-view');
@@ -240,6 +247,10 @@ async function showView(view) {
         document.querySelector('#page-title').textContent = 'NT';
         document.querySelector('#nt-view').classList.remove('hidden');
         renderNT();
+    } else if (view === 'nt-u21') {
+        document.querySelector('#page-title').textContent = 'NT-u21';
+        document.querySelector('#nt-u21-view').classList.remove('hidden');
+        renderNTU21();
     } else if (view === 'matches-report') {
         document.querySelector('#page-title').textContent = 'Matches Report';
         document.querySelector('#matches-report-view').classList.remove('hidden');
@@ -290,50 +301,84 @@ function renderPlayers() {
 }
 
 async function renderNT() {
-    ntView.innerHTML = '';
+    await renderNtTab(ntTabConfig(
+        ntView,
+        'National Team',
+        api.ntStatus,
+        api.ntPlayers,
+        api.ntUpdate,
+        (players, canUpdate) => {
+            state.ntPlayers = players;
+            state.ntCanUpdate = canUpdate;
+            state.ntAccess = true;
+        }
+    ));
+}
+
+function renderNTU21() {
+    renderNtTab(ntTabConfig(
+        ntU21View,
+        'National Team U21',
+        api.ntU21Status,
+        api.ntU21Players,
+        api.ntU21Update,
+        (players, canUpdate) => {
+            state.ntU21Players = players;
+            state.ntU21CanUpdate = canUpdate;
+            state.ntU21Access = true;
+        }
+    ));
+}
+
+function ntTabConfig(view, title, statusUrl, playersUrl, updateUrl, onState) {
+    return { view, title, statusUrl, playersUrl, updateUrl, onState };
+}
+
+async function renderNtTab(cfg) {
+    cfg.view.innerHTML = '';
     let status;
     try {
-        status = await getJson(api.ntStatus);
+        status = await getJson(cfg.statusUrl);
     } catch (error) {
-        ntView.innerHTML = errorPanel('NT', 'Failed to check access: ' + error.message);
+        cfg.view.innerHTML = errorPanel(cfg.title, 'Failed to check access: ' + error.message);
         return;
     }
-    state.ntAccess = !!status.access;
-    state.ntCanUpdate = !!status.canUpdate;
-    if (!state.ntAccess) {
+    if (!status.access) {
         return;
     }
     let payload;
     try {
-        payload = await getJson(api.ntPlayers);
+        payload = await getJson(cfg.playersUrl);
     } catch (error) {
-        ntView.innerHTML = errorPanel('NT', error.message);
+        cfg.view.innerHTML = errorPanel(cfg.title, error.message);
         return;
     }
-    state.ntPlayers = payload.players || [];
-    state.ntCanUpdate = !!payload.canUpdate;
-    const playersHtml = state.ntPlayers.map(playerCard).join('');
-    ntView.innerHTML = `
+    const players = payload.players || [];
+    const canUpdate = !!payload.canUpdate;
+    if (cfg.onState) {
+        cfg.onState(players, canUpdate);
+    }
+    cfg.view.innerHTML = `
         <div class="view-panel">
             <div class="toolbar">
-                <h2>National Team</h2>
+                <h2>${escapeHtml(cfg.title)}</h2>
                 <div class="toolbar-actions">
-                    ${state.ntCanUpdate ? '<button id="nt-update" class="action-button">Update players</button>' : ''}
+                    ${canUpdate ? '<button class="action-button nt-update-toggle">Update players</button>' : ''}
                 </div>
             </div>
             <div class="player-grid">
-                ${playersHtml || '<div class="empty-state">No players in the database yet.</div>'}
+                ${players.map(playerCard).join('') || '<div class="empty-state">No players in the database yet.</div>'}
             </div>
         </div>
     `;
-    const updateButton = ntView.querySelector('#nt-update');
+    const updateButton = cfg.view.querySelector('.nt-update-toggle');
     if (updateButton) {
         updateButton.addEventListener('click', async () => {
             updateButton.disabled = true;
             updateButton.textContent = 'Updating...';
             try {
-                await postJson(api.ntUpdate, {});
-                await renderNT();
+                await postJson(cfg.updateUrl, {});
+                await renderNtTab(cfg);
             } catch (error) {
                 updateButton.disabled = false;
                 updateButton.textContent = 'Update players';
