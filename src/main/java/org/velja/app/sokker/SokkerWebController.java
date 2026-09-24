@@ -22,6 +22,8 @@ public class SokkerWebController {
     private static final String SESSION_COOKIE = "sokkerPhpSessionId";
     private static final String SKTABLES_COOKIE = "sktablesCookie";
     private static final String TEAM_ID = "sokkerTeamId";
+    private static final String USERNAME = "sokkerUsername";
+    private static final String COUNTRY_CODE = "sokkerCountryCode";
 
 
     private final SokkerApiService sokkerApiService;
@@ -44,6 +46,9 @@ public class SokkerWebController {
         }
         session.setAttribute(SESSION_COOKIE, phpSessionId);
         session.setAttribute(TEAM_ID, teamId.asInt());
+        session.setAttribute(USERNAME, request.login());
+        JsonNode countryCode = current.path("team").path("country").path("code");
+        session.setAttribute(COUNTRY_CODE, countryCode.isInt() ? countryCode.asInt() : -1);
         sktablesService.login(request.login(), request.password())
                 .ifPresent(cookie -> session.setAttribute(SKTABLES_COOKIE, cookie));
         return current;

@@ -63,6 +63,10 @@ public class SokkerApiService {
         return get("/team/" + teamId + "/player?filter[limit]=200", phpSessionId);
     }
 
+    public JsonNode countryPlayers(int teamId, String phpSessionId) {
+        return get("/player?filter%5Bteam%5D=" + teamId + "&filter%5Blimit%5D=200&filter%5Boffset%5D=0", phpSessionId);
+    }
+
     public JsonNode currentTraining(String phpSessionId) {
         return get("/training", phpSessionId);
     }

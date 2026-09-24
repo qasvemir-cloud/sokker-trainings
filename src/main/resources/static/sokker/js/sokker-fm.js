@@ -4,6 +4,9 @@ const api = {
     me: '/sokker/api/me',
     players: '/sokker/api/players',
     training: '/sokker/api/training/current',
+    ntStatus: '/sokker/api/nt/status',
+    ntPlayers: '/sokker/api/nt/players',
+    ntUpdate: '/sokker/api/nt/update',
     trainingPlayers: '/sokker/api/training/players',
     trainingFormations: '/sokker/api/training/formations',
     trainingSummary: '/sokker/api/training/summary',
@@ -61,6 +64,9 @@ const state = {
     market: null,
     matches: null,
     alumni: null,
+    ntPlayers: [],
+    ntAccess: false,
+    ntCanUpdate: false,
     playerReports: new Map(),
     formationSkills: null,
     focusedPredictorPlayerId: null,
@@ -75,6 +81,7 @@ const appScreen = document.querySelector('#app-screen');
 const loginForm = document.querySelector('#login-form');
 const loginError = document.querySelector('#login-error');
 const playersView = document.querySelector('#players-view');
+const ntView = document.querySelector('#nt-view');
 const trainingView = document.querySelector('#training-view');
 const lastTrainingView = document.querySelector('#last-training-view');
 const plannerView = document.querySelector('#planner-view');
@@ -229,6 +236,10 @@ async function showView(view) {
         document.querySelector('#page-title').textContent = 'Alumni';
         alumniView.classList.remove('hidden');
         renderAlumni();
+    } else if (view === 'nt') {
+        document.querySelector('#page-title').textContent = 'NT';
+        document.querySelector('#nt-view').classList.remove('hidden');
+        renderNT();
     } else if (view === 'matches-report') {
         document.querySelector('#page-title').textContent = 'Matches Report';
         document.querySelector('#matches-report-view').classList.remove('hidden');
@@ -276,6 +287,60 @@ function renderPlayers() {
     playersView.querySelectorAll('[data-player-id]').forEach((card) => {
         card.addEventListener('click', () => openPlayerDetail(Number(card.dataset.playerId)));
     });
+}
+
+async function renderNT() {
+    ntView.innerHTML = '';
+    let status;
+    try {
+        status = await getJson(api.ntStatus);
+    } catch (error) {
+        ntView.innerHTML = errorPanel('NT', 'Failed to check access: ' + error.message);
+        return;
+    }
+    state.ntAccess = !!status.access;
+    state.ntCanUpdate = !!status.canUpdate;
+    if (!state.ntAccess) {
+        return;
+    }
+    let payload;
+    try {
+        payload = await getJson(api.ntPlayers);
+    } catch (error) {
+        ntView.innerHTML = errorPanel('NT', error.message);
+        return;
+    }
+    state.ntPlayers = payload.players || [];
+    state.ntCanUpdate = !!payload.canUpdate;
+    const playersHtml = state.ntPlayers.map(playerCard).join('');
+    ntView.innerHTML = `
+        <div class="view-panel">
+            <div class="toolbar">
+                <h2>National Team</h2>
+                <div class="toolbar-actions">
+                    ${state.ntCanUpdate ? '<button id="nt-update" class="action-button">Update players</button>' : ''}
+                </div>
+            </div>
+            <div class="player-grid">
+                ${playersHtml || '<div class="empty-state">No players in the database yet.</div>'}
+            </div>
+        </div>
+    `;
+    const updateButton = ntView.querySelector('#nt-update');
+    if (updateButton) {
+        updateButton.addEventListener('click', async () => {
+            updateButton.disabled = true;
+            updateButton.textContent = 'Updating...';
+            try {
+                await postJson(api.ntUpdate, {});
+                await renderNT();
+            } catch (error) {
+                updateButton.disabled = false;
+                updateButton.textContent = 'Update players';
+                alert(error.message);
+            }
+        });
+    }
 }
 
 function renderTraining() {
@@ -2170,17 +2235,17 @@ async function loadReportView(type) {
             <div class="view-panel">
                 <div class="toolbar">
                     <h2>Matches Report</h2>
-                    <div class="toolbar-actions">
-                        <div class="stat-card"><div class="stat-value">${teamId}</div><div class="stat-label">Team ID</div></div>
-                        <select id="matches-report-season"></select>
+                    <div class="report-actions">
+                        <div class="team-chip"><span class="chip-label">Team ID</span><span class="chip-value">${teamId}</span></div>
+                        <select id="matches-report-season" class="season-select"></select>
                         <button id="matches-report-load" class="action-button">Load data</button>
                     </div>
                 </div>
-                <div id="matches-report-toolbar">
-                    <label>League Name <select id="matchLeagueName"><option value="">All leagues</option></select></label>
-                    <label style="margin-left:12px;">League Type <select id="matchLeagueType"><option value="">All types</option></select></label>
-                    <label style="margin-left:12px;">Arena <select id="matchArena"><option value="">All arenas</option></select></label>
-                    <label style="margin-left:12px;">Rows per page 
+                <div id="matches-report-toolbar" class="report-filters">
+                    <label class="report-filter">League Name <select id="matchLeagueName"><option value="">All leagues</option></select></label>
+                    <label class="report-filter">League Type <select id="matchLeagueType"><option value="">All types</option></select></label>
+                    <label class="report-filter">Arena <select id="matchArena"><option value="">All arenas</option></select></label>
+                    <label class="report-filter">Rows per page 
                         <select id="matches-page-size" onchange="changeMatchesPageSize(this.value)">
                             <option value="10" ${matchesPageSize === 10 ? 'selected' : ''}>10</option>
                             <option value="20" ${matchesPageSize === 20 ? 'selected' : ''}>20</option>
@@ -2197,26 +2262,26 @@ async function loadReportView(type) {
             <div class="view-panel">
                 <div class="toolbar">
                     <h2>Events Report</h2>
-                    <div class="toolbar-actions">
-                        <div class="stat-card"><div class="stat-value">${teamId}</div><div class="stat-label">Team ID</div></div>
-                        <select id="events-report-season"></select>
+                    <div class="report-actions">
+                        <div class="team-chip"><span class="chip-label">Team ID</span><span class="chip-value">${teamId}</span></div>
+                        <select id="events-report-season" class="season-select"></select>
                         <button id="events-report-load" class="action-button">Load data</button>
                     </div>
                 </div>
-                <div id="events-report-toolbar">
-                    <label>Key 
+                <div id="events-report-toolbar" class="report-filters">
+                    <label class="report-filter">Key 
                         <div class="multiselect" id="events-report-key-multiselect">
                             <button class="multiselect-toggle" id="events-report-key-toggle">All keys ▾</button>
                             <div class="multiselect-dropdown" id="events-report-key-dropdown"></div>
                         </div>
                     </label>
-                    <label style="margin-left:12px;">Date 
+                    <label class="report-filter">Date 
                         <div class="multiselect" id="events-report-date-multiselect">
                             <button class="multiselect-toggle" id="events-report-date-toggle">All dates ▾</button>
                             <div class="multiselect-dropdown" id="events-report-date-dropdown"></div>
                         </div>
                     </label>
-                    <label style="margin-left:12px;">Rows per page 
+                    <label class="report-filter">Rows per page 
                         <select id="events-report-page-size" onchange="changeEventsPageSize(this.value)">
                             <option value="10" ${reportPageSize === 10 ? 'selected' : ''}>10</option>
                             <option value="20" ${reportPageSize === 20 ? 'selected' : ''}>20</option>
@@ -2432,19 +2497,19 @@ function renderReportMatches() {
         const capacityPct = window.teamArenaSeats > 0 ? (supporters / window.teamArenaSeats * 100) : 0;
         return `
             <tr>
-                <td>${season}</td>
-                <td>${week}</td>
-                <td>${seasonWeek}</td>
-                <td>${date}</td>
-                <td>${timeVal || ''}</td>
-                <td>${opponentName || ''}</td>
-                <td>${result}</td>
-                <td>${leagueName}</td>
-                <td>${leagueType || ''}</td>
-                <td>${arenaName || ''}</td>
-                <td>${supporters}</td>
-                <td>${capacityPct > 0 ? capacityPct.toFixed(1) + '%' : ''}</td>
-                <td class="event-text">${sanitizeEventHtml(arenaText)}</td>
+                <td class="rep-col-season">${season}</td>
+                <td class="rep-col-week">${week}</td>
+                <td class="rep-col-season-week">${seasonWeek}</td>
+                <td class="rep-col-date">${date}</td>
+                <td class="rep-col-time">${timeVal || ''}</td>
+                <td class="rep-col-opponent">${opponentName || ''}</td>
+                <td class="rep-col-result">${result}</td>
+                <td class="rep-col-league">${leagueName}</td>
+                <td class="rep-col-league-type">${leagueType || ''}</td>
+                <td class="rep-col-arena">${arenaName || ''}</td>
+                <td class="rep-col-supporters">${supporters}</td>
+                <td class="rep-col-capacity">${capacityPct > 0 ? capacityPct.toFixed(1) + '%' : ''}</td>
+                <td class="rep-col-income event-text">${sanitizeEventHtml(arenaText)}</td>
             </tr>
         `;
     }).join('');
@@ -2456,17 +2521,35 @@ function renderReportMatches() {
     const fmt = n => n.toLocaleString('de-DE');
 
     const footer = filtered.length ? `
-        <tr style="font-weight:700;background:#f0f4f8;color:#111;">
-            <td colspan="10">Total</td>
-            <td>${fmt(sumSupporters)}</td>
-            <td>${avgCapacity.toFixed(1)}%</td>
-            <td>${fmt(sumIncome)} din</td>
+        <tr class="rep-footer rep-footer-total">
+            <td class="rep-col-season"></td>
+            <td class="rep-col-week"></td>
+            <td class="rep-col-season-week"></td>
+            <td class="rep-col-date"></td>
+            <td class="rep-col-time"></td>
+            <td class="rep-col-opponent rep-footer-label">Total</td>
+            <td class="rep-col-result"></td>
+            <td class="rep-col-league"></td>
+            <td class="rep-col-league-type"></td>
+            <td class="rep-col-arena"></td>
+            <td class="rep-col-supporters">${fmt(sumSupporters)}</td>
+            <td class="rep-col-capacity">${avgCapacity.toFixed(1)}%</td>
+            <td class="rep-col-income">${fmt(sumIncome)} din</td>
         </tr>
-        <tr style="font-weight:700;background:#f7f9fb;color:#111;">
-            <td colspan="10">Average</td>
-            <td>${fmt(avgSupporters)}</td>
-            <td>${avgCapacity.toFixed(1)}%</td>
-            <td>${fmt(avgIncome)} din</td>
+        <tr class="rep-footer rep-footer-avg">
+            <td class="rep-col-season"></td>
+            <td class="rep-col-week"></td>
+            <td class="rep-col-season-week"></td>
+            <td class="rep-col-date"></td>
+            <td class="rep-col-time"></td>
+            <td class="rep-col-opponent rep-footer-label">Average</td>
+            <td class="rep-col-result"></td>
+            <td class="rep-col-league"></td>
+            <td class="rep-col-league-type"></td>
+            <td class="rep-col-arena"></td>
+            <td class="rep-col-supporters">${fmt(avgSupporters)}</td>
+            <td class="rep-col-capacity">${avgCapacity.toFixed(1)}%</td>
+            <td class="rep-col-income">${fmt(avgIncome)} din</td>
         </tr>
     ` : '';
     
@@ -2474,7 +2557,21 @@ function renderReportMatches() {
         <div class="table-scroll">
             <table class="data-table">
                 <thead>
-                    <tr><th>Season</th><th>Week</th><th>Season Week</th><th>Date</th><th>Time</th><th>Opponent</th><th>Result</th><th>League</th><th>League Type</th><th>Arena</th><th>Supporters</th><th>Capacity</th><th>Arena Income</th></tr>
+                    <tr>
+                        <th class="rep-col-season">Season</th>
+                        <th class="rep-col-week">Week</th>
+                        <th class="rep-col-season-week">Season Week</th>
+                        <th class="rep-col-date">Date</th>
+                        <th class="rep-col-time">Time</th>
+                        <th class="rep-col-opponent">Opponent</th>
+                        <th class="rep-col-result">Result</th>
+                        <th class="rep-col-league">League</th>
+                        <th class="rep-col-league-type">League Type</th>
+                        <th class="rep-col-arena">Arena</th>
+                        <th class="rep-col-supporters">Supporters</th>
+                        <th class="rep-col-capacity">Capacity</th>
+                        <th class="rep-col-income">Arena Income</th>
+                    </tr>
                 </thead>
                 <tbody>${pageRows + (footer || '')}</tbody>
             </table>
@@ -2614,11 +2711,27 @@ function renderReportEvents(filtered) {
         <div class="table-scroll">
             <table class="data-table">
                 <thead>
-                    <tr><th>#</th><th>Date</th><th>Week</th><th>Type</th><th>Key</th><th>Amount</th><th>Event</th></tr>
+                    <tr>
+                        <th class="rep-col-index">#</th>
+                        <th class="rep-col-date">Date</th>
+                        <th class="rep-col-week">Week</th>
+                        <th class="rep-col-type">Type</th>
+                        <th class="rep-col-key">Key</th>
+                        <th class="rep-col-amount">Amount</th>
+                        <th class="rep-col-event">Event</th>
+                    </tr>
                 </thead>
                 <tbody>
                     ${pageItems.map((e, i) => `
-                        <tr><td>${start + i + 1}</td><td>${e.date?.value||''}</td><td>${e.week||''}</td><td>${e.type?.value||''}</td><td>${e.type?.key||''}</td><td>${fmt(parseEventAmount(e))} din</td><td>${e.text||''}</td></tr>
+                        <tr>
+                            <td class="rep-col-index">${start + i + 1}</td>
+                            <td class="rep-col-date">${e.date?.value||''}</td>
+                            <td class="rep-col-week">${e.week||''}</td>
+                            <td class="rep-col-type">${e.type?.value||''}</td>
+                            <td class="rep-col-key">${e.type?.key||''}</td>
+                            <td class="rep-col-amount">${fmt(parseEventAmount(e))} din</td>
+                            <td class="rep-col-event event-text">${e.text||''}</td>
+                        </tr>
                     `).join('')}
                 </tbody>
             </table>

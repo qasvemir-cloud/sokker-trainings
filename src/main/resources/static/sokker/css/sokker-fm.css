@@ -400,6 +400,184 @@ input {
     background: #46515c;
 }
 
+/* Report views (Matches / Events) */
+.report-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.team-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 74px;
+    padding: 6px 12px;
+    background: rgba(40, 40, 40, 0.9);
+    border: 1px solid #444;
+    border-radius: 8px;
+}
+
+.chip-label {
+    color: #aaa;
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1;
+}
+
+.chip-value {
+    color: #fff;
+    font-weight: 800;
+    font-size: 1.05rem;
+    line-height: 1.2;
+}
+
+.season-select {
+    padding: 8px 10px;
+    background: #222;
+    color: #f5f7f8;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.report-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.report-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    color: #aeb8c2;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.report-filter > select {
+    min-width: 150px;
+    padding: 6px 8px;
+    background: #222;
+    color: #f5f7f8;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    text-transform: none;
+}
+
+.report-filter > .multiselect {
+    width: 100%;
+    min-width: 160px;
+}
+
+.report-filter > .multiselect > .multiselect-toggle {
+    width: 100%;
+    text-transform: none;
+}
+
+/* Report table footer rows */
+.rep-footer td {
+    border-top: 2px solid rgba(0, 0, 0, 0.06);
+    font-weight: 700;
+}
+
+.rep-footer-total td {
+    background: #f0f4f8;
+    color: #111;
+}
+
+.rep-footer-avg td {
+    background: #f7f9fb;
+    color: #111;
+}
+
+.rep-footer-label {
+    color: #2a8c4a;
+    letter-spacing: 0.05em;
+}
+
+/* Hide report table columns on small screens */
+@media (orientation: portrait) and (max-width: 600px) {
+    /* Matches: hide season, week, season week, league, league type */
+    .rep-col-season,
+    .rep-col-week,
+    .rep-col-season-week,
+    .rep-col-league,
+    .rep-col-league-type {
+        display: none !important;
+    }
+
+    /* Events: hide week, type, key */
+    .rep-col-week,
+    .rep-col-type,
+    .rep-col-key {
+        display: none !important;
+    }
+}
+
+@media (orientation: landscape) and (max-width: 1000px) {
+    /* Matches: hide season, week */
+    .rep-col-season,
+    .rep-col-week {
+        display: none !important;
+    }
+}
+
+@media (max-width: 700px) {
+    .report-filters {
+        gap: 8px 10px;
+        padding: 10px;
+    }
+
+    .report-filter {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .report-filter > select {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .report-filter > .multiselect {
+        min-width: 0;
+    }
+
+    .multiselect-dropdown {
+        min-width: 0;
+        max-width: calc(100vw - 70px);
+    }
+}
+
+@media (max-width: 560px) {
+    .report-actions {
+        width: 100%;
+    }
+
+    .team-chip {
+        flex: 1 1 45%;
+    }
+
+    .season-select {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .report-actions .action-button {
+        white-space: normal;
+    }
+}
+
 .stats {
     display: flex;
     gap: 12px;
