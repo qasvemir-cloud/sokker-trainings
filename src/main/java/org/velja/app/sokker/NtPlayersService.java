@@ -40,10 +40,6 @@ public class NtPlayersService {
         SKILL_COLUMNS.put("teamwork", "teamwork");
     }
 
-    private static final List<String> PUBLIC_SKILLS = List.of(
-            "form", "tacticalDiscipline", "experience", "teamwork"
-    );
-
     private static final String TABLE_SQL = """
             CREATE TABLE IF NOT EXISTS %s (
                 player_id            BIGINT PRIMARY KEY,
@@ -72,6 +68,16 @@ public class NtPlayersService {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
 
+    private static final String UPDATE_SQL = """
+            UPDATE %s SET name=?, age=?, form=COALESCE(?, form), stamina=COALESCE(?, stamina),
+                pace=COALESCE(?, pace), keeper=COALESCE(?, keeper), defending=COALESCE(?, defending),
+                technique=COALESCE(?, technique), playmaking=COALESCE(?, playmaking),
+                passing=COALESCE(?, passing), striker=COALESCE(?, striker),
+                tactical_discipline=COALESCE(?, tactical_discipline),
+                experience=COALESCE(?, experience), teamwork=COALESCE(?, teamwork), updated_at=?
+                WHERE player_id=?
+            """;
+
     private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper objectMapper;
 
@@ -80,13 +86,12 @@ public class NtPlayersService {
         this.objectMapper = objectMapper;
     }
 
-    public ArrayNode load(String table, boolean showAllSkills) {
+    public ArrayNode load(String table) {
         ensureTable(table);
         String sql = "SELECT player_id, name, age, form, stamina, pace, keeper, defending, "
                 + "technique, playmaking, passing, striker, tactical_discipline, "
                 + "experience, teamwork FROM " + table + " ORDER BY name";
-        List<ObjectNode> rows = jdbcTemplate.query(sql,
-                (rs, rowNum) -> toPlayer(rs, showAllSkills));
+        List<ObjectNode> rows = jdbcTemplate.query(sql, (rs, rowNum) -> toPlayer(rs));
         ArrayNode players = objectMapper.createArrayNode();
         rows.forEach(players::add);
         return players;
@@ -94,19 +99,37 @@ public class NtPlayersService {
 
     public int replaceAll(String table, JsonNode players) {
         ensureTable(table);
-        List<Object[]> batch = new ArrayList<>();
+        List<Long> ids = new ArrayList<>();
+        int updated = 0;
         for (JsonNode player : players) {
             Object[] row = toRow(player);
-            if (row != null) {
-                batch.add(row);
+            if (row == null) {
+                continue;
             }
+            long id = (Long) row[0];
+            ids.add(id);
+            Object[] updateArgs = new Object[row.length - 1 + 1];
+            System.arraycopy(row, 1, updateArgs, 0, row.length - 1);
+            updateArgs[row.length - 1] = id;
+            if (jdbcTemplate.update(UPDATE_SQL.formatted(table), updateArgs) == 0) {
+                jdbcTemplate.update(INSERT_SQL.formatted(table), row);
+            }
+            updated++;
         }
-        jdbcTemplate.update("DELETE FROM " + table);
-        if (!batch.isEmpty()) {
-            jdbcTemplate.batchUpdate(INSERT_SQL.formatted(table), batch);
+        removeMissing(table, ids);
+        log.info("[NT] Merged {} players in {} table.", updated, table);
+        return updated;
+    }
+
+    private void removeMissing(String table, List<Long> ids) {
+        if (ids.isEmpty()) {
+            jdbcTemplate.update("DELETE FROM " + table);
+            return;
         }
-        log.info("[NT] Updated {} players in {} table.", batch.size(), table);
-        return batch.size();
+        String placeholders = ids.stream()
+                .map(ignored -> "?")
+                .collect(java.util.stream.Collectors.joining(","));
+        jdbcTemplate.update("DELETE FROM " + table + " WHERE player_id NOT IN (" + placeholders + ")", ids.toArray());
     }
 
     private Object[] toRow(JsonNode player) {
@@ -150,7 +173,7 @@ public class NtPlayersService {
         return node != null && node.isNumber() ? node.asInt() : null;
     }
 
-    private ObjectNode toPlayer(ResultSet rs, boolean showAllSkills) throws SQLException {
+    private ObjectNode toPlayer(ResultSet rs) throws SQLException {
         ObjectNode player = objectMapper.createObjectNode();
         player.put("id", rs.getLong("player_id"));
         ObjectNode info = player.putObject("info");
@@ -160,9 +183,6 @@ public class NtPlayersService {
         characteristics.put("age", rs.getObject("age") != null ? rs.getInt("age") : -1);
         ObjectNode skills = info.putObject("skills");
         for (Map.Entry<String, String> entry : SKILL_COLUMNS.entrySet()) {
-            if (!showAllSkills && !PUBLIC_SKILLS.contains(entry.getKey())) {
-                continue;
-            }
             Integer value = rs.getObject(entry.getValue()) != null ? rs.getInt(entry.getValue()) : null;
             if (value != null) {
                 skills.put(entry.getKey(), value);

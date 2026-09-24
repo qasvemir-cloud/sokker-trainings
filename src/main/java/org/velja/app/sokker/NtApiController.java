@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,7 +20,6 @@ import java.util.Map;
 public class NtApiController {
 
     private static final String SESSION_COOKIE = "sokkerPhpSessionId";
-    private static final String USERNAME = "sokkerUsername";
     private static final String COUNTRY_CODE = "sokkerCountryCode";
 
     private static final String NT_TABLE = "nt_players";
@@ -31,14 +29,8 @@ public class NtApiController {
     private final NtPlayersService ntPlayersService;
     private final ObjectMapper objectMapper;
 
-    @Value("${sokker.nt-manager-usernames:dzungla,veljizao}")
-    private List<String> ntManagers;
-
     @Value("${sokker.nt-team-id:39}")
     private int ntTeamId;
-
-    @Value("${sokker.nt21-manager-usernames:veljizao,vacke}")
-    private List<String> nt21Managers;
 
     @Value("${sokker.nt21-team-id:439}")
     private int nt21TeamId;
@@ -54,45 +46,43 @@ public class NtApiController {
 
     @GetMapping("/status")
     public JsonNode ntStatus(HttpSession session) {
-        return status(session, ntManagers);
+        return status(session);
     }
 
     @GetMapping("/players")
     public JsonNode ntPlayers(HttpSession session) {
-        return players(session, NT_TABLE, ntManagers);
+        return players(session, NT_TABLE);
     }
 
     @PostMapping("/update")
     public JsonNode ntUpdate(HttpSession session) {
-        return update(session, ntTeamId, NT_TABLE, ntManagers);
+        return update(session, ntTeamId, NT_TABLE);
     }
 
     @GetMapping("/nt21/status")
     public JsonNode nt21Status(HttpSession session) {
-        return status(session, nt21Managers);
+        return status(session);
     }
 
     @GetMapping("/nt21/players")
     public JsonNode nt21Players(HttpSession session) {
-        return players(session, NT21_TABLE, nt21Managers);
+        return players(session, NT21_TABLE);
     }
 
     @PostMapping("/nt21/update")
     public JsonNode nt21Update(HttpSession session) {
-        return update(session, nt21TeamId, NT21_TABLE, nt21Managers);
+        return update(session, nt21TeamId, NT21_TABLE);
     }
 
-    private JsonNode status(HttpSession session, List<String> managers) {
-        String username = sessionUsername(session);
+    private JsonNode status(HttpSession session) {
         ObjectNode payload = objectMapper.createObjectNode();
-        payload.put("username", username == null ? "" : username);
         payload.put("countryCode", sessionCountryCode(session));
         payload.put("access", hasAccess(session));
-        payload.put("canUpdate", isManager(session, managers));
+        payload.put("canUpdate", hasAccess(session));
         return payload;
     }
 
-    private JsonNode players(HttpSession session, String table, List<String> managers) {
+    private JsonNode players(HttpSession session, String table) {
         ObjectNode payload = objectMapper.createObjectNode();
         if (!hasAccess(session)) {
             payload.put("access", false);
@@ -100,20 +90,15 @@ public class NtApiController {
             payload.set("players", objectMapper.createArrayNode());
             return payload;
         }
-        boolean showAllSkills = isManager(session, managers);
-        ArrayNode players = ntPlayersService.load(table, showAllSkills);
         payload.put("access", true);
-        payload.put("canUpdate", showAllSkills);
-        payload.set("players", players);
+        payload.put("canUpdate", true);
+        payload.set("players", ntPlayersService.load(table));
         return payload;
     }
 
-    private JsonNode update(HttpSession session, int teamId, String table, List<String> managers) {
+    private JsonNode update(HttpSession session, int teamId, String table) {
         if (!hasAccess(session)) {
             throw new ForbiddenRequest("NT access not allowed for this team country.");
-        }
-        if (!isManager(session, managers)) {
-            throw new ForbiddenRequest("Only the NT manager may update players.");
         }
         JsonNode payload = sokkerApiService.countryPlayers(teamId, sessionCookie(session));
         int count = ntPlayersService.replaceAll(table, payload.path("players"));
@@ -121,7 +106,7 @@ public class NtApiController {
         result.put("updated", count);
         result.put("access", true);
         result.put("canUpdate", true);
-        result.set("players", ntPlayersService.load(table, true));
+        result.set("players", ntPlayersService.load(table));
         return result;
     }
 
@@ -132,19 +117,6 @@ public class NtApiController {
 
     private boolean hasAccess(HttpSession session) {
         return sessionCountryCode(session) == ntCountryCode;
-    }
-
-    private boolean isManager(HttpSession session, List<String> managers) {
-        String username = sessionUsername(session);
-        if (username == null) {
-            return false;
-        }
-        return managers.stream().anyMatch(name -> name != null && name.equalsIgnoreCase(username.trim()));
-    }
-
-    private String sessionUsername(HttpSession session) {
-        Object value = session.getAttribute(USERNAME);
-        return value instanceof String s ? s : null;
     }
 
     private int sessionCountryCode(HttpSession session) {
