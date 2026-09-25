@@ -131,6 +131,28 @@ public class SokkerApiService {
         return get("/team/" + teamId + "/alumni", phpSessionId);
     }
 
+    public JsonNode countryTeams(int countryCode, String phpSessionId) {
+        return get("/teams?filter%5Bcountry%5D=" + countryCode + "&filter%5Blimit%5D=200&filter%5Boffset%5D=0",
+                phpSessionId);
+    }
+
+    public JsonNode countryTeamsPage(int countryCode, int limit, int offset, String phpSessionId) {
+        return get("/teams?filter%5Bcountry%5D=" + countryCode
+                + "&filter%5Blimit%5D=" + limit + "&filter%5Boffset%5D=" + offset, phpSessionId);
+    }
+
+    public JsonNode allTeamsPage(int limit, int offset, String phpSessionId) {
+        return get("/teams?filter%5Blimit%5D=" + limit + "&filter%5Boffset%5D=" + offset, phpSessionId);
+    }
+
+    public JsonNode teamPlayers(int teamId, String phpSessionId) {
+        return get("/team/" + teamId + "/player?filter%5Blimit%5D=200", phpSessionId);
+    }
+
+    public JsonNode playerById(long playerId, String phpSessionId) {
+        return get("/player/" + playerId, phpSessionId);
+    }
+
     JsonNode get(String path, String phpSessionId) {
         HttpRequest request = HttpRequest.newBuilder(URI.create(BASE_URL + path))
                 .timeout(Duration.ofSeconds(25))

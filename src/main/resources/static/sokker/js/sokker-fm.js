@@ -10,6 +10,12 @@ const api = {
     ntU21Status: '/sokker/api/nt/nt21/status',
     ntU21Players: '/sokker/api/nt/nt21/players',
     ntU21Update: '/sokker/api/nt/nt21/update',
+    scoutingStatus: '/sokker/api/scouting/status',
+    scoutingPlayers: '/sokker/api/scouting/players',
+    scoutingScanSerbian: '/sokker/api/scouting/scan/serbian-clubs',
+    scoutingScanAll: '/sokker/api/scouting/scan/all-clubs',
+    scoutingUpdateSkills: '/sokker/api/scouting/update-skills',
+    scoutingJob: '/sokker/api/scouting/job',
     trainingPlayers: '/sokker/api/training/players',
     trainingFormations: '/sokker/api/training/formations',
     trainingSummary: '/sokker/api/training/summary',
@@ -73,6 +79,14 @@ const state = {
     ntU21Players: [],
     ntU21Access: false,
     ntU21CanUpdate: false,
+    scoutingPlayers: [],
+    scoutingAccess: false,
+    scoutingCanScan: false,
+    scoutingSort: 'wage',
+    scoutingSortDir: 'desc',
+    scoutingAgeFilter: 'all',
+    scoutingJob: null,
+    scoutingJobTimer: null,
     playerReports: new Map(),
     formationSkills: null,
     focusedPredictorPlayerId: null,
@@ -89,6 +103,7 @@ const loginError = document.querySelector('#login-error');
 const playersView = document.querySelector('#players-view');
 const ntView = document.querySelector('#nt-view');
 const ntU21View = document.querySelector('#nt-u21-view');
+const scoutingView = document.querySelector('#u21-scouting-view');
 const trainingView = document.querySelector('#training-view');
 const lastTrainingView = document.querySelector('#last-training-view');
 const plannerView = document.querySelector('#planner-view');
@@ -145,6 +160,7 @@ async function bootstrap() {
     appScreen.classList.remove('hidden');
     await loadData();
     renderShell();
+    await applyScoutingAccess();
     showView('matches-report');
 }
 
@@ -251,6 +267,10 @@ async function showView(view) {
         document.querySelector('#page-title').textContent = 'NT-u21';
         document.querySelector('#nt-u21-view').classList.remove('hidden');
         renderNTU21();
+    } else if (view === 'u21-scouting') {
+        document.querySelector('#page-title').textContent = 'U21 Scouting';
+        scoutingView.classList.remove('hidden');
+        renderScouting();
     } else if (view === 'matches-report') {
         document.querySelector('#page-title').textContent = 'Matches Report';
         document.querySelector('#matches-report-view').classList.remove('hidden');
@@ -332,6 +352,313 @@ function renderNTU21() {
 
 function ntTabConfig(view, title, statusUrl, playersUrl, updateUrl, onState) {
     return { view, title, statusUrl, playersUrl, updateUrl, onState };
+}
+
+async function applyScoutingAccess() {
+    let status = null;
+    try {
+        status = await getJson(api.scoutingStatus);
+    } catch (error) {
+        status = null;
+    }
+    const access = !!(status && status.access);
+    state.scoutingAccess = access;
+    state.scoutingCanScan = !!(status && status.canScan);
+    document.querySelectorAll('.scouting-only').forEach((element) => {
+        element.classList.toggle('hidden', !access);
+    });
+    return access;
+}
+
+const scoutingSkillColumns = [
+    ['form', 'Form'],
+    ['stamina', 'Sta'],
+    ['pace', 'Pace'],
+    ['keeper', 'GK'],
+    ['defending', 'Def'],
+    ['technique', 'Tech'],
+    ['playmaking', 'PM'],
+    ['passing', 'Pass'],
+    ['striker', 'Str'],
+    ['tacticalDiscipline', 'Tact'],
+    ['experience', 'Exp'],
+    ['teamwork', 'TW']
+];
+
+function scoutingRows() {
+    const rows = state.scoutingPlayers.map((player) => {
+        const info = player.info || {};
+        const skills = info.skills || {};
+        return {
+            id: player.id,
+            name: info.name?.full || '-',
+            age: info.characteristics?.age ?? -1,
+            club: info.team?.name || '-',
+            clubCode: info.team?.country?.code ?? -1,
+            wage: info.value?.wage || 0,
+            skills
+        };
+    });
+    if (state.scoutingAgeFilter !== 'all') {
+        const wanted = Number(state.scoutingAgeFilter);
+        return rows.filter((row) => row.age === wanted);
+    }
+    return rows;
+}
+
+function scoutingValue(row, key) {
+    if (key === 'name') return row.name;
+    if (key === 'age') return row.age;
+    if (key === 'wage') return row.wage;
+    if (key === 'club') return row.club;
+    if (row.skills[key] === undefined || row.skills[key] === null) return -1;
+    return row.skills[key];
+}
+
+function sortedScoutingRows() {
+    const key = state.scoutingSort;
+    const direction = state.scoutingSortDir === 'asc' ? 1 : -1;
+    return scoutingRows().sort((a, b) => {
+        const left = scoutingValue(a, key);
+        const right = scoutingValue(b, key);
+        if (typeof left === 'string' || typeof right === 'string') {
+            return String(left).localeCompare(String(right)) * direction;
+        }
+        return (left - right) * direction;
+    });
+}
+
+function scoutingHeader(key, label, extraClass = '') {
+    const active = state.scoutingSort === key;
+    const arrow = active ? (state.scoutingSortDir === 'asc' ? ' ▲' : ' ▼') : '';
+    return `<th class="scouting-sortable ${extraClass} ${active ? 'active' : ''}" data-sort-key="${key}">${label}${arrow}</th>`;
+}
+
+function renderScouting() {
+    scoutingView.innerHTML = '';
+    (async () => {
+        const access = await applyScoutingAccess();
+        if (!access) {
+            scoutingView.innerHTML = errorPanel('U21 Scouting', 'You do not have access to U21 scouting.');
+            return;
+        }
+        let payload;
+        try {
+            payload = await getJson(api.scoutingPlayers);
+        } catch (error) {
+            scoutingView.innerHTML = errorPanel('U21 Scouting', error.message);
+            return;
+        }
+        state.scoutingPlayers = payload.players || [];
+        const canScan = !!payload.canScan;
+        const ages = [...new Set(state.scoutingPlayers.map((player) => player.info?.characteristics?.age))]
+            .filter((age) => age !== undefined && age >= 0)
+            .sort((a, b) => a - b);
+        const rows = sortedScoutingRows();
+        const domestic = state.scoutingPlayers.filter((player) => player.info?.team?.country?.code === 39).length;
+
+        scoutingView.innerHTML = `
+            <div class="view-panel">
+                <div class="toolbar">
+                    <h2>U21 Scouting <span class="tab-count">${state.scoutingPlayers.length}</span></h2>
+                    <div class="toolbar-actions">
+                        ${canScan ? '<button class="action-button" id="scout-scan-serbian">Scan Serbian clubs</button>' : ''}
+                        ${canScan ? '<button class="action-button" id="scout-scan-all">Scan all clubs</button>' : ''}
+                        <button class="action-button" id="scout-update-skills">Update skills</button>
+                    </div>
+                </div>
+                <div class="scouting-meta">
+                    <span>Total: <b>${state.scoutingPlayers.length}</b></span>
+                    <span>Domaci: <b>${domestic}</b></span>
+                    <span>Inostranstvo: <b>${state.scoutingPlayers.length - domestic}</b></span>
+                    <label class="scouting-age-filter">
+                        Age
+                        <select id="scout-age-filter">
+                            <option value="all" ${state.scoutingAgeFilter === 'all' ? 'selected' : ''}>all</option>
+                            ${ages.map((age) => `<option value="${age}" ${String(state.scoutingAgeFilter) === String(age) ? 'selected' : ''}>${age}</option>`).join('')}
+                        </select>
+                    </label>
+                </div>
+                <div id="scout-job" class="scouting-job hidden"></div>
+                <div class="table-scroll">
+                    <table class="data-table scouting-table">
+                        <thead>
+                        <tr>
+                            ${scoutingHeader('name', 'Player')}
+                            ${scoutingHeader('age', 'Age')}
+                            ${scoutingHeader('club', 'Klub')}
+                            <th>Drzava</th>
+                            ${scoutingHeader('wage', 'Wage')}
+                            ${scoutingSkillColumns.map(([key, label]) => scoutingHeader(key, label)).join('')}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        ${rows.length ? rows.map(scoutingRow).join('') : '<tr><td colspan="17" class="empty-state">No scouted players yet. Run a scan.</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+
+        scoutingView.querySelectorAll('.scouting-sortable').forEach((header) => {
+            header.addEventListener('click', () => {
+                const key = header.dataset.sortKey;
+                if (state.scoutingSort === key) {
+                    state.scoutingSortDir = state.scoutingSortDir === 'asc' ? 'desc' : 'asc';
+                } else {
+                    state.scoutingSort = key;
+                    state.scoutingSortDir = key === 'name' || key === 'club' ? 'asc' : 'desc';
+                }
+                renderScouting();
+            });
+        });
+
+        const ageFilter = scoutingView.querySelector('#scout-age-filter');
+        if (ageFilter) {
+            ageFilter.addEventListener('change', () => {
+                state.scoutingAgeFilter = ageFilter.value;
+                renderScouting();
+            });
+        }
+
+        const serbianButton = scoutingView.querySelector('#scout-scan-serbian');
+        if (serbianButton) {
+            serbianButton.addEventListener('click', () => startScoutingJob(api.scoutingScanSerbian, serbianButton));
+        }
+        const allButton = scoutingView.querySelector('#scout-scan-all');
+        if (allButton) {
+            allButton.addEventListener('click', () => {
+                if (allButton.dataset.confirm === 'yes') {
+                    startScoutingJob(api.scoutingScanAll, allButton);
+                } else {
+                    allButton.dataset.confirm = 'yes';
+                    allButton.textContent = 'Click again to scan ALL clubs (~1-2h)';
+                    setTimeout(() => {
+                        if (allButton.dataset.confirm === 'yes') {
+                            allButton.dataset.confirm = '';
+                            allButton.textContent = 'Scan all clubs';
+                        }
+                    }, 6000);
+                }
+            });
+        }
+        const updateButton = scoutingView.querySelector('#scout-update-skills');
+        if (updateButton) {
+            updateButton.addEventListener('click', () => startScoutingJob(api.scoutingUpdateSkills, updateButton));
+        }
+        renderScoutingJob();
+    })();
+}
+
+function scoutingRow(row) {
+    const skillCells = scoutingSkillColumns.map(([key]) => {
+        const value = row.skills[key];
+        return `<td class="${value === undefined || value === null ? 'scouting-empty' : ''}">${value === undefined || value === null ? '-' : value}</td>`;
+    }).join('');
+    const foreign = row.clubCode !== 39;
+    return `<tr>
+        <td><a href="https://sokker.org/player/PID/${row.id}" target="_blank" class="link-underline">${escapeHtml(row.name)}</a></td>
+        <td>${row.age}</td>
+        <td>${escapeHtml(row.club)}</td>
+        <td>${foreign ? '<span class="scouting-badge abroad">inostranstvo</span>' : '<span class="scouting-badge home">Srbija</span>'}</td>
+        <td>${number(row.wage)}</td>
+        ${skillCells}
+    </tr>`;
+}
+
+async function startScoutingJob(url, button) {
+    if (state.scoutingJobTimer) {
+        alert('A scouting job is already running.');
+        return;
+    }
+    if (button) {
+        button.disabled = true;
+    }
+    try {
+        const payload = await postJson(url, {});
+        state.scoutingJob = payload.jobId;
+        renderScoutingJob();
+        pollScoutingJob();
+    } catch (error) {
+        if (button) {
+            button.disabled = false;
+        }
+        alert(error.message);
+    }
+}
+
+function renderScoutingJob() {
+    const panel = scoutingView?.querySelector('#scout-job');
+    if (!panel) {
+        return;
+    }
+    const job = state.scoutingJob;
+    if (!job) {
+        panel.classList.add('hidden');
+        panel.innerHTML = '';
+        return;
+    }
+    panel.classList.remove('hidden');
+    panel.innerHTML = `
+        <div class="scouting-job-row">
+            <span id="scout-job-text">Job ${job.jobId} running...</span>
+            <button class="action-button secondary" id="scout-job-refresh">Refresh</button>
+        </div>
+    `;
+    const refresh = panel.querySelector('#scout-job-refresh');
+    if (refresh) {
+        refresh.addEventListener('click', pollScoutingJob);
+    }
+}
+
+function pollScoutingJob() {
+    if (!state.scoutingJob) {
+        return;
+    }
+    clearTimeout(state.scoutingJobTimer);
+    state.scoutingJobTimer = setTimeout(async () => {
+        let payload;
+        try {
+            payload = await getJson(`${api.scoutingJob}?jobId=${encodeURIComponent(state.scoutingJob)}`);
+        } catch (error) {
+            state.scoutingJobTimer = null;
+            return;
+        }
+        const panel = scoutingView?.querySelector('#scout-job');
+        if (panel) {
+            const parts = [`Job ${payload.jobId} (${payload.type})`];
+            if (payload.running) {
+                parts.push(payload.detail || 'working...');
+            } else {
+                parts.push(payload.cancelled ? 'cancelled' : 'finished');
+                parts.push(`teams ${payload.teams}`);
+                parts.push(`players ${payload.players}`);
+                if (payload.failures) {
+                    parts.push(`failures ${payload.failures}`);
+                }
+                if (payload.skippedTeams) {
+                    parts.push(`skipped ${payload.skippedTeams}`);
+                }
+                if (payload.skippedPlayers) {
+                    parts.push(`removed ${payload.skippedPlayers}`);
+                }
+                if (payload.durationMs) {
+                    parts.push(`${Math.round(payload.durationMs / 1000)}s`);
+                }
+                if (payload.error) {
+                    parts.push(`error: ${payload.error}`);
+                }
+            }
+            panel.innerHTML = `<div class="scouting-job-row"><span>${escapeHtml(parts.join(' | '))}</span></div>`;
+        }
+        if (payload.running) {
+            pollScoutingJob();
+        } else {
+            state.scoutingJob = null;
+            state.scoutingJobTimer = null;
+            renderScouting();
+        }
+    }, 1500);
 }
 
 async function renderNtTab(cfg) {
