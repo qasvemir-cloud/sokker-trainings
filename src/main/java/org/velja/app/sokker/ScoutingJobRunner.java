@@ -10,6 +10,7 @@ import jakarta.annotation.PreDestroy;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -27,9 +28,7 @@ public class ScoutingJobRunner {
     private static final Logger log = LoggerFactory.getLogger(ScoutingJobRunner.class);
 
     private static final int TEAM_PAGE_LIMIT = 200;
-    private static final int STALE_TEAM_DAYS = 30;
-    private static final int RESUME_BATCH = 5000;
-    private static final int ALL_CLUB_ESTIMATE = 151326;
+    private static final int SKIP_RECENT_HOURS = 2;
     private static final int UPSERT_BATCH = 50;
 
     private final SokkerApiService sokkerApiService;
@@ -138,29 +137,68 @@ public class ScoutingJobRunner {
     }
 
     private void scanAllClubs(JobState state, String phpSessionId) {
-        List<Long> recentTeams = scoutingPlayersService.staleTeamIds(STALE_TEAM_DAYS, RESUME_BATCH);
-        state.totalTeams = ALL_CLUB_ESTIMATE;
-        state.total = ALL_CLUB_ESTIMATE;
-        List<JsonNode> batch = new ArrayList<>();
-        for (int offset = 0; offset < ALL_CLUB_ESTIMATE; offset += TEAM_PAGE_LIMIT) {
+        List<Integer> codes = countryCodes(phpSessionId);
+        Map<Integer, Integer> totals = new LinkedHashMap<>();
+        int total = 0;
+        for (Integer code : codes) {
             if (state.cancelled.get()) {
                 break;
             }
-            JsonNode page = sokkerApiService.allTeamsPage(TEAM_PAGE_LIMIT, offset, phpSessionId);
-            JsonNode items = page.path("items");
-            if (!items.isArray() || items.isEmpty()) {
+            int count = sokkerApiService.countryTeamsPage(code, 1, 0, phpSessionId).path("total").asInt(0);
+            totals.put(code, count);
+            total += count;
+        }
+        state.total = total;
+        state.totalTeams = total;
+        state.detail = "teams 0/" + total;
+        log.info("[Scouting] scanning {} clubs across {} countries", total, codes.size());
+
+        List<Long> skipTeamIds = scoutingPlayersService.recentlyScannedIds(SKIP_RECENT_HOURS, 250000);
+        log.info("[Scouting] skipping {} clubs scanned in the last {}h", skipTeamIds.size(), SKIP_RECENT_HOURS);
+
+        List<JsonNode> batch = new ArrayList<>();
+        for (Map.Entry<Integer, Integer> entry : totals.entrySet()) {
+            if (state.cancelled.get()) {
                 break;
             }
-            items.forEach(batch::add);
-            if (batch.size() >= 1000) {
-                scanTeamBatch(state, phpSessionId, batch, recentTeams);
-                batch.clear();
+            int countryTotal = entry.getValue();
+            for (int offset = 0; offset < countryTotal; offset += TEAM_PAGE_LIMIT) {
+                if (state.cancelled.get()) {
+                    break;
+                }
+                JsonNode page = sokkerApiService.countryTeamsPage(entry.getKey(), TEAM_PAGE_LIMIT, offset,
+                        phpSessionId);
+                JsonNode items = page.path("items");
+                if (!items.isArray() || items.isEmpty()) {
+                    break;
+                }
+                items.forEach(batch::add);
+                if (batch.size() >= 1000) {
+                    scanTeamBatch(state, phpSessionId, batch, skipTeamIds);
+                    batch.clear();
+                }
             }
         }
         if (!batch.isEmpty() && !state.cancelled.get()) {
-            scanTeamBatch(state, phpSessionId, batch, recentTeams);
+            scanTeamBatch(state, phpSessionId, batch, skipTeamIds);
         }
         finishScan(state);
+    }
+
+    private List<Integer> countryCodes(String phpSessionId) {
+        JsonNode response = sokkerApiService.countryCodes(phpSessionId);
+        JsonNode list = response.path("countries");
+        if (!list.isArray()) {
+            list = response.path("items");
+        }
+        List<Integer> codes = new ArrayList<>();
+        for (JsonNode country : list) {
+            if (country.path("code").isNumber()) {
+                codes.add(country.path("code").asInt());
+            }
+        }
+        codes.sort(Integer::compareTo);
+        return codes;
     }
 
     private void finishScan(JobState state) {

@@ -178,11 +178,11 @@ public class ScoutingPlayersService {
         }
     }
 
-    public List<Long> staleTeamIds(int maxAge, int batchSize) {
+    public List<Long> recentlyScannedIds(int hours, int limit) {
         ensureTables();
         return jdbcTemplate.queryForList(
-                "SELECT team_id FROM scouting_team_scan WHERE scanned_at < ? ORDER BY scanned_at LIMIT ?",
-                Long.class, Timestamp.from(Instant.now().minusSeconds(maxAge * 86400L)), batchSize);
+                "SELECT team_id FROM scouting_team_scan WHERE scanned_at > ? ORDER BY scanned_at LIMIT ?",
+                Long.class, Timestamp.from(Instant.now().minusSeconds(hours * 3600L)), limit);
     }
 
     public int scannedTeamCount() {

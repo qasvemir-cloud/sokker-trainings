@@ -145,6 +145,10 @@ public class SokkerApiService {
         return get("/teams?filter%5Blimit%5D=" + limit + "&filter%5Boffset%5D=" + offset, phpSessionId);
     }
 
+    public JsonNode countryCodes(String phpSessionId) {
+        return get("/pub/country", phpSessionId);
+    }
+
     public JsonNode teamPlayers(int teamId, String phpSessionId) {
         return get("/team/" + teamId + "/player?filter%5Blimit%5D=200", phpSessionId);
     }
